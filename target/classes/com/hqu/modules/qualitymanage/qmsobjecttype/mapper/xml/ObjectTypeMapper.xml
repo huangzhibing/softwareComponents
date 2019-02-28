@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.qmsobjecttype.mapper.ObjectTypeMapper">
+    
+	<sql id="objectTypeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.objt_code AS "objtcode",
+		a.objt_name AS "objtname",
+		a.objt_des AS "objtdes"
+	</sql>
+	
+	<sql id="objectTypeJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="ObjectType" >
+		SELECT 
+			<include refid="objectTypeColumns"/>
+		FROM qms_objecttype a
+		<include refid="objectTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ObjectType" >
+		SELECT 
+			<include refid="objectTypeColumns"/>
+		FROM qms_objecttype a
+		<include refid="objectTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="objtcode != null and objtcode != ''">
+				AND a.objt_code LIKE
+					<if test="dbName == 'oracle'">'%'||#{objtcode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{objtcode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{objtcode},'%')</if>
+			</if>
+			<if test="objtname != null and objtname != ''">
+				AND a.objt_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{objtname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{objtname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{objtname},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ObjectType" >
+		SELECT 
+			<include refid="objectTypeColumns"/>
+		FROM qms_objecttype a
+		<include refid="objectTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_objecttype(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			objt_code,
+			objt_name,
+			objt_des
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{objtcode},
+			#{objtname},
+			#{objtdes}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_objecttype SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			objt_code = #{objtcode},
+			objt_name = #{objtname},
+			objt_des = #{objtdes}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_objecttype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_objecttype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ObjectType" statementType="STATEMENT">
+		select * FROM qms_objecttype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

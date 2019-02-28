@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.employee.mapper.EmployeeWareHouseMapper">
+    
+	<sql id="employeeWareHouseColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.emp_id AS "emp.id",
+		a.ware_id AS "wareHouse.id",
+		a.bin_id AS "bin.id",
+		a.loc_id AS "location.id",
+				
+				
+				
+				
+				
+				
+				
+		emp.emp_name AS "emp.empName",
+		
+				
+		wareHouse.ware_name AS "wareHouse.wareName",
+		wareHouse.ware_name AS "wareName",
+		wareHouse.ware_id AS "wareID",
+				
+		bin.bin_desc AS "bin.binName",
+				
+		location.loc_desc AS "location.locName",
+		user.name AS "user.name",
+		a.emp_id AS "user.no",
+		wareHouse.ware_id AS "wareHouse.wareID"
+	</sql>
+	
+	<sql id="employeeWareHouseJoins">
+		
+		LEFT JOIN inv_employee emp ON emp.emp_id = a.emp_id
+		LEFT JOIN inv_warehouse wareHouse ON wareHouse.ware_id = a.ware_id
+		LEFT JOIN inv_bin bin ON bin.bin_id = a.bin_id
+		LEFT JOIN inv_location location ON location.loc_id = a.loc_id
+		LEFT JOIN sys_user user ON user.no = a.emp_id
+	</sql>
+	
+    
+	<select id="get" resultType="EmployeeWareHouse" >
+		SELECT 
+			<include refid="employeeWareHouseColumns"/>
+		FROM inv_employee_warehouse a
+		<include refid="employeeWareHouseJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="getCount" resultType="Integer">
+		SELECT count(*) from inv_employee_warehouse WHERE emp_id = #{empId}
+	</select>
+
+	<select id="getByEmployee" resultType="EmployeeWareHouse" >
+		SELECT
+		<include refid="employeeWareHouseColumns"/>
+		FROM inv_employee_warehouse a
+		<include refid="employeeWareHouseJoins"/>
+		WHERE a.emp_id = #{user.no}
+	</select>
+
+	<select id="getByWareHouse" resultType="EmployeeWareHouse" >
+		SELECT
+			<include refid="employeeWareHouseColumns"/>
+		FROM inv_employee_warehouse a
+			<include refid="employeeWareHouseJoins"/>
+		<where>
+			<if test="wareID != null and wareID != ''">
+				AND a.ware_id = #{wareID}
+			</if>
+		</where>
+	</select>
+
+	<select id="getByBin" resultType="EmployeeWareHouse" >
+		SELECT
+		<include refid="employeeWareHouseColumns"/>
+		FROM inv_employee_warehouse a
+		<include refid="employeeWareHouseJoins"/>
+		<where>
+			<if test="binId != null and binId != ''">
+				AND a.bin_id = #{binId}
+			</if>
+		</where>
+	</select>
+
+	<select id="getByLoc" resultType="EmployeeWareHouse" >
+		SELECT
+		<include refid="employeeWareHouseColumns"/>
+		FROM inv_employee_warehouse a
+		<include refid="employeeWareHouseJoins"/>
+		<where>
+			<if test="locId != null and locId != ''">
+				AND a.loc_id = #{locId}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findList" resultType="EmployeeWareHouse" >
+		SELECT 
+			<include refid="employeeWareHouseColumns"/>
+		FROM inv_employee_warehouse a
+		<include refid="employeeWareHouseJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+
+            <if test="wareHouse != null and wareHouse.wareID != null and wareHouse.wareID != ''">
+                AND a.ware_id = #{wareHouse.wareID}
+            </if>
+            <if test="bin != null and bin.binId != null and bin.binId != ''">
+                AND a.bin_id = #{bin.binId}
+            </if>
+            <if test="location != null and location.locId != null and location.locId != ''">
+                AND a.loc_id = #{location.locId}
+            </if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findListbyEmp" resultType="EmployeeWareHouse" >
+		SELECT 
+			<include refid="employeeWareHouseColumns"/>
+		FROM inv_employee_warehouse a
+		<include refid="employeeWareHouseJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+                AND a.emp_id = #{emp.user.no}
+            <if test="wareHouse != null and wareHouse.wareID != null and wareHouse.wareID != ''">
+                AND a.ware_id = #{wareHouse.wareID}
+            </if>
+            <if test="bin != null and bin.binId != null and bin.binId != ''">
+                AND a.bin_id = #{bin.binId}
+            </if>
+            <if test="location != null and location.locId != null and location.locId != ''">
+                AND a.loc_id = #{location.locId}
+            </if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="EmployeeWareHouse" >
+		SELECT 
+			<include refid="employeeWareHouseColumns"/>
+		FROM inv_employee_warehouse a
+		<include refid="employeeWareHouseJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_employee_warehouse(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			emp_id,
+			ware_id,
+			bin_id,
+			loc_id
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{emp.user.no},
+			#{wareHouse.wareID},
+			#{bin.binId},
+			#{location.locId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_employee_warehouse SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			emp_id = #{emp.user.no},
+			ware_id = #{wareHouse.wareID},
+			bin_id = #{bin.binId},
+			loc_id = #{location.locId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_employee_warehouse
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_employee_warehouse SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="EmployeeWareHouse" statementType="STATEMENT">
+		select * FROM inv_employee_warehouse  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

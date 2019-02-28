@@ -1,0 +1,918 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.processroutinedetail.mapper.ProcessRoutineDetailMapper">
+    
+	<sql id="processRoutineDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.processbillno AS "processbillno",
+		a.batchno AS "batchno",
+		a.routinebillno AS "routinebillno",
+		a.produceno AS "produceno",
+		a.routingcode AS "routingcode",
+		a.workprocedurecode AS "workprocedurecode",
+		a.centercode AS "centercode.centerCode",
+		a.islastrouting AS "islastrouting",
+		a.prodcode AS "prodcode",
+		a.planqty AS "planqty",
+		a.planbdate AS "planbdate",
+		a.realqty AS "realqty",
+		a.planedate AS "planedate",
+		a.billstate AS "billstate",
+		a.assignedstate AS "assignedstate",
+		a.makepid AS "makepid",
+		a.actualcentercode AS "actualcentercode",
+		a.personincharge AS "personincharge",
+		a.teamcode AS "teamcode.teamCode",
+		a.actualteamcode AS "actualteamcode",
+		a.shiftname AS "shiftname",
+		a.workhour AS "workhour",
+		a.actualworkhour AS "actualworkhour",
+		a.makedate AS "makedate",
+		a.confirmpid AS "confirmpid",
+		a.confirmdate AS "confirmdate",
+		a.deliverypid AS "deliverypid",
+		a.deliverydate AS "deliverydate",
+		product.item_name AS "prodname",
+		a.routingname AS "routingname",
+		a.seqno AS "seqno",
+		a.invcheckstate AS "invcheckstate",
+		a.mserialno AS "mserialno",
+		a.obj_sn AS "objSn",
+		a.cosbillnum AS "cosBillNum",
+		a.actualbdate AS "actualBDate"
+
+	</sql>
+	
+	<sql id="processRoutineDetailJoins">
+		LEFT JOIN mdm_workcenter centercode ON centercode.center_code = a.centercode
+		LEFT JOIN mdm_team teamcode ON teamcode.team_code = a.teamcode
+		LEFT JOIN mdm_product product ON product.item_code = a.prodcode
+	</sql>
+	
+    
+	<select id="get" resultType="ProcessRoutineDetail" >
+		SELECT 
+			<include refid="processRoutineDetailColumns"/>
+		FROM sfc_processroutinedetail a
+		<include refid="processRoutineDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ProcessRoutineDetail" >
+		SELECT 
+			<include refid="processRoutineDetailColumns"/>
+		FROM sfc_processroutinedetail a
+		<include refid="processRoutineDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+
+			<if test="processbillno != null and processbillno != ''">
+				AND a.processbillno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{processbillno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{processbillno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{processbillno},'%')</if>
+			</if>
+			<if test="batchno != null and batchno != ''">
+				AND a.batchno = #{batchno}
+			</if>
+			<if test="routinebillno != null and routinebillno != ''">
+				AND a.routinebillno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routinebillno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routinebillno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routinebillno},'%')</if>
+			</if>
+			<if test="produceno != null and produceno != ''">
+				AND a.produceno = #{produceno}
+			</if>
+			<if test="routingcode != null and routingcode != ''">
+				AND a.routingcode = #{routingcode}
+			</if>
+			<if test="workprocedurecode != null and workprocedurecode != ''">
+				AND a.workprocedurecode = #{workprocedurecode}
+			</if>
+			<if test="centercode != null and centercode.centerCode != null and centercode.centerCode != ''">
+				AND a.centercode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{centercode.centerCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{centercode.centerCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{centercode.centerCode},'%')</if>
+			</if>
+			<if test="islastrouting != null and islastrouting != ''">
+				AND a.islastrouting = #{islastrouting}
+			</if>
+			<if test="prodcode != null and prodcode != ''">
+				AND a.prodcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prodcode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodcode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodcode},'%')</if>
+			</if>
+			<if test="planqty != null and planqty != ''">
+				AND a.planqty = #{planqty}
+			</if>
+			<if test="beginPlanbdate != null and endPlanbdate != null and beginPlanbdate != '' and endPlanbdate != ''">
+				AND a.planbdate BETWEEN #{beginPlanbdate} AND #{endPlanbdate}
+			</if>
+			<if test="realqty != null and realqty != ''">
+				AND a.realqty = #{realqty}
+			</if>
+			<if test="beginPlanedate != null and endPlanedate != null and beginPlanedate != '' and endPlanedate != ''">
+				AND a.planedate BETWEEN #{beginPlanedate} AND #{endPlanedate}
+			</if>
+			<if test="billstate != null and billstate != ''">
+				AND a.billstate = #{billstate}
+			</if>
+			<if test="assignedstate != null and assignedstate != ''">
+				AND a.assignedstate = #{assignedstate}
+			</if>
+			<if test="invcheckstate != null and invcheckstate != ''">
+				AND a.invcheckstate = #{invcheckstate}
+			</if>
+			<if test="makepid != null and makepid != ''">
+				AND a.makepid = #{makepid}
+			</if>
+			<if test="actualcentercode != null and actualcentercode != ''">
+				AND a.actualcentercode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{actualcentercode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{actualcentercode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{actualcentercode},'%')</if>
+			</if>
+			<if test="personincharge != null and personincharge != ''">
+				AND a.personincharge LIKE 
+					<if test="dbName == 'oracle'">'%'||#{personincharge}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{personincharge}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{personincharge},'%')</if>
+			</if>
+			<if test="teamcode != null and teamcode.teamCode != null and teamcode.teamCode != ''">
+				AND a.teamcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{teamcode.teamCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{teamcode.teamCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{teamcode.teamCode},'%')</if>
+			</if>
+			<if test="actualteamcode != null and actualteamcode != ''">
+				AND a.actualteamcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{actualteamcode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{actualteamcode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{actualteamcode},'%')</if>
+			</if>
+			<if test="shiftname != null and shiftname != ''">
+				AND a.shiftname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{shiftname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{shiftname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{shiftname},'%')</if>
+			</if>
+			<if test="beginMakedate != null and endMakedate != null and beginMakedate != '' and endMakedate != ''">
+				AND a.makedate BETWEEN #{beginMakedate} AND #{endMakedate}
+			</if>
+			<if test="confirmpid != null and confirmpid != ''">
+				AND a.confirmpid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{confirmpid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{confirmpid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{confirmpid},'%')</if>
+			</if>
+			<if test="beginConfirmdate != null and endConfirmdate != null and beginConfirmdate != '' and endConfirmdate != ''">
+				AND a.confirmdate BETWEEN #{beginConfirmdate} AND #{endConfirmdate}
+			</if>
+			<if test="deliverypid != null and deliverypid != ''">
+				AND a.deliverypid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{deliverypid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{deliverypid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{deliverypid},'%')</if>
+			</if>
+			<if test="beginDeliverydate != null and endDeliverydate != null and beginDeliverydate != '' and endDeliverydate != ''">
+				AND a.deliverydate BETWEEN #{beginDeliverydate} AND #{endDeliverydate}
+			</if>
+			<if test="prodname != null and prodname != ''">
+				AND product.item_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{prodname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodname},'%')</if>
+			</if>
+			<if test="routingname != null and routingname != ''">
+				AND a.routingname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routingname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routingname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routingname},'%')</if>
+			</if>
+			<if test="seqno != null and seqno != ''">
+				AND a.seqno = #{seqno}
+			</if>
+			<if test="mserialno != null and mserialno != ''">
+				AND a.mserialno LIKE
+				<if test="dbName == 'oracle'">'%'||#{mserialno}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{mserialno}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{mserialno},'%')</if>
+			</if>
+			<if test="objSn != null and objSn != ''">
+				AND a.obj_sn LIKE
+				<if test="dbName == 'oracle'">'%'||#{objSn}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{objSn}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{objSn},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.routinebillno,a.seqno,a.produceno ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ProcessRoutineDetail" >
+		SELECT 
+			<include refid="processRoutineDetailColumns"/>
+		FROM sfc_processroutinedetail a
+		<include refid="processRoutineDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_processroutinedetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			processbillno,
+			batchno,
+			routinebillno,
+			produceno,
+			routingcode,
+			workprocedurecode,
+			centercode,
+			islastrouting,
+			prodcode,
+			planqty,
+			planbdate,
+			realqty,
+			planedate,
+			billstate,
+			assignedstate,
+			makepid,
+			actualcentercode,
+			personincharge,
+			teamcode,
+			actualteamcode,
+			shiftname,
+			workhour,
+			actualworkhour,
+			makedate,
+			confirmpid,
+			confirmdate,
+			deliverypid,
+			deliverydate,
+			prodname,
+			routingname,
+			seqno,
+			invcheckstate,
+			mserialno,
+			obj_sn,
+			cosbillnum,
+			actualbdate
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{processbillno},
+			#{batchno},
+			#{routinebillno},
+			#{produceno},
+			#{routingcode},
+			#{workprocedurecode},
+			#{centercode.centerCode},
+			#{islastrouting},
+			#{prodcode},
+			#{planqty},
+			#{planbdate},
+			#{realqty},
+			#{planedate},
+			#{billstate},
+			#{assignedstate},
+			#{makepid},
+			#{actualcentercode},
+			#{personincharge},
+			#{teamcode.teamCode},
+			#{actualteamcode},
+			#{shiftname},
+			#{workhour},
+			#{actualworkhour},
+			#{makedate},
+			#{confirmpid},
+			#{confirmdate},
+			#{deliverypid},
+			#{deliverydate},
+			#{prodname},
+			#{routingname},
+			#{seqno},
+			#{invcheckstate},
+			#{mserialno},
+			#{objSn},
+			#{cosBillNum},
+			#{actualBDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_processroutinedetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			processbillno = #{processbillno},
+			batchno = #{batchno},
+			routinebillno = #{routinebillno},
+			produceno = #{produceno},
+			routingcode = #{routingcode},
+			workprocedurecode = #{workprocedurecode},
+			centercode = #{centercode.centerCode},
+			islastrouting = #{islastrouting},
+			prodcode = #{prodcode},
+			planqty = #{planqty},
+			planbdate = #{planbdate},
+			realqty = #{realqty},
+			planedate = #{planedate},
+			billstate = #{billstate},
+			assignedstate = #{assignedstate},
+			makepid = #{makepid},
+			actualcentercode = #{actualcentercode},
+			personincharge = #{personincharge},
+			teamcode = #{teamcode.teamCode},
+			actualteamcode = #{actualteamcode},
+			shiftname = #{shiftname},
+			workhour = #{workhour},
+			actualworkhour = #{actualworkhour},
+			makedate = #{makedate},
+			confirmpid = #{confirmpid},
+			confirmdate = #{confirmdate},
+			deliverypid = #{deliverypid},
+			deliverydate = #{deliverydate},
+			prodname = #{prodname},
+			routingname = #{routingname},
+			seqno = #{seqno},
+			invcheckstate = #{invcheckstate},
+			mserialno = #{mserialno},
+			obj_sn=#{objSn},
+			cosbillnum=#{cosBillNum},
+			actualbdate=#{actualBDate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_processroutinedetail
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_processroutinedetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+	<!--更新invcheckstate状态-->
+	<update id="updateInvCheckState">
+		UPDATE sfc_processroutinedetail SET
+			invcheckstate = #{invcheckstate}
+		WHERE id = #{id}
+	</update>
+
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ProcessRoutineDetail" statementType="STATEMENT">
+		select * FROM sfc_processroutinedetail  where ${propertyName} = '${value}'
+	</select>
+
+
+
+	<sql id="processRoutineDetailJoinsForInvCheck">
+		LEFT JOIN mdm_workcenter centercode ON centercode.center_code = a.centercode
+		LEFT JOIN mdm_team teamcode ON teamcode.team_code = a.teamcode
+		LEFT JOIN mdm_product product ON product.item_code = a.prodcode
+		LEFT JOIN mdm_routing routing ON routing.routing_code = a.routingcode
+	</sql>
+
+
+
+	<select id="findInvCheckList" resultType="ProcessRoutineDetail" >
+		SELECT
+		<include refid="processRoutineDetailColumns"/>
+		FROM sfc_processroutinedetail a
+		<include refid="processRoutineDetailJoinsForInvCheck"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} and a.islastrouting = 'Y' and routing.assembleflag = 'y'
+
+			<if test="processbillno != null and processbillno != ''">
+				AND a.processbillno LIKE
+				<if test="dbName == 'oracle'">'%'||#{processbillno}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{processbillno}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{processbillno},'%')</if>
+			</if>
+			<if test="batchno != null and batchno != ''">
+				AND a.batchno = #{batchno}
+			</if>
+			<if test="routinebillno != null and routinebillno != ''">
+				AND a.routinebillno LIKE
+				<if test="dbName == 'oracle'">'%'||#{routinebillno}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{routinebillno}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{routinebillno},'%')</if>
+			</if>
+			<if test="produceno != null and produceno != ''">
+				AND a.produceno = #{produceno}
+			</if>
+			<if test="routingcode != null and routingcode != ''">
+				AND a.routingcode = #{routingcode}
+			</if>
+			<if test="workprocedurecode != null and workprocedurecode != ''">
+				AND a.workprocedurecode = #{workprocedurecode}
+			</if>
+			<if test="centercode != null and centercode.centerCode != null and centercode.centerCode != ''">
+				AND a.centercode LIKE
+				<if test="dbName == 'oracle'">'%'||#{centercode.centerCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{centercode.centerCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{centercode.centerCode},'%')</if>
+			</if>
+			<if test="islastrouting != null and islastrouting != ''">
+				AND a.islastrouting = #{islastrouting}
+			</if>
+			<if test="prodcode != null and prodcode != ''">
+				AND a.prodcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodcode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodcode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodcode},'%')</if>
+			</if>
+			<if test="planqty != null and planqty != ''">
+				AND a.planqty = #{planqty}
+			</if>
+			<if test="beginPlanbdate != null and endPlanbdate != null and beginPlanbdate != '' and endPlanbdate != ''">
+				AND a.planbdate BETWEEN #{beginPlanbdate} AND #{endPlanbdate}
+			</if>
+			<if test="realqty != null and realqty != ''">
+				AND a.realqty = #{realqty}
+			</if>
+			<if test="beginPlanedate != null and endPlanedate != null and beginPlanedate != '' and endPlanedate != ''">
+				AND a.planedate BETWEEN #{beginPlanedate} AND #{endPlanedate}
+			</if>
+			<if test="billstate != null and billstate != ''">
+				AND a.billstate = #{billstate}
+			</if>
+			<if test="assignedstate != null and assignedstate != ''">
+				AND a.assignedstate = #{assignedstate}
+			</if>
+			<if test="invcheckstate != null and invcheckstate != ''">
+				<choose>
+					<when test='invcheckstate == "P"'>
+						and (a.invcheckstate = 'P' or a.invcheckstate is null)
+					</when>
+					<otherwise>
+						and a.invcheckstate = #{invcheckstate}
+					</otherwise>
+				</choose>
+
+			</if>
+			<if test="makepid != null and makepid != ''">
+				AND a.makepid = #{makepid}
+			</if>
+			<if test="actualcentercode != null and actualcentercode != ''">
+				AND a.actualcentercode LIKE
+				<if test="dbName == 'oracle'">'%'||#{actualcentercode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{actualcentercode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{actualcentercode},'%')</if>
+			</if>
+			<if test="personincharge != null and personincharge != ''">
+				AND a.personincharge LIKE
+				<if test="dbName == 'oracle'">'%'||#{personincharge}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{personincharge}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{personincharge},'%')</if>
+			</if>
+			<if test="teamcode != null and teamcode.teamCode != null and teamcode.teamCode != ''">
+				AND a.teamcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{teamcode.teamCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{teamcode.teamCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{teamcode.teamCode},'%')</if>
+			</if>
+			<if test="actualteamcode != null and actualteamcode != ''">
+				AND a.actualteamcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{actualteamcode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{actualteamcode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{actualteamcode},'%')</if>
+			</if>
+			<if test="shiftname != null and shiftname != ''">
+				AND a.shiftname LIKE
+				<if test="dbName == 'oracle'">'%'||#{shiftname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{shiftname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{shiftname},'%')</if>
+			</if>
+			<if test="beginMakedate != null and endMakedate != null and beginMakedate != '' and endMakedate != ''">
+				AND a.makedate BETWEEN #{beginMakedate} AND #{endMakedate}
+			</if>
+			<if test="confirmpid != null and confirmpid != ''">
+				AND a.confirmpid LIKE
+				<if test="dbName == 'oracle'">'%'||#{confirmpid}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{confirmpid}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{confirmpid},'%')</if>
+			</if>
+			<if test="beginConfirmdate != null and endConfirmdate != null and beginConfirmdate != '' and endConfirmdate != ''">
+				AND a.confirmdate BETWEEN #{beginConfirmdate} AND #{endConfirmdate}
+			</if>
+			<if test="deliverypid != null and deliverypid != ''">
+				AND a.deliverypid LIKE
+				<if test="dbName == 'oracle'">'%'||#{deliverypid}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{deliverypid}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{deliverypid},'%')</if>
+			</if>
+			<if test="beginDeliverydate != null and endDeliverydate != null and beginDeliverydate != '' and endDeliverydate != ''">
+				AND a.deliverydate BETWEEN #{beginDeliverydate} AND #{endDeliverydate}
+			</if>
+			<if test="prodname != null and prodname != ''">
+				AND product.item_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodname},'%')</if>
+			</if>
+			<if test="routingname != null and routingname != ''">
+				AND a.routingname LIKE
+				<if test="dbName == 'oracle'">'%'||#{routingname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{routingname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{routingname},'%')</if>
+			</if>
+			<if test="seqno != null and seqno != ''">
+				AND a.seqno = #{seqno}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.routinebillno,a.seqno,a.produceno ASC
+			</otherwise>
+		</choose>
+	</select>
+
+
+
+
+
+
+
+	<sql id="processRoutineDetailJoinsWithMaterialDetail">
+		LEFT JOIN mdm_workcenter centercode ON centercode.center_code = a.centercode
+		LEFT JOIN mdm_team teamcode ON teamcode.team_code = a.teamcode
+		LEFT JOIN mdm_product product ON product.item_code = a.prodcode
+		LEFT JOIN sfc_processmaterialdetail pmdetail ON (pmdetail.routinebillno=a.routinebillno and pmdetail.seqno=a.seqno and pmdetail.routingcode=a.routingcode)
+	</sql>
+
+
+	<select id="findListWithMaterialDetail" resultType="ProcessRoutineDetail" >
+		SELECT
+		<include refid="processRoutineDetailColumns"/>
+		FROM sfc_processroutinedetail a
+		<include refid="processRoutineDetailJoinsWithMaterialDetail"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+
+			<if test="processbillno != null and processbillno != ''">
+				AND a.processbillno LIKE
+				<if test="dbName == 'oracle'">'%'||#{processbillno}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{processbillno}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{processbillno},'%')</if>
+			</if>
+			<if test="batchno != null and batchno != ''">
+				AND a.batchno = #{batchno}
+			</if>
+			<if test="routinebillno != null and routinebillno != ''">
+				AND a.routinebillno LIKE
+				<if test="dbName == 'oracle'">'%'||#{routinebillno}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{routinebillno}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{routinebillno},'%')</if>
+			</if>
+			<if test="produceno != null and produceno != ''">
+				AND a.produceno = #{produceno}
+			</if>
+			<if test="routingcode != null and routingcode != ''">
+				AND a.routingcode = #{routingcode}
+			</if>
+			<if test="workprocedurecode != null and workprocedurecode != ''">
+				AND a.workprocedurecode = #{workprocedurecode}
+			</if>
+			<if test="centercode != null and centercode.centerCode != null and centercode.centerCode != ''">
+				AND a.centercode LIKE
+				<if test="dbName == 'oracle'">'%'||#{centercode.centerCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{centercode.centerCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{centercode.centerCode},'%')</if>
+			</if>
+			<if test="islastrouting != null and islastrouting != ''">
+				AND a.islastrouting = #{islastrouting}
+			</if>
+			<if test="prodcode != null and prodcode != ''">
+				AND a.prodcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodcode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodcode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodcode},'%')</if>
+			</if>
+			<if test="planqty != null and planqty != ''">
+				AND a.planqty = #{planqty}
+			</if>
+			<if test="beginPlanbdate != null and endPlanbdate != null and beginPlanbdate != '' and endPlanbdate != ''">
+				AND a.planbdate BETWEEN #{beginPlanbdate} AND #{endPlanbdate}
+			</if>
+			<if test="realqty != null and realqty != ''">
+				AND a.realqty = #{realqty}
+			</if>
+			<if test="beginPlanedate != null and endPlanedate != null and beginPlanedate != '' and endPlanedate != ''">
+				AND a.planedate BETWEEN #{beginPlanedate} AND #{endPlanedate}
+			</if>
+			<if test="billstate != null and billstate != ''">
+				AND a.billstate = #{billstate}
+			</if>
+			<if test="assignedstate != null and assignedstate != ''">
+				AND a.assignedstate = #{assignedstate}
+			</if>
+			<if test="invcheckstate != null and invcheckstate != ''">
+				AND a.invcheckstate = #{invcheckstate}
+			</if>
+			<if test="makepid != null and makepid != ''">
+				AND a.makepid = #{makepid}
+			</if>
+			<if test="actualcentercode != null and actualcentercode != ''">
+				AND a.actualcentercode LIKE
+				<if test="dbName == 'oracle'">'%'||#{actualcentercode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{actualcentercode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{actualcentercode},'%')</if>
+			</if>
+			<if test="personincharge != null and personincharge != ''">
+				AND a.personincharge LIKE
+				<if test="dbName == 'oracle'">'%'||#{personincharge}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{personincharge}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{personincharge},'%')</if>
+			</if>
+			<if test="teamcode != null and teamcode.teamCode != null and teamcode.teamCode != ''">
+				AND a.teamcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{teamcode.teamCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{teamcode.teamCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{teamcode.teamCode},'%')</if>
+			</if>
+			<if test="actualteamcode != null and actualteamcode != ''">
+				AND a.actualteamcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{actualteamcode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{actualteamcode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{actualteamcode},'%')</if>
+			</if>
+			<if test="shiftname != null and shiftname != ''">
+				AND a.shiftname LIKE
+				<if test="dbName == 'oracle'">'%'||#{shiftname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{shiftname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{shiftname},'%')</if>
+			</if>
+			<if test="beginMakedate != null and endMakedate != null and beginMakedate != '' and endMakedate != ''">
+				AND a.makedate BETWEEN #{beginMakedate} AND #{endMakedate}
+			</if>
+			<if test="confirmpid != null and confirmpid != ''">
+				AND a.confirmpid LIKE
+				<if test="dbName == 'oracle'">'%'||#{confirmpid}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{confirmpid}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{confirmpid},'%')</if>
+			</if>
+			<if test="beginConfirmdate != null and endConfirmdate != null and beginConfirmdate != '' and endConfirmdate != ''">
+				AND a.confirmdate BETWEEN #{beginConfirmdate} AND #{endConfirmdate}
+			</if>
+			<if test="deliverypid != null and deliverypid != ''">
+				AND a.deliverypid LIKE
+				<if test="dbName == 'oracle'">'%'||#{deliverypid}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{deliverypid}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{deliverypid},'%')</if>
+			</if>
+			<if test="beginDeliverydate != null and endDeliverydate != null and beginDeliverydate != '' and endDeliverydate != ''">
+				AND a.deliverydate BETWEEN #{beginDeliverydate} AND #{endDeliverydate}
+			</if>
+			<if test="prodname != null and prodname != ''">
+				AND product.item_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodname},'%')</if>
+			</if>
+			<if test="routingname != null and routingname != ''">
+				AND a.routingname LIKE
+				<if test="dbName == 'oracle'">'%'||#{routingname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{routingname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{routingname},'%')</if>
+			</if>
+			<if test="seqno != null and seqno != ''">
+				AND a.seqno = #{seqno}
+			</if>
+
+			<if test="mserialno != null and mserialno != ''">
+				AND a.mserialno LIKE
+				<if test="dbName == 'oracle'">'%'||#{mserialno}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{mserialno}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{mserialno},'%')</if>
+			</if>
+			<if test="objSn != null and objSn != ''">
+				AND a.obj_sn LIKE
+				<if test="dbName == 'oracle'">'%'||#{objSn}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{objSn}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{objSn},'%')</if>
+			</if>
+			<if test="hasQualityPro != null and hasQualityPro != ''">
+				AND pmdetail.hasqualitypro = #{hasQualityPro}
+			</if>
+
+		</where>
+		group by a.id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.routinebillno,a.seqno,a.planedate,a.produceno ASC
+			</otherwise>
+		</choose>
+	</select>
+
+
+	<select id="findAssembleList" resultType="ProcessRoutineDetail" >
+		SELECT
+		<include refid="processRoutineDetailColumns"/>
+		FROM sfc_processroutinedetail a
+		<include refid="processRoutineDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="processbillno != null and processbillno != ''">
+				AND a.processbillno LIKE
+				<if test="dbName == 'oracle'">'%'||#{processbillno}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{processbillno}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{processbillno},'%')</if>
+			</if>
+			<if test="batchno != null and batchno != ''">
+				AND a.batchno = #{batchno}
+			</if>
+			<if test="routinebillno != null and routinebillno != ''">
+				AND a.routinebillno LIKE
+				<if test="dbName == 'oracle'">'%'||#{routinebillno}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{routinebillno}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{routinebillno},'%')</if>
+			</if>
+			<if test="produceno != null and produceno != ''">
+				AND a.produceno = #{produceno}
+			</if>
+			<if test="routingcode != null and routingcode != ''">
+				AND a.routingcode = #{routingcode}
+			</if>
+			<if test="workprocedurecode != null and workprocedurecode != ''">
+				AND a.workprocedurecode = #{workprocedurecode}
+			</if>
+			<if test="centercode != null and centercode.centerCode != null and centercode.centerCode != ''">
+				AND a.centercode LIKE
+				<if test="dbName == 'oracle'">'%'||#{centercode.centerCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{centercode.centerCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{centercode.centerCode},'%')</if>
+			</if>
+			<if test="islastrouting != null and islastrouting != ''">
+				AND a.islastrouting = #{islastrouting}
+			</if>
+			<if test="prodcode != null and prodcode != ''">
+				AND a.prodcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodcode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodcode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodcode},'%')</if>
+			</if>
+			<if test="planqty != null and planqty != ''">
+				AND a.planqty = #{planqty}
+			</if>
+			<if test="beginPlanbdate != null and endPlanbdate != null and beginPlanbdate != '' and endPlanbdate != ''">
+				AND a.planbdate BETWEEN #{beginPlanbdate} AND #{endPlanbdate}
+			</if>
+			<if test="realqty != null and realqty != ''">
+				AND a.realqty = #{realqty}
+			</if>
+			<if test="beginPlanedate != null and endPlanedate != null and beginPlanedate != '' and endPlanedate != ''">
+				AND a.planedate BETWEEN #{beginPlanedate} AND #{endPlanedate}
+			</if>
+			<if test="billstate != null and billstate != ''">
+				AND a.billstate = #{billstate}
+			</if>
+			<if test="assignedstate != null and assignedstate != ''">
+				AND a.assignedstate = #{assignedstate}
+			</if>
+			<if test="invcheckstate != null and invcheckstate != ''">
+				AND a.invcheckstate = #{invcheckstate}
+			</if>
+			<if test="makepid != null and makepid != ''">
+				AND a.makepid = #{makepid}
+			</if>
+			<if test="actualcentercode != null and actualcentercode != ''">
+				AND a.actualcentercode LIKE
+				<if test="dbName == 'oracle'">'%'||#{actualcentercode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{actualcentercode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{actualcentercode},'%')</if>
+			</if>
+			<if test="personincharge != null and personincharge != ''">
+				AND a.personincharge LIKE
+				<if test="dbName == 'oracle'">'%'||#{personincharge}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{personincharge}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{personincharge},'%')</if>
+			</if>
+			<if test="teamcode != null and teamcode.teamCode != null and teamcode.teamCode != ''">
+				AND a.teamcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{teamcode.teamCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{teamcode.teamCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{teamcode.teamCode},'%')</if>
+			</if>
+			<if test="actualteamcode != null and actualteamcode != ''">
+				AND a.actualteamcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{actualteamcode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{actualteamcode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{actualteamcode},'%')</if>
+			</if>
+			<if test="shiftname != null and shiftname != ''">
+				AND a.shiftname LIKE
+				<if test="dbName == 'oracle'">'%'||#{shiftname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{shiftname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{shiftname},'%')</if>
+			</if>
+			<if test="beginMakedate != null and endMakedate != null and beginMakedate != '' and endMakedate != ''">
+				AND a.makedate BETWEEN #{beginMakedate} AND #{endMakedate}
+			</if>
+			<if test="confirmpid != null and confirmpid != ''">
+				AND a.confirmpid LIKE
+				<if test="dbName == 'oracle'">'%'||#{confirmpid}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{confirmpid}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{confirmpid},'%')</if>
+			</if>
+			<if test="beginConfirmdate != null and endConfirmdate != null and beginConfirmdate != '' and endConfirmdate != ''">
+				AND a.confirmdate BETWEEN #{beginConfirmdate} AND #{endConfirmdate}
+			</if>
+			<if test="deliverypid != null and deliverypid != ''">
+				AND a.deliverypid LIKE
+				<if test="dbName == 'oracle'">'%'||#{deliverypid}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{deliverypid}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{deliverypid},'%')</if>
+			</if>
+			<if test="beginDeliverydate != null and endDeliverydate != null and beginDeliverydate != '' and endDeliverydate != ''">
+				AND a.deliverydate BETWEEN #{beginDeliverydate} AND #{endDeliverydate}
+			</if>
+			<if test="prodname != null and prodname != ''">
+				AND product.item_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodname},'%')</if>
+			</if>
+			<if test="routingname != null and routingname != ''">
+				AND a.routingname LIKE
+				<if test="dbName == 'oracle'">'%'||#{routingname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{routingname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{routingname},'%')</if>
+			</if>
+			<if test="seqno != null and seqno != ''">
+				AND a.seqno = #{seqno}
+			</if>
+			<if test="mserialno != null and mserialno != ''">
+				AND a.mserialno LIKE
+				<if test="dbName == 'oracle'">'%'||#{mserialno}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{mserialno}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{mserialno},'%')</if>
+			</if>
+			<if test="objSn != null and objSn != ''">
+				AND a.obj_sn LIKE
+				<if test="dbName == 'oracle'">'%'||#{objSn}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{objSn}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{objSn},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.routinebillno,a.seqno,a.produceno ASC
+			</otherwise>
+		</choose>
+	</select>
+
+
+</mapper>

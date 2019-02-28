@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.machinequalitysta.mapper.MachineRateMapper">
+    
+	<sql id="machineRateColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.time_scope AS "timeScope",
+		a.time_type AS "timeType",
+		a.ag_num AS "agNum",
+		a.ag_ratio AS "agRatio",
+		a.lh_num AS "lhNum",
+		a.lh_ratio AS "lhRatio",
+		a.jh_num AS "jhNum",
+		a.jh_ratio AS "jhRatio",
+		a.bz_num AS "bzNum",
+		a.bz_ratio AS "bzRatio"
+	</sql>
+	
+	<sql id="machineRateJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="MachineRate" >
+		SELECT 
+			<include refid="machineRateColumns"/>
+		FROM qms_machine_rate a
+		<include refid="machineRateJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MachineRate" >
+		SELECT 
+			<include refid="machineRateColumns"/>
+		FROM qms_machine_rate a
+		<include refid="machineRateJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="beginTimeScope != null and endTimeScope != null and beginTimeScope != '' and endTimeScope != ''">
+				AND a.time_scope BETWEEN #{beginTimeScope} AND #{endTimeScope}
+			</if>
+			<if test="timeType != null and timeType != ''">
+				AND a.time_type = #{timeType}
+			</if>
+			<if test="agNum != null and agNum != ''">
+				AND a.ag_num = #{agNum}
+			</if>
+			<if test="agRatio != null and agRatio != ''">
+				AND a.ag_ratio = #{agRatio}
+			</if>
+			<if test="lhNum != null and lhNum != ''">
+				AND a.lh_num = #{lhNum}
+			</if>
+			<if test="lhRatio != null and lhRatio != ''">
+				AND a.lh_ratio = #{lhRatio}
+			</if>
+			<if test="jhNum != null and jhNum != ''">
+				AND a.jh_num = #{jhNum}
+			</if>
+			<if test="jhRatio != null and jhRatio != ''">
+				AND a.jh_ratio = #{jhRatio}
+			</if>
+			<if test="bzNum != null and bzNum != ''">
+				AND a.bz_num = #{bzNum}
+			</if>
+			<if test="bzRatio != null and bzRatio != ''">
+				AND a.bz_ratio = #{bzRatio}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.time_scope ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MachineRate" >
+		SELECT 
+			<include refid="machineRateColumns"/>
+		FROM qms_machine_rate a
+		<include refid="machineRateJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_machine_rate(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			time_scope,
+			time_type,
+			ag_num,
+			ag_ratio,
+			lh_num,
+			lh_ratio,
+			jh_num,
+			jh_ratio,
+			bz_num,
+			bz_ratio
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{timeScope},
+			#{timeType},
+			#{agNum},
+			#{agRatio},
+			#{lhNum},
+			#{lhRatio},
+			#{jhNum},
+			#{jhRatio},
+			#{bzNum},
+			#{bzRatio}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_machine_rate SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			time_scope = #{timeScope},
+			time_type = #{timeType},
+			ag_num = #{agNum},
+			ag_ratio = #{agRatio},
+			lh_num = #{lhNum},
+			lh_ratio = #{lhRatio},
+			jh_num = #{jhNum},
+			jh_ratio = #{jhRatio},
+			bz_num = #{bzNum},
+			bz_ratio = #{bzRatio}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_machine_rate
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_machine_rate SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="MachineRate" statementType="STATEMENT">
+		select * FROM qms_machine_rate  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

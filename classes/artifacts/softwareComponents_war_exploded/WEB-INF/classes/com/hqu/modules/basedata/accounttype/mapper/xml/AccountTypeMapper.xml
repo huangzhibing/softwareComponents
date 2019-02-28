@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.accounttype.mapper.AccountTypeMapper">
+    
+	<sql id="accountTypeColumns">
+		a.id AS "id",
+		a.acc_type_code AS "accTypeCode",
+		a.acc_type_name AS "accTypeName",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="accountTypeJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="AccountType" >
+		SELECT 
+			<include refid="accountTypeColumns"/>
+		FROM mdm_accounttype a
+		<include refid="accountTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="AccountType" >
+		SELECT 
+			<include refid="accountTypeColumns"/>
+		FROM mdm_accounttype a
+		<include refid="accountTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="accTypeCode != null and accTypeCode != ''">
+				AND a.acc_type_code LIKE "%"#{accTypeCode}"%"
+			</if>
+			<if test="accTypeName != null and accTypeName != ''">
+				AND a.acc_type_name LIKE "%"#{accTypeName}"%"
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.acc_type_code ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="getMaxAccTypeCode" resultType="String">
+		SELECT MAX(acc_type_code)
+		FROM mdm_accounttype
+	</select>
+	<select id="findAllList" resultType="AccountType" >
+		SELECT 
+			<include refid="accountTypeColumns"/>
+		FROM mdm_accounttype a
+		<include refid="accountTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.acc_type_code ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_accounttype(
+			id,
+			acc_type_code,
+			acc_type_name,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{accTypeCode},
+			#{accTypeName},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_accounttype SET 	
+			acc_type_code = #{accTypeCode},
+			acc_type_name = #{accTypeName},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_accounttype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_accounttype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="AccountType" statementType="STATEMENT">
+		select * FROM mdm_accounttype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

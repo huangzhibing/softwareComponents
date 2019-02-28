@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.location.mapper.LocationMapper">
+    
+	<sql id="locationColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.ware_id AS "wareId",
+		a.bin_id AS "binId",
+		a.loc_id AS "locId",
+		a.loc_desc AS "locDesc",
+		a.note AS "note"
+	</sql>
+	
+	<sql id="locationJoins">
+		
+	</sql>
+
+    <select id="getMaxId" resultType="String">
+        SELECT MAX(loc_id) FROM inv_location WHERE bin_id = #{binId}
+    </select>
+	
+    
+	<select id="get" resultType="Location" >
+		SELECT 
+			<include refid="locationColumns"/>
+		FROM inv_location a
+		<include refid="locationJoins"/>
+		WHERE (a.id = #{id}||a.loc_id = #{locId})
+	</select>
+
+    <select id="getByBinId" resultType="Location" >
+        SELECT
+        <include refid="locationColumns"/>
+        FROM inv_location a
+        <include refid="locationJoins"/>
+        WHERE a.bin_id = #{binId}
+    </select>
+
+    <select id="getByLocId" resultType="Location" >
+        SELECT
+        <include refid="locationColumns"/>
+        FROM inv_location a
+        <include refid="locationJoins"/>
+        WHERE a.loc_id = #{locId}
+    </select>
+	
+	<select id="findList" resultType="Location" >
+		SELECT 
+			<include refid="locationColumns"/>
+		FROM inv_location a
+		<include refid="locationJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<!--<if test="wareId != null and wareId != ''">-->
+				<!--AND a.ware_id LIKE -->
+					<!--<if test="dbName == 'oracle'">'%'||#{wareId}||'%'</if>-->
+					<!--<if test="dbName == 'mssql'">'%'+#{wareId}+'%'</if>-->
+					<!--<if test="dbName == 'mysql'">concat('%',#{wareId},'%')</if>-->
+			<!--</if>-->
+            <if test="binId != null and binId != ''">
+                AND a.bin_id LIKE
+                <if test="dbName == 'oracle'">'%'||#{binId}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{binId}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{binId},'%')</if>
+            </if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.loc_id ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Location" >
+		SELECT 
+			<include refid="locationColumns"/>
+		FROM inv_location a
+		<include refid="locationJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.loc_id ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_location(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			ware_id,
+			bin_id,
+			loc_id,
+			loc_desc,
+			note
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{wareId},
+			#{binId},
+			#{locId},
+			#{locDesc},
+			#{note}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_location SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			ware_id = #{wareId},
+			bin_id = #{binId},
+			loc_id = #{locId},
+			loc_desc = #{locDesc},
+			note = #{note}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_location
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_location SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Location" statementType="STATEMENT">
+		select * FROM inv_location  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

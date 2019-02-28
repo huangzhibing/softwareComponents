@@ -1,0 +1,298 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.sfcinvcheckmain.mapper.SfcInvCheckMainMapper">
+    
+	<sql id="sfcInvCheckMainColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_no AS "billNo",
+		a.bill_type AS "billType",
+		a.make_date AS "makeDate",
+		a.makep_id AS "makepId",
+		a.makep_name AS "makepName",
+		a.make_notes AS "makeNotes",
+		a.bill_state_flag AS "billStateFlag",
+		a.workerp_id AS "workerpId",
+		a.workerp_name AS "workerpName",
+		a.finish_date AS "finishDate",
+		a.shop_id AS "shopId",
+		a.shop_name AS "shopName",
+		a.warep_id AS "warepId",
+		a.warep_name AS "warepName",
+		a.ware_id AS "wareId",
+		a.ware_name AS "wareName",
+		a.notes AS "notes",
+		a.inv_flag AS "invFlag",
+		a.qms_flag AS "qmsFlag",
+		a.price_sum AS "priceSum",
+		a.io_type AS "ioType",
+		a.io_flag AS "ioFlag",
+		a.io_desc AS "ioDesc",
+		a.routineBillNo AS "routineBillNo",
+		a.SeqNo AS "SeqNo",
+		a.routingCode AS "routingCode"
+		
+		
+	</sql>
+	
+	<sql id="sfcInvCheckMainJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="SfcInvCheckMain" >
+		SELECT 
+			<include refid="sfcInvCheckMainColumns"/>
+		FROM sfc_invcheckmain a
+		<include refid="sfcInvCheckMainJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SfcInvCheckMain" >
+		SELECT 
+			<include refid="sfcInvCheckMainColumns"/>
+		FROM sfc_invcheckmain a
+		<include refid="sfcInvCheckMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNo != null and billNo != ''">
+				AND a.bill_no LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNo},'%')</if>
+			</if>
+			<if test="makeDate != null and makeDate != ''">
+				AND a.make_date = #{makeDate}
+			</if>
+			<if test="billStateFlag != null and billStateFlag != ''">
+				AND a.bill_state_flag = #{billStateFlag}
+			</if>
+			<if test="makepId != null and makepId != ''">
+				AND a.makep_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makepId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makepId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makepId},'%')</if>
+			</if>
+			<if test="makepName != null and makepName != ''">
+				AND a.makep_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makepName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makepName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makepName},'%')</if>
+			</if>
+			<if test="workerpId != null and workerpId != ''">
+				AND a.workerp_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{workerpId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{workerpId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{workerpId},'%')</if>
+			</if>
+			<if test="workerpName != null and workerpName != ''">
+				AND a.workerp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{workerpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{workerpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{workerpName},'%')</if>
+			</if>
+			<if test="finishDate != null and finishDate != ''">
+				AND a.finish_date = #{finishDate}
+			</if>
+			<if test="shopId != null and shopId != ''">
+				AND a.shop_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{shopId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{shopId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{shopId},'%')</if>
+			</if>
+			<if test="shopName != null and shopName != ''">
+				AND a.shop_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{shopName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{shopName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{shopName},'%')</if>
+			</if>
+			<if test="warepId != null and warepId != ''">
+				AND a.warep_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{warepId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{warepId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{warepId},'%')</if>
+			</if>
+			<if test="warepName != null and warepName != ''">
+				AND a.warep_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{warepName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{warepName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{warepName},'%')</if>
+			</if>
+			<if test="wareId != null and wareId != ''">
+				AND a.ware_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareId},'%')</if>
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="qmsFlag != null and qmsFlag != ''">
+				AND a.qms_flag = #{qmsFlag}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SfcInvCheckMain" >
+		SELECT 
+			<include refid="sfcInvCheckMainColumns"/>
+		FROM sfc_invcheckmain a
+		<include refid="sfcInvCheckMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_invcheckmain(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_no,
+			bill_type,
+			make_date,
+			makep_id,
+			makep_name,
+			make_notes,
+			bill_state_flag,
+			workerp_id,
+			workerp_name,
+			finish_date,
+			shop_id,
+			shop_name,
+			warep_id,
+			warep_name,
+			ware_id,
+			ware_name,
+			notes,
+			inv_flag,
+			qms_flag,
+			price_sum,
+			io_type,
+			io_flag,
+			io_desc,
+			routineBillNo,
+		    SeqNo,
+		    routingCode
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNo},
+			#{billType},
+			#{makeDate},
+			#{makepId},
+			#{makepName},
+			#{makeNotes},
+			#{billStateFlag},
+			#{workerpId},
+			#{workerpName},
+			#{finishDate},
+			#{shopId},
+			#{shopName},
+			#{warepId},
+			#{warepName},
+			#{wareId},
+			#{wareName},
+			#{notes},
+			#{invFlag},
+			#{qmsFlag},
+			#{priceSum},
+			#{ioType},
+			#{ioFlag},
+			#{ioDesc},
+			#{routineBillNo},
+			#{SeqNo},
+		    #{routingCode}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_invcheckmain SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_no = #{billNo},
+			bill_type = #{billType},
+			make_date = #{makeDate},
+			makep_id = #{makepId},
+			makep_name = #{makepName},
+			make_notes = #{makeNotes},
+			bill_state_flag = #{billStateFlag},
+			workerp_id = #{workerpId},
+			workerp_name = #{workerpName},
+			finish_date = #{finishDate},
+			shop_id = #{shopId},
+			shop_name = #{shopName},
+			warep_id = #{warepId},
+			warep_name = #{warepName},
+			ware_id = #{wareId},
+			ware_name = #{wareName},
+			notes = #{notes},
+			inv_flag = #{invFlag},
+			qms_flag = #{qmsFlag},
+			price_sum = #{priceSum},
+			io_type = #{ioType},
+			io_flag = #{ioFlag},
+			io_desc = #{ioDesc},
+			routineBillNo=#{routineBillNo},
+			SeqNo=#{SeqNo},
+		    routingCode = #{routingCode}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_invcheckmain
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_invcheckmain SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SfcInvCheckMain" statementType="STATEMENT">
+		select * FROM sfc_invcheckmain  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

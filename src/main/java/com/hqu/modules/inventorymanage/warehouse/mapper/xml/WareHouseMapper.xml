@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.warehouse.mapper.WareHouseMapper">
+    
+	<sql id="wareHouseColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.ware_id AS "wareID",
+		a.ware_name AS "wareName",
+		a.ware_address AS "wareAddress",
+		a.plan_cost AS "planCost",
+		a.admin_mode AS "adminMode",
+		a.price_mode AS "priceMode",
+		a.curr_period AS "currPeriod",
+		a.last_carrdate AS "lastCarrdate",
+		a.note AS "note",
+		a.item_type AS "itemType",
+		a.sub_flag AS "subFlag",
+		a.tax_flag AS "taxFlag",
+		a.batch_flag AS "batchFlag",
+		a.fnc_id AS "fncId",
+		a.is_leaf AS "isLeaf",
+		a.auto_flag AS "autoFlag"
+	</sql>
+	
+	<sql id="wareHouseJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="WareHouse" >
+		SELECT 
+			<include refid="wareHouseColumns"/>
+		FROM inv_warehouse a
+		<include refid="wareHouseJoins"/>
+		WHERE (a.id = #{id}||a.ware_id = #{wareID})
+	</select>
+
+    <select id="getByWareId" resultType="WareHouse">
+        SELECT
+          <include refid="wareHouseColumns"/>
+        FROM inv_warehouse a
+        <include refid="wareHouseJoins"/>
+        WHERE a.ware_id = #{wareId}
+    </select>
+
+    <select id="getMaxId" resultType="String">
+        SELECT MAX(ware_id) FROM inv_warehouse
+    </select>
+	
+	<select id="findList" resultType="WareHouse" >
+		SELECT 
+			<include refid="wareHouseColumns"/>
+		FROM inv_warehouse a
+		<include refid="wareHouseJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="wareID != null and wareID != ''">
+				AND a.ware_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareID}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareID}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareID},'%')</if>
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="itemType != null and itemType != ''">
+				AND a.item_type = #{itemType}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.ware_id ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WareHouse" >
+		SELECT 
+			<include refid="wareHouseColumns"/>
+		FROM inv_warehouse a
+		<include refid="wareHouseJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.ware_id ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_warehouse(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			ware_id,
+			ware_name,
+			ware_address,
+			plan_cost,
+			admin_mode,
+			price_mode,
+			curr_period,
+			last_carrdate,
+			note,
+			item_type,
+			sub_flag,
+			tax_flag,
+			batch_flag,
+			fnc_id,
+			is_leaf,
+			auto_flag
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{wareID},
+			#{wareName},
+			#{wareAddress},
+			#{planCost},
+			#{adminMode},
+			#{priceMode},
+			#{currPeriod},
+			#{lastCarrdate},
+			#{note},
+			#{itemType},
+			#{subFlag},
+			#{taxFlag},
+			#{batchFlag},
+			#{fncId},
+			#{isLeaf},
+			#{autoFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_warehouse SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			ware_id = #{wareID},
+			ware_name = #{wareName},
+			ware_address = #{wareAddress},
+			plan_cost = #{planCost},
+			admin_mode = #{adminMode},
+			price_mode = #{priceMode},
+			curr_period = #{currPeriod},
+			last_carrdate = #{lastCarrdate},
+			note = #{note},
+			item_type = #{itemType},
+			sub_flag = #{subFlag},
+			tax_flag = #{taxFlag},
+			batch_flag = #{batchFlag},
+			fnc_id = #{fncId},
+			is_leaf = #{isLeaf},
+			auto_flag = #{autoFlag}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_warehouse
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_warehouse SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="WareHouse" statementType="STATEMENT">
+		select * FROM inv_warehouse  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

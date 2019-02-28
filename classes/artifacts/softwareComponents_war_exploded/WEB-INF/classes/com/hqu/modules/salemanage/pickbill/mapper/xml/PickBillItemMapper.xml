@@ -1,0 +1,205 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.pickbill.mapper.PickBillItemMapper">
+    
+	<sql id="pickBillItemColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.pbill_code AS "pbillCode.id",
+		a.seq_id AS "seqId",
+		a.item_code AS "itemCode",
+		a.prod_code AS "prodCode.id",
+		a.prod_name AS "prodName",
+		a.prod_spec AS "prodSpec",
+		a.unit_name AS "unitName",
+		a.pick_qty AS "pickQty",
+		a.tax_ratio AS "taxRatio",
+		a.prod_price AS "prodPrice",
+		a.prod_sum AS "prodSum",
+		a.prod_price_taxed AS "prodPriceTaxed",
+		a.prod_sum_taxed AS "prodSumTaxed",
+		a.trans_price AS "transPrice",
+		a.trans_sum AS "transSum",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		prodCode.item_code AS "prodCode.item.code"
+	</sql>
+	
+	<sql id="pickBillItemJoins">
+		
+			LEFT JOIN sal_pick_bill b ON b.id = a.pbill_code
+		LEFT JOIN mdm_product prodCode ON prodCode.id = a.prod_code
+		LEFT JOIN mdm_item item ON item.id = prodCode.item_code
+	</sql>
+	
+    
+	<select id="get" resultType="PickBillItem" >
+		SELECT 
+			<include refid="pickBillItemColumns"/>
+		FROM sal_pick_bill_item a
+		<include refid="pickBillItemJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PickBillItem" >
+		SELECT 
+			<include refid="pickBillItemColumns"/>
+		FROM sal_pick_bill_item a
+		<include refid="pickBillItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="pbillCode != null and pbillCode.id != null and pbillCode.id != ''">
+				AND a.pbill_code = #{pbillCode.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PickBillItem" >
+		SELECT 
+			<include refid="pickBillItemColumns"/>
+		FROM sal_pick_bill_item a
+		<include refid="pickBillItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_pick_bill_item(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			pbill_code,
+			seq_id,
+			item_code,
+			prod_code,
+			prod_name,
+			prod_spec,
+			unit_name,
+			pick_qty,
+			tax_ratio,
+			prod_price,
+			prod_sum,
+			prod_price_taxed,
+			prod_sum_taxed,
+			trans_price,
+			trans_sum
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{pbillCode.id},
+			#{seqId},
+			#{itemCode},
+			#{prodCode.id},
+			#{prodName},
+			#{prodSpec},
+			#{unitName},
+			#{pickQty},
+			#{taxRatio},
+			#{prodPrice},
+			#{prodSum},
+			#{prodPriceTaxed},
+			#{prodSumTaxed},
+			#{transPrice},
+			#{transSum}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_pick_bill_item SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			pbill_code = #{pbillCode.id},
+			seq_id = #{seqId},
+			item_code = #{itemCode},
+			prod_code = #{prodCode.id},
+			prod_name = #{prodName},
+			prod_spec = #{prodSpec},
+			unit_name = #{unitName},
+			pick_qty = #{pickQty},
+			tax_ratio = #{taxRatio},
+			prod_price = #{prodPrice},
+			prod_sum = #{prodSum},
+			prod_price_taxed = #{prodPriceTaxed},
+			prod_sum_taxed = #{prodSumTaxed},
+			trans_price = #{transPrice},
+			trans_sum = #{transSum}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_pick_bill_item
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE pbill_code = #{pbillCode.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_pick_bill_item SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE pbill_code = #{pbillCode.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PickBillItem" statementType="STATEMENT">
+		select * FROM sal_pick_bill_item  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,310 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.realaccount.mapper.RealAccountMapper">
+    
+	<sql id="realAccountColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.ori_bill_id AS "oriBillId",
+		a.ori_bill_date AS "oriBillDate",
+		a.peroid_id AS "periodId",
+		a.make_id AS "makeId",
+		a.make_date AS "makeDate",
+		a.make_name AS "makeName",
+		a.cos_billnum_status AS "cosBillNumStatus",
+		a.bill_mode AS "billMode",
+		a.check_id AS "checkId",
+		a.check_date AS "checkDate",
+		a.check_name AS "checkName",
+		a.bill_type AS "billType",
+		a.mps_plan_id AS "mpsPlanId",
+		a.order_id AS "orderId",
+
+		'' AS "itemName",
+		'' AS "prodName"
+	</sql>
+	
+	<sql id="realAccountJoins">
+
+	</sql>
+	
+    
+	<select id="get" resultType="RealAccount" >
+		SELECT distinct 
+			<include refid="realAccountColumns"/>
+		FROM cos_main_realaccount a
+		<include refid="realAccountJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getMaxBillNum" resultType="String" >
+		SELECT CONCAT('PZ',MAX(SUBSTR(a.bill_num,3) + 1)) 
+		FROM cos_main_realaccount a 
+		WHERE a.bill_num  LIKE CONCAT('PZ',REPLACE(CURDATE(),'-',''),'%')
+	</select>
+	
+	<select id="findList" resultType="RealAccount" >
+		SELECT distinct 
+			<include refid="realAccountColumns"/>
+		FROM cos_main_realaccount a
+		<include refid="realAccountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="mpsPlanId != null and mpsPlanId != ''">
+				AND a.mps_plan_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mpsPlanId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mpsPlanId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mpsPlanId},'%')</if>
+			</if>
+			<if test="orderId != null and orderId != ''">
+				AND a.order_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{orderId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{orderId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{orderId},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.bill_num in (select bill_num from cos_detail_realaccount where item_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>)
+			</if>
+			<if test="prodName != null and prodName != ''">
+				AND a.bill_num in (select bill_num from cos_detail_realaccount where prod_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodName},'%')</if>)
+			</if>
+			<if test="oriBillId != null and oriBillId != ''">
+				AND a.ori_bill_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{oriBillId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{oriBillId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{oriBillId},'%')</if>
+			</if>
+			<if test="oriBillDate != null and oriBillDate != ''">
+				AND a.ori_bill_date LIKE 
+					<if test="dbName == 'oracle'">'%'||#{oriBillDate}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{oriBillDate}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{oriBillDate},'%')</if>
+			</if>
+			<if test="periodId != null and periodId != ''">
+				AND a.peroid_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{periodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{periodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{periodId},'%')</if>
+			</if>
+			<if test="billType != null and billType != ''">
+				AND a.bill_type = #{billType}
+			</if>
+			<if test="billMode != null and billMode != ''">
+				AND a.bill_mode = #{billMode}
+			</if>
+			<if test="cosBillNumStatus != null and cosBillNumStatus != ''">
+				AND a.cos_billnum_status = #{cosBillNumStatus}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAccountingList" resultType="RealAccount" >
+		SELECT 
+			<include refid="realAccountColumns"/>
+		FROM cos_main_realaccount a
+		<include refid="realAccountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="mpsPlanId != null and mpsPlanId != ''">
+				AND a.mps_plan_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mpsPlanId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mpsPlanId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mpsPlanId},'%')</if>
+			</if>
+			<if test="orderId != null and orderId != ''">
+				AND a.order_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{orderId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{orderId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{orderId},'%')</if>
+			</if>
+			<if test="oriBillId != null and oriBillId != ''">
+				AND a.ori_bill_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{oriBillId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{oriBillId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{oriBillId},'%')</if>
+			</if>
+			<if test="oriBillDate != null and oriBillDate != ''">
+				AND a.ori_bill_date LIKE 
+					<if test="dbName == 'oracle'">'%'||#{oriBillDate}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{oriBillDate}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{oriBillDate},'%')</if>
+			</if>
+			<if test="periodId != null and periodId != ''">
+				AND a.peroid_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{periodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{periodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{periodId},'%')</if>
+			</if>
+			<if test="billType != null and billType != ''">
+				AND a.bill_type = #{billType}
+			</if>
+			<if test="billMode != null and billMode != ''">
+				AND a.bill_mode = #{billMode}
+			</if>
+			<if test="cosBillNumStatus != null and cosBillNumStatus != ''">
+				AND a.cos_billnum_status = #{cosBillNumStatus}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="RealAccount" >
+		SELECT 
+			<include refid="realAccountColumns"/>
+		FROM cos_main_realaccount a
+		<include refid="realAccountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cos_main_realaccount(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			ori_bill_id,
+			ori_bill_date,
+			peroid_id,
+			make_id,
+			make_date,
+			make_name,
+			cos_billnum_status,
+			bill_mode,
+			check_id,
+			check_date,
+			check_name,
+			bill_type
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{oriBillId},
+			#{oriBillDate},
+			#{periodId},
+			#{makeId},
+			#{makeDate},
+			#{makeName},
+			#{cosBillNumStatus},
+			#{billMode},
+			#{checkId},
+			#{checkDate},
+			#{checkName},
+			#{billType}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cos_main_realaccount SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			ori_bill_id = #{oriBillId},
+			ori_bill_date = #{oriBillDate},
+			peroid_id = #{periodId},
+			make_id = #{makeId},
+			make_date = #{makeDate},
+			make_name = #{makeName},
+			cos_billnum_status = #{cosBillNumStatus},
+			bill_mode = #{billMode},
+			check_id = #{checkId},
+			check_date = #{checkDate},
+			check_name = #{checkName},
+			bill_type = #{billType}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM cos_main_realaccount
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE cos_main_realaccount SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="RealAccount" statementType="STATEMENT">
+		select * FROM cos_main_realaccount  where ${propertyName} = '${value}'
+	</select>
+
+	<select id="getMaxCLCBBillNum" resultType="String" >
+		SELECT CONCAT('CL',MAX(SUBSTR(a.bill_num,3) + 1))
+		FROM cos_main_realaccount a
+		WHERE a.bill_num  LIKE CONCAT('CL',REPLACE(CURDATE(),'-',''),'%')
+	</select>
+	
+	<select id="getMaxRGCBBillNum" resultType="String" >
+		SELECT CONCAT('RG',MAX(SUBSTR(a.bill_num,3) + 1))
+		FROM cos_main_realaccount a
+		WHERE a.bill_num  LIKE CONCAT('RG',REPLACE(CURDATE(),'-',''),'%')
+	</select>
+	
+</mapper>

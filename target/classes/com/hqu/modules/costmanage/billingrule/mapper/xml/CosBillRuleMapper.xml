@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.billingrule.mapper.CosBillRuleMapper">
+    
+	<sql id="cosBillRuleColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.rule_id AS "ruleId",
+		a.rule_name AS "ruleName",
+		a.rule_desc AS "ruleDesc",
+		a.bill_catalog AS "billCatalog",
+		a.bl_flag AS "blFlag",
+		a.item_rule AS "itemRule",
+		a.item_notes AS "itemNotes",
+		a.prod_rule AS "prodRule",
+		a.res_notes AS "resNotes",
+		a.rule_type AS "ruleType",
+		a.cor_type AS "corType"
+	</sql>
+	
+	<sql id="cosBillRuleJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="CosBillRule" >
+		SELECT 
+			<include refid="cosBillRuleColumns"/>
+		FROM cos_billrule a
+		<include refid="cosBillRuleJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	<select id="getMaxRuleId" resultType="String">
+		SELECT MAX(rule_id)
+		FROM cos_billrule
+	</select>
+	
+	<select id="getCosBillRule" resultType="CosBillRule" >
+		SELECT 
+			<include refid="cosBillRuleColumns"/>
+		FROM cos_billrule a
+		<include refid="cosBillRuleJoins"/>
+		WHERE a.cor_type = #{corBillCatalog}
+	</select>
+	
+	<select id="findList" resultType="CosBillRule" >
+		SELECT 
+			<include refid="cosBillRuleColumns"/>
+		FROM cos_billrule a
+		<include refid="cosBillRuleJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="ruleId != null and ruleId != ''">
+				AND a.rule_id = #{ruleId}
+			</if>
+			<if test="ruleName != null and ruleName != ''">
+				AND a.rule_name = #{ruleName}
+			</if>
+			<if test="ruleDesc != null and ruleDesc != ''">
+				AND a.rule_desc = #{ruleDesc}
+			</if>
+			<if test="billCatalog != null and billCatalog != ''">
+				AND a.bill_catalog = #{billCatalog}
+			</if>
+			<if test="blFlag != null and blFlag != ''">
+				AND a.bl_flag = #{blFlag}
+			</if>
+			<if test="itemRule != null and itemRule != ''">
+				AND a.item_rule = #{itemRule}
+			</if>
+			<if test="itemNotes != null and itemNotes != ''">
+				AND a.item_notes = #{itemNotes}
+			</if>
+			<if test="prodRule != null and prodRule != ''">
+				AND a.prod_rule = #{prodRule}
+			</if>
+			<if test="resNotes != null and resNotes != ''">
+				AND a.res_notes = #{resNotes}
+			</if>
+			<if test="ruleType != null and ruleType != ''">
+				AND a.rule_type = #{ruleType}
+			</if>
+			<if test="corType != null and corType != ''">
+				AND a.cor_type = #{corType}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CosBillRule" >
+		SELECT 
+			<include refid="cosBillRuleColumns"/>
+		FROM cos_billrule a
+		<include refid="cosBillRuleJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cos_billrule(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			rule_id,
+			rule_name,
+			rule_desc,
+			bill_catalog,
+			bl_flag,
+			item_rule,
+			item_notes,
+			prod_rule,
+			res_notes,
+			rule_type,
+			cor_type
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{ruleId},
+			#{ruleName},
+			#{ruleDesc},
+			#{billCatalog},
+			#{blFlag},
+			#{itemRule},
+			#{itemNotes},
+			#{prodRule},
+			#{resNotes},
+			#{ruleType},
+			#{corType}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cos_billrule SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			rule_id = #{ruleId},
+			rule_name = #{ruleName},
+			rule_desc = #{ruleDesc},
+			bill_catalog = #{billCatalog},
+			bl_flag = #{blFlag},
+			item_rule = #{itemRule},
+			item_notes = #{itemNotes},
+			prod_rule = #{prodRule},
+			res_notes = #{resNotes},
+			rule_type = #{ruleType},
+			cor_type = #{corType}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM cos_billrule
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE cos_billrule SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CosBillRule" statementType="STATEMENT">
+		select * FROM cos_billrule  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

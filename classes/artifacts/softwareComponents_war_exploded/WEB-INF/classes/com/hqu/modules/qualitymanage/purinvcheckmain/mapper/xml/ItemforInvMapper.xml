@@ -1,0 +1,376 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.purinvcheckmain.mapper.ItemforInvMapper">
+    
+	<sql id="itemforInvColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.code AS "code",
+		a.name AS "name",
+		a.class_code AS "classCode.classId",
+		a.class_name AS "className",
+		a.spec_model AS "specModel",
+		a.texture AS "texture",
+		a.gb AS "gb",
+		a.draw_no AS "drawNO",
+		a.unit_code AS "unitCode.unitCode",
+		a.unit AS "unit",
+		a.safety_qty AS "safetyQty",
+		a.lead_time AS "leadTime",
+		a.max_storage AS "maxStorage",
+		a.min_storage AS "minStorage",
+		a.plan_price AS "planPrice",
+		a.system_sign AS "systemSign",
+		a.is_key AS "isKey",
+		a.item_batch AS "itemBatch",
+		a.is_in_motor AS "isInMotor",
+		b.name AS "classCode.name",
+		unitCode.unit_name AS "unitCode.unitName"
+	</sql>
+	
+	<sql id="itemforInvJoins">
+			LEFT JOIN mdm_itemclass b ON b.id = a.class_code
+		LEFT JOIN mdm_unit unitCode ON unitCode.id = a.unit_code
+	</sql>
+	
+    
+	<select id="get" resultType="ItemforInv" >
+		SELECT 
+			<include refid="itemforInvColumns"/>
+		FROM mdm_item a
+		<include refid="itemforInvJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ItemforInv" >
+		SELECT 
+			<include refid="itemforInvColumns"/>
+		FROM mdm_item a
+		<include refid="itemforInvJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="code != null and code != ''">
+				AND a.code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{code}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{code}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{code},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.code ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findList2" resultType="ItemforInv" >
+		SELECT 
+			<include refid="itemforInvColumns"/>
+		FROM mdm_item a
+		<include refid="itemforInvJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="code != null and code != ''">
+				AND a.code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{code}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{code}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{code},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+                    <if test="classCode != null  and classCode.id != null and classCode.id != ''">
+                        AND (b.id = #{classCode.id} OR b.parent_ids LIKE
+                        <if test="dbName == 'oracle'">'%,'||#{classCode.id}||',%')</if>
+                        <if test="dbName == 'mysql'">CONCAT('%,', #{classCode.id}, ',%'))</if>
+                        <if test="dbName == 'mssql'">'%'+#{classCode.id}+'%')</if>
+                    </if>
+			<if test="className != null and className != ''">
+				AND a.class_name = #{className}
+			</if>
+			<if test="specModel != null and specModel != ''">
+				AND a.spec_model LIKE 
+					<if test="dbName == 'oracle'">'%'||#{specModel}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{specModel}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{specModel},'%')</if>
+			</if>
+			<if test="texture != null and texture != ''">
+				AND a.texture LIKE 
+					<if test="dbName == 'oracle'">'%'||#{texture}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{texture}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{texture},'%')</if>
+			</if>
+			<if test="unitCode != null and unitCode.unitCode != null and unitCode.unitCode != ''">
+				AND a.unit_code = #{unitCode.unitCode}
+			</if>
+			<if test="unit != null and unit != ''">
+				AND a.unit = #{unit}
+			</if>
+			<if test="systemSign != null and systemSign != ''">
+				AND a.system_sign LIKE 
+					<if test="dbName == 'oracle'">'%'||#{systemSign}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{systemSign}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{systemSign},'%')</if>
+			</if>
+			<if test="isKey != null and isKey != ''">
+				AND a.is_key = #{isKey}
+			</if>
+			<if test="isInMotor != null and isInMotor != ''">
+				AND a.is_in_motor = #{isInMotor}
+			</if>
+			<if test="classCode != null  and classCode.classId != null and classCode.classId != ''">
+				AND a.class_code LIKE #{classCode.classId}"%"
+			</if>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.code ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findList1" resultType="ItemforInv" >
+		SELECT
+		<include refid="itemforInvColumns"/>
+		FROM mdm_item a
+		<include refid="itemforInvJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="code != null and code != ''">
+				AND a.code LIKE
+				<if test="dbName == 'oracle'">#{code}||'%'</if>
+				<if test="dbName == 'mssql'">#{code}+'%'</if>
+				<if test="dbName == 'mysql'">concat(#{code},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE
+				<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+			<if test="classCode != null  and classCode.id != null and classCode.id != ''">
+				AND (b.id = #{classCode.id} OR b.parent_ids LIKE
+				<if test="dbName == 'oracle'">#{classCode.id}||'%')</if>
+				<if test="dbName == 'mysql'">#{classCode.id}+'%')</if>
+				<if test="dbName == 'mssql'">concat(#{classCode.id},'%'))</if>
+			</if>
+			<if test="className != null and className != ''">
+				AND a.class_name = #{className}
+			</if>
+			<if test="specModel != null and specModel != ''">
+				AND a.spec_model LIKE
+				<if test="dbName == 'oracle'">'%'||#{specModel}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{specModel}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{specModel},'%')</if>
+			</if>
+			<if test="texture != null and texture != ''">
+				AND a.texture LIKE
+				<if test="dbName == 'oracle'">'%'||#{texture}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{texture}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{texture},'%')</if>
+			</if>
+			<if test="unitCode != null and unitCode.unitCode != null and unitCode.unitCode != ''">
+				AND a.unit_code = #{unitCode.unitCode}
+			</if>
+			<if test="unit != null and unit != ''">
+				AND a.unit = #{unit}
+			</if>
+			<if test="systemSign != null and systemSign != ''">
+				AND a.system_sign LIKE
+				<if test="dbName == 'oracle'">'%'||#{systemSign}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{systemSign}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{systemSign},'%')</if>
+			</if>
+			<if test="isKey != null and isKey != ''">
+				AND a.is_key = #{isKey}
+			</if>
+			<if test="isInMotor != null and isInMotor != ''">
+				AND a.is_in_motor = #{isInMotor}
+			</if>
+			<if test="classCode != null  and classCode.classId != null and classCode.classId != ''">
+				AND a.class_code LIKE #{classCode.classId}"%"
+			</if>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.code ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ItemforInv" >
+		SELECT 
+			<include refid="itemforInvColumns"/>
+		FROM mdm_item a
+		<include refid="itemforInvJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_item(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			code,
+			name,
+			class_code,
+			class_name,
+			spec_model,
+			texture,
+			gb,
+			draw_no,
+			unit_code,
+			unit,
+			safety_qty,
+			lead_time,
+			max_storage,
+			min_storage,
+			plan_price,
+			system_sign,
+			is_key,
+			item_batch,
+			is_in_motor
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{code},
+			#{name},
+			#{classCode.classId},
+			#{className},
+			#{specModel},
+			#{texture},
+			#{gb},
+			#{drawNO},
+			#{unitCode.unitCode},
+			#{unit},
+			#{safetyQty},
+			#{leadTime},
+			#{maxStorage},
+			#{minStorage},
+			#{planPrice},
+			#{systemSign},
+			#{isKey},
+			#{itemBatch},
+			#{isInMotor}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_item SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			code = #{code},
+			name = #{name},
+			class_code = #{classCode.classId},
+			class_name = #{className},
+			spec_model = #{specModel},
+			texture = #{texture},
+			gb = #{gb},
+			draw_no = #{drawNO},
+			unit_code = #{unitCode.unitCode},
+			unit = #{unit},
+			safety_qty = #{safetyQty},
+			lead_time = #{leadTime},
+			max_storage = #{maxStorage},
+			min_storage = #{minStorage},
+			plan_price = #{planPrice},
+			system_sign = #{systemSign},
+			is_key = #{isKey},
+			item_batch = #{itemBatch},
+			is_in_motor = #{isInMotor}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_item
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE class_code = #{classCode.classId}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_item SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE class_code = #{classCode.classId}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Item" statementType="STATEMENT">
+		select * FROM mdm_item  where ${propertyName} = '${value}'
+	</select>
+
+
+	<!-- 根据code查到产成品 -->
+	<select id="findFinishedProduct" resultType="Item">
+		SELECT *
+		FROM mdm_item a
+		<where>
+			a.code LIKE "01"
+		</where>
+	</select>
+</mapper>

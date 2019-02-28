@@ -1,0 +1,248 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.accountfile.mapper.FileContractMapper">
+    
+	<sql id="fileContractColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.contract_code AS "contractCode",
+		a.sign_date AS "signDate",
+		a.contract_type_code AS "contractType.id",
+		a.contract_type_name AS "contractTypeName",
+		a.account_code AS "account.id",
+		a.account_name AS "accountName",
+		a.blnc_type_code AS "blncType.id",
+		a.blnc_type_name AS "blncTypeName",
+		a.person_code AS "person.id",
+		a.person_name AS "personName",
+		a.input_date AS "inputDate",
+		a.input_person AS "inputPerson.id",
+		a.contract_stat AS "contractStat",
+		a.end_reason AS "endReason",
+		a.end_person AS "endPerson.id",
+		a.end_psn_name AS "endPsnName",
+		a.end_date AS "endDate",
+		a.pay_type_code AS "payType.id",
+		a.pay_type_name AS "payTypeName",
+		a.tranprice_payer AS "tranpricePayer",
+		a.transfee_sum AS "transfeeSum",
+		a.goods_sum AS "goodsSum",
+		a.goods_sum_taxed AS "goodsSumTaxed",
+		a.item_contents AS "itemContents",
+		a.paper_ctr_code AS "paperCtrCode",
+		a.pra_remark AS "praRemark"
+	</sql>
+	
+	<sql id="fileContractJoins">
+		
+		LEFT JOIN sal_ctrtypedef contractType ON contractType.id = a.contract_type_code
+			LEFT JOIN mdm_account b ON b.id = a.account_code
+		LEFT JOIN sal_blnctypedef blncType ON blncType.id = a.blnc_type_code
+		LEFT JOIN sys_user person ON person.id = a.person_code
+		LEFT JOIN sys_user inputPerson ON inputPerson.id = a.input_person
+		LEFT JOIN sys_user endPerson ON endPerson.id = a.end_person
+		LEFT JOIN sal_paytypedef payType ON payType.id = a.pay_type_code
+	</sql>
+	
+    
+	<select id="get" resultType="FileContract" >
+		SELECT 
+			<include refid="fileContractColumns"/>
+		FROM sal_contract a
+		<include refid="fileContractJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="FileContract" >
+		SELECT 
+			<include refid="fileContractColumns"/>
+		FROM sal_contract a
+		<include refid="fileContractJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="account != null and account  != ''">
+				AND a.account_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{account.id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{account.id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{account.id},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="FileContract" >
+		SELECT 
+			<include refid="fileContractColumns"/>
+		FROM sal_contract a
+		<include refid="fileContractJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_contract(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			contract_code,
+			sign_date,
+			contract_type_code,
+			contract_type_name,
+			account_code,
+			account_name,
+			blnc_type_code,
+			blnc_type_name,
+			person_code,
+			person_name,
+			input_date,
+			input_person,
+			contract_stat,
+			end_reason,
+			end_person,
+			end_psn_name,
+			end_date,
+			pay_type_code,
+			pay_type_name,
+			tax_ratio,
+			tranprice_payer,
+			transfee_sum,
+			goods_sum,
+			goods_sum_taxed,
+			item_contents,
+			paper_ctr_code,
+			pra_remark
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{contractCode},
+			#{signDate},
+			#{contractType.id},
+			#{contractTypeName},
+			#{account.id},
+			#{accountName},
+			#{blncType.id},
+			#{blncTypeName},
+			#{person.id},
+			#{personName},
+			#{inputDate},
+			#{inputPerson.id},
+			#{contractStat},
+			#{endReason},
+			#{endPerson.id},
+			#{endPsnName},
+			#{endDate},
+			#{payType.id},
+			#{payTypeName},
+			#{taxRatio},
+			#{tranpricePayer},
+			#{transfeeSum},
+			#{goodsSum},
+			#{goodsSumTaxed},
+			#{itemContents},
+			#{paperCtrCode},
+			#{praRemark}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_contract SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			contract_code = #{contractCode},
+			sign_date = #{signDate},
+			contract_type_code = #{contractType.id},
+			contract_type_name = #{contractTypeName},
+			account_code = #{account.id},
+			account_name = #{accountName},
+			blnc_type_code = #{blncType.id},
+			blnc_type_name = #{blncTypeName},
+			person_code = #{person.id},
+			person_name = #{personName},
+			input_date = #{inputDate},
+			input_person = #{inputPerson.id},
+			contract_stat = #{contractStat},
+			end_reason = #{endReason},
+			end_person = #{endPerson.id},
+			end_psn_name = #{endPsnName},
+			end_date = #{endDate},
+			pay_type_code = #{payType.id},
+			pay_type_name = #{payTypeName},
+			tax_ratio = #{taxRatio},
+			tranprice_payer = #{tranpricePayer},
+			transfee_sum = #{transfeeSum},
+			goods_sum = #{goodsSum},
+			goods_sum_taxed = #{goodsSumTaxed},
+			item_contents = #{itemContents},
+			paper_ctr_code = #{paperCtrCode},
+			pra_remark = #{praRemark}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_contract
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE account_code = #{account.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_contract SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE account_code = #{account.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="FileContract" statementType="STATEMENT">
+		select * FROM sal_contract  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

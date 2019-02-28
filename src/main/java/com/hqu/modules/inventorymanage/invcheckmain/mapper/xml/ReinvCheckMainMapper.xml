@@ -1,0 +1,238 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.invcheckmain.mapper.ReinvCheckMainMapper">
+    
+	<sql id="reinvCheckMainColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.period_id AS "periodId",
+		a.make_date AS "makeDate",
+		a.make_emp_id AS "makeEmpId",
+		a.make_emp_name AS "makeEmpName",
+		a.bill_flag AS "billFlag",
+		a.ware_id AS "wareId",
+		a.ware_name AS "wareName",
+		a.ware_emp_id AS "wareEmpId",
+		a.ware_emp_name AS "wareEmpName",
+		a.check_emp_id AS "checkEmpId",
+		a.check_emp_name AS "checkEmpName",
+		a.qms_flag AS "qmsFlag"
+	</sql>
+	
+	<sql id="reinvCheckMainJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="ReinvCheckMain" >
+		SELECT 
+			<include refid="reinvCheckMainColumns"/>
+		FROM inv_checkmain a
+		<include refid="reinvCheckMainJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ReinvCheckMain" >
+		SELECT 
+			<include refid="reinvCheckMainColumns"/>
+		FROM inv_checkmain a
+		<include refid="reinvCheckMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="beginBillNum != null and endBillNum != null and beginBillNum != '' and endBillNum != ''">
+				AND a.bill_num BETWEEN #{beginBillNum} AND #{endBillNum}
+			</if>
+			<if test="periodId != null and periodId != ''">
+				AND a.period_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{periodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{periodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{periodId},'%')</if>
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.make_date BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="makeEmpId != null and makeEmpId != ''">
+				AND a.make_emp_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makeEmpId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makeEmpId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makeEmpId},'%')</if>
+			</if>
+			<if test="makeEmpName != null and makeEmpName != ''">
+				AND a.make_emp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makeEmpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makeEmpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makeEmpName},'%')</if>
+			</if>
+			<if test="billFlag != null and billFlag != ''">
+				AND a.bill_flag LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billFlag}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billFlag}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billFlag},'%')</if>
+			</if>
+			<if test="wareId != null and wareId != ''">
+				AND a.ware_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareId},'%')</if>
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="wareEmpId != null and wareEmpId != ''">
+				AND a.ware_emp_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareEmpId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareEmpId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareEmpId},'%')</if>
+			</if>
+			<if test="wareEmpName != null and wareEmpName != ''">
+				AND a.ware_emp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareEmpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareEmpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareEmpName},'%')</if>
+			</if>
+			<if test="checkEmpId != null and checkEmpId != ''">
+				AND a.check_emp_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{checkEmpId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{checkEmpId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{checkEmpId},'%')</if>
+			</if>
+			<if test="checkEmpName != null and checkEmpName != ''">
+				AND a.check_emp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{checkEmpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{checkEmpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{checkEmpName},'%')</if>
+			</if>
+			<if test="qmsFlag != null and qmsFlag != ''">
+				AND a.qms_flag LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qmsFlag}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qmsFlag}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qmsFlag},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ReinvCheckMain" >
+		SELECT 
+			<include refid="reinvCheckMainColumns"/>
+		FROM inv_checkmain a
+		<include refid="reinvCheckMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_checkmain(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			period_id,
+			make_date,
+			make_emp_id,
+			make_emp_name,
+			bill_flag,
+			ware_id,
+			ware_name,
+			ware_emp_id,
+			ware_emp_name,
+			check_emp_id,
+			check_emp_name,
+			qms_flag
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{periodId},
+			#{makeDate},
+			#{makeEmpId},
+			#{makeEmpName},
+			#{billFlag},
+			#{wareId},
+			#{wareName},
+			#{wareEmpId},
+			#{wareEmpName},
+			#{checkEmpId},
+			#{checkEmpName},
+			#{qmsFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_checkmain SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			period_id = #{periodId},
+			make_date = #{makeDate},
+			make_emp_id = #{makeEmpId},
+			make_emp_name = #{makeEmpName},
+			bill_flag = #{billFlag},
+			ware_id = #{wareId},
+			ware_name = #{wareName},
+			ware_emp_id = #{wareEmpId},
+			ware_emp_name = #{wareEmpName},
+			check_emp_id = #{checkEmpId},
+			check_emp_name = #{checkEmpName},
+			qms_flag = #{qmsFlag}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_checkmain
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_checkmain SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ReinvCheckMain" statementType="STATEMENT">
+		select * FROM inv_checkmain  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

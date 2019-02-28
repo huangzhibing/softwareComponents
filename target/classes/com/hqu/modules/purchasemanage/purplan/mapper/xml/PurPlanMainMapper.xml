@@ -1,0 +1,295 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.purplan.mapper.PurPlanMainMapper">
+    
+	<sql id="purPlanMainColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.bill_type AS "billType",
+		a.period_id AS "periodId.id",
+		a.plan_date AS "planDate",
+		a.make_date AS "makeDate",
+		a.make_empid AS "makeEmpid.id",
+		a.make_empname AS "makeEmpname",
+		a.make_notes AS "makeNotes",
+		a.bill_state_flag AS "billStateFlag",
+		a.plan_price_sum AS "planPriceSum",
+		a.need_type AS "needType",
+		a.plan_type_code AS "planTypeCode.id",
+		a.plan_type_name AS "planTypeName",
+		a.mrp_plan_id AS "mrpPlanId",
+		a.plan_note AS "planNote",
+		a.fbr_no AS "fbrNo",
+		a.bdate AS "bdate",
+		a.plan_dept_id AS "planDeptId.id",
+		a.plan_dept_name AS "planDeptName",
+		a.plan_use AS "planUse",
+		a.user_dept_code AS "userDeptCode",
+		a.proc_ins_id AS "act.procInsId",
+		a.sup_id AS "supId.id",
+		a.sup_name AS "supName",
+		a.tax_ratio AS "taxRatio",
+				
+				
+				
+				
+				
+				
+				
+				
+		periodId.period_id AS "periodId.periodId",
+				
+				
+				
+		makeEmpid.login_name AS "makeEmpid.loginName",
+				
+		makeEmpid.no AS "makeEmpid.no",		
+				
+				
+				
+				
+		planTypeCode.plantypeid AS "planTypeCode.plantypeid",
+				
+				
+				
+				
+				
+				
+		planDeptId.name AS "planDeptId.name",
+		supId.account_code AS "supId.accountCode"
+	</sql>
+	
+	<sql id="purPlanMainJoins">
+		
+		LEFT JOIN mdm_period periodId ON periodId.id = a.period_id
+		LEFT JOIN sys_user makeEmpid ON makeEmpid.id = a.make_empid
+		LEFT JOIN pur_plantype planTypeCode ON planTypeCode.id = a.plan_type_code
+		LEFT JOIN sys_office planDeptId ON planDeptId.id = a.plan_dept_id
+		LEFT JOIN mdm_account supId ON supId.id = a.sup_id
+	</sql>
+	
+    
+	<select id="get" resultType="PurPlanMain" >
+		SELECT 
+			<include refid="purPlanMainColumns"/>
+		FROM pur_planmain a
+		<include refid="purPlanMainJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getPurPlanMain" resultType="PurPlanMain" >
+		SELECT 
+			<include refid="purPlanMainColumns"/>
+		FROM pur_planmain a
+		<include refid="purPlanMainJoins"/>
+		WHERE 1=1
+		<if test="billNum != null and billNum != ''">
+				AND a.bill_num =#{billNum} 
+		</if>
+		<if test="id != null and id != ''">
+				AND a.id = #{id} 
+		</if>
+	</select>
+	
+	
+	<select id="findList" resultType="PurPlanMain" >
+		SELECT 
+			<include refid="purPlanMainColumns"/>
+		FROM pur_planmain a
+		<include refid="purPlanMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="beginPlanDate != null and endPlanDate != null and beginPlanDate != '' and endPlanDate != ''">
+				AND a.plan_date BETWEEN #{beginPlanDate} AND #{endPlanDate}
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.make_date BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="makeEmpid != null and makeEmpid.id != null and makeEmpid.id != ''">
+				AND a.make_empid = #{makeEmpid.id}
+			</if>
+			<if test="billStateFlag != null and billStateFlag != ''">
+				AND a.bill_state_flag = #{billStateFlag}
+			</if>
+			<if test="billType != null and billType != ''">
+				AND a.bill_type = #{billType}
+			</if>
+			<if test="makeEmpname != null and makeEmpname != ''">
+				AND a.make_empname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makeEmpname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makeEmpname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makeEmpname},'%')</if>
+			</if>
+			<if test="planTypeCode != null and planTypeCode.id != null and planTypeCode.id != ''">
+				AND a.plan_type_code = #{planTypeCode.id}
+			</if>
+			<if test="planTypeName != null and planTypeName != ''">
+				AND a.plan_type_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{planTypeName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{planTypeName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{planTypeName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurPlanMain" >
+		SELECT 
+			<include refid="purPlanMainColumns"/>
+		FROM pur_planmain a
+		<include refid="purPlanMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_planmain(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			bill_type,
+			period_id,
+			plan_date,
+			make_date,
+			make_empid,
+			make_empname,
+			make_notes,
+			bill_state_flag,
+			plan_price_sum,
+			need_type,
+			plan_type_code,
+			plan_type_name,
+			mrp_plan_id,
+			plan_note,
+			fbr_no,
+			bdate,
+			plan_dept_id,
+			plan_dept_name,
+			plan_use,
+			user_dept_code,
+			sup_id,
+			sup_name,
+			tax_ratio
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{billType},
+			#{periodId.id},
+			#{planDate},
+			#{makeDate},
+			#{makeEmpid.id},
+			#{makeEmpname},
+			#{makeNotes},
+			#{billStateFlag},
+			#{planPriceSum},
+			#{needType},
+			#{planTypeCode.id},
+			#{planTypeName},
+			#{mrpPlanId},
+			#{planNote},
+			#{fbrNo},
+			#{bdate},
+			#{planDeptId.id},
+			#{planDeptName},
+			#{planUse},
+			#{userDeptCode},
+			#{supId.id},
+			#{supName},
+			#{taxRatio}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_planmain SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			bill_type = #{billType},
+			period_id = #{periodId.id},
+			plan_date = #{planDate},
+			make_date = #{makeDate},
+			make_empid = #{makeEmpid.id},
+			make_empname = #{makeEmpname},
+			make_notes = #{makeNotes},
+			bill_state_flag = #{billStateFlag},
+			plan_price_sum = #{planPriceSum},
+			need_type = #{needType},
+			plan_type_code = #{planTypeCode.id},
+			plan_type_name = #{planTypeName},
+			mrp_plan_id = #{mrpPlanId},
+			plan_note = #{planNote},
+			fbr_no = #{fbrNo},
+			bdate = #{bdate},
+			plan_dept_id = #{planDeptId.id},
+			plan_dept_name = #{planDeptName},
+			plan_use = #{planUse},
+			user_dept_code = #{userDeptCode},
+			sup_id = #{supId.id},
+			sup_name = #{supName},
+			tax_ratio = #{taxRatio}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_planmain
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_planmain SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurPlanMain" statementType="STATEMENT">
+		select * FROM pur_planmain  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

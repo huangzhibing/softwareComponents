@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.group.mapper.GroupItemClassMapper">
+    
+	<sql id="groupItemClassColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.groupid AS "Group.groupid",
+		a.itemclasscode AS "item.id",
+		a.itemclassname AS "itemclassname",
+				
+				
+				
+				
+				
+				
+				
+				
+		item.code AS "item.code",
+		item.name AS "item.name"
+	</sql>
+	
+	<sql id="groupItemClassJoins">
+		
+			LEFT JOIN pur_group b ON b.id = a.groupid
+		LEFT JOIN mdm_item item ON item.id = a.itemclasscode
+	</sql>
+	
+    
+	<select id="get" resultType="GroupItemClass" >
+		SELECT 
+			<include refid="groupItemClassColumns"/>
+		FROM pur_groupitemclass a
+		<include refid="groupItemClassJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="GroupItemClass" >
+		SELECT 
+			<include refid="groupItemClassColumns"/>
+		FROM pur_groupitemclass a
+		<include refid="groupItemClassJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="Group != null and Group.groupid != null and Group.groupid != ''">
+				AND a.groupid = #{Group.groupid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="GroupItemClass" >
+		SELECT 
+			<include refid="groupItemClassColumns"/>
+		FROM pur_groupitemclass a
+		<include refid="groupItemClassJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_groupitemclass(
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			groupid,
+			itemclasscode,
+			itemclassname
+		) VALUES (
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{Group.groupid},
+			#{item.id},
+			#{itemclassname}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_groupitemclass SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			groupid = #{Group.groupid},
+			itemclasscode = #{item.id},
+			itemclassname = #{itemclassname}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_groupitemclass
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE groupid = #{Group.groupid}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_groupitemclass SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE groupid = #{Group.groupid}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="GroupItemClass" statementType="STATEMENT">
+		select * FROM pur_groupitemclass  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

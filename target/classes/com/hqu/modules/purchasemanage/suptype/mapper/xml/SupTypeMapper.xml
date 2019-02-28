@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.suptype.mapper.SupTypeMapper">
+    
+	<sql id="supTypeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.suptype_id AS "suptypeId",
+		a.suptype_name AS "suptypeName",
+		a.suptype_notes AS "suptypeNotes"
+	</sql>
+	
+	<sql id="supTypeJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="SupType" >
+		SELECT 
+			<include refid="supTypeColumns"/>
+		FROM pur_suptype a
+		<include refid="supTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SupType" >
+		SELECT 
+			<include refid="supTypeColumns"/>
+		FROM pur_suptype a
+		<include refid="supTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="suptypeName != null and suptypeName != ''">
+				AND a.suptype_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{suptypeName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{suptypeName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{suptypeName},'%')</if>
+			</if>
+			<if test="suptypeId != null and suptypeId != ''">
+				AND a.suptype_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{suptypeId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{suptypeId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{suptypeId},'%')</if>
+			</if>
+			<if test="suptypeNotes != null and suptypeNotes != ''">
+				AND a.suptype_notes LIKE
+				<if test="dbName == 'oracle'">'%'||#{suptypeNotes}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{suptypeNotes}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{suptypeNotes},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SupType" >
+		SELECT 
+			<include refid="supTypeColumns"/>
+		FROM pur_suptype a
+		<include refid="supTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_suptype(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			suptype_id,
+			suptype_name,
+			suptype_notes
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{suptypeId},
+			#{suptypeName},
+			#{suptypeNotes}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_suptype SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			suptype_id = #{suptypeId},
+			suptype_name = #{suptypeName},
+			suptype_notes = #{suptypeNotes}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_suptype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_suptype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SupType" statementType="STATEMENT">
+		select * FROM pur_suptype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

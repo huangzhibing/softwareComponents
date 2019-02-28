@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.dispatchbill.mapper.DispatchBillPersonMapper">
+    
+	<sql id="dispatchBillPersonColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.routinebillno AS "routineBillNo",
+		a.routingcode AS "routingCode",
+		a.dispatchno AS "dispatchNo.id",
+		a.workercode AS "workerCode",
+		a.actualworkercode AS "actualWorkerCode",
+		a.actualworkhour AS "actualWorkHour"
+	</sql>
+	
+	<sql id="dispatchBillPersonJoins">
+		
+			LEFT JOIN sfc_dispatchbill b ON b.id = a.dispatchno
+	</sql>
+	
+    
+	<select id="get" resultType="DispatchBillPerson" >
+		SELECT 
+			<include refid="dispatchBillPersonColumns"/>
+		FROM sfc_dispatchbillperson a
+		<include refid="dispatchBillPersonJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DispatchBillPerson" >
+		SELECT 
+			<include refid="dispatchBillPersonColumns"/>
+		FROM sfc_dispatchbillperson a
+		<include refid="dispatchBillPersonJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="dispatchNo != null and dispatchNo != ''">
+				AND a.dispatchno = #{dispatchNo.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DispatchBillPerson" >
+		SELECT 
+			<include refid="dispatchBillPersonColumns"/>
+		FROM sfc_dispatchbillperson a
+		<include refid="dispatchBillPersonJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_dispatchbillperson(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			routinebillno,
+			routingcode,
+			dispatchno,
+			workercode,
+			actualworkercode,
+			actualworkhour
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{routineBillNo},
+			#{routingCode},
+			#{dispatchNo.id},
+			#{workerCode},
+			#{actualWorkerCode},
+			#{actualWorkHour}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_dispatchbillperson SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			routinebillno = #{routineBillNo},
+			routingcode = #{routingCode},
+			dispatchno = #{dispatchNo.id},
+			workercode = #{workerCode},
+			actualworkercode = #{actualWorkerCode},
+			actualworkhour = #{actualWorkHour}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_dispatchbillperson
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE dispatchno = #{dispatchNo.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_dispatchbillperson SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE dispatchno = #{dispatchNo.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DispatchBillPerson" statementType="STATEMENT">
+		select * FROM sfc_dispatchbillperson  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

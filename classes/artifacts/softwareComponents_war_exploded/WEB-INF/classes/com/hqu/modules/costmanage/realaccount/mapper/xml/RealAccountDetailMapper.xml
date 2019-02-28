@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.realaccount.mapper.RealAccountDetailMapper">
+    
+	<sql id="realAccountDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNumId.billNum",
+		a.rec_no AS "recNo",
+		a.item_id AS "itemId.itemCode",
+		a.item_name AS "itemName",
+		a.item_sum AS "itemSum",
+		a.blflag AS "blflag",
+		a.abst AS "abst",
+		a.prod_id AS "cosProdObject.prodId",
+		a.prod_name AS "prodName",
+		a.prod_unit AS "prodUnit",
+		a.prod_spec AS "prodSpec",
+		a.prod_qty AS "prodQty"
+	</sql>
+	
+	<sql id="realAccountDetailJoins">
+
+			LEFT JOIN cos_main_realaccount b ON b.id = a.bill_num
+	</sql>
+	
+    
+	<select id="get" resultType="RealAccountDetail" >
+		SELECT 
+			<include refid="realAccountDetailColumns"/>
+		FROM cos_detail_realaccount a
+		<include refid="realAccountDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="RealAccountDetail" >
+		SELECT 
+			<include refid="realAccountDetailColumns"/>
+		FROM cos_detail_realaccount a
+		<include refid="realAccountDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNumId != null and billNumId.billNum != null and billNumId.billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNumId.billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNumId.billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNumId.billNum},'%')</if>
+			</if>
+			<if test="itemId != null and itemId.itemCode != null and itemId.itemCode != ''">
+				AND a.item_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemId.itemCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemId.itemCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemId.itemCode},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="cosProdObject != null and cosProdObject.prodId != null and cosProdObject.prodId != ''">
+				AND a.prod_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{cosProdObject.prodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{cosProdObject.prodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{cosProdObject.prodId},'%')</if>
+			</if>
+			<if test="prodName != null and prodName != ''">
+				AND a.prod_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prodName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodName},'%')</if>
+			</if>
+			<if test="prodSpec != null and prodSpec != ''">
+				AND a.prod_spec LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prodSpec}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodSpec}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodSpec},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="RealAccountDetail" >
+		SELECT 
+			<include refid="realAccountDetailColumns"/>
+		FROM cos_detail_realaccount a
+		<include refid="realAccountDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cos_detail_realaccount(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			rec_no,
+			item_id,
+			item_name,
+			item_sum,
+			blflag,
+			abst,
+			prod_id,
+			prod_name,
+			prod_unit,
+			prod_spec,
+			prod_qty
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNumId.billNum},
+			#{recNo},
+			#{itemId.itemCode},
+			#{itemName},
+			#{itemSum},
+			#{blflag},
+			#{abst},
+			#{cosProdObject.prodId},
+			#{prodName},
+			#{prodUnit},
+			#{prodSpec},
+			#{prodQty}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cos_detail_realaccount SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNumId.billNum},
+			rec_no = #{recNo},
+			item_id = #{itemId.itemCode},
+			item_name = #{itemName},
+			item_sum = #{itemSum},
+			blflag = #{blflag},
+			abst = #{abst},
+			prod_id = #{cosProdObject.prodId},
+			prod_name = #{prodName},
+			prod_unit = #{prodUnit},
+			prod_spec = #{prodSpec},
+			prod_qty = #{prodQty}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM cos_detail_realaccount
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNumId.billNum}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE cos_detail_realaccount SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNumId.billNum}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="RealAccountDetail" statementType="STATEMENT">
+		select * FROM cos_detail_realaccount  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

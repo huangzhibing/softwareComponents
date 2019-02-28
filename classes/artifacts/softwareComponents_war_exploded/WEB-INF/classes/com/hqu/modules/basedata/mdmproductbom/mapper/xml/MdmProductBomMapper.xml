@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.mdmproductbom.mapper.MdmProductBomMapper">
+    
+	<sql id="mdmProductBomColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.product_item_code AS "productItemCode",
+		a.product_item_name AS "productItemName",
+		a.item_code AS "itemCode",
+		a.item_name AS "itemName",
+		a.item_pdn AS "itemPdn",
+		a.item_spec AS "itemSpec",
+		a.item_measure AS "itemMeasure",
+		a.lead_time_assemble AS "leadTimeAssemble",
+		a.num_in_father AS "numInFather",
+		a.father_item_code AS "fatherItemCode",
+		a.father_item_name AS "fatherItemName",
+		a.father_item_pdn AS "fatherItemPdn",
+		a.father_item_spec AS "fatherItemSpec",
+		a.is_leaf AS "isLeaf"
+	</sql>
+	
+	<sql id="mdmProductBomJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="MdmProductBom" >
+		SELECT 
+			<include refid="mdmProductBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="mdmProductBomJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MdmProductBom" >
+		SELECT 
+			<include refid="mdmProductBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="mdmProductBomJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="productItemCode != null and productItemCode != ''">
+				AND a.product_item_code = #{productItemCode}
+			</if>
+			<if test="productItemName != null and productItemName != ''">
+				AND a.product_item_name = #{productItemName}
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND a.item_code = #{itemCode}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name = #{itemName}
+			</if>
+			<if test="itemPdn != null and itemPdn != ''">
+				AND a.item_pdn = #{itemPdn}
+			</if>
+			<if test="itemSpec != null and itemSpec != ''">
+				AND a.item_spec = #{itemSpec}
+			</if>
+			<if test="numInFather != null and numInFather != ''">
+				AND a.num_in_father = #{numInFather}
+			</if>
+			<if test="fatherItemCode != null and fatherItemCode != ''">
+				AND a.father_item_code = #{fatherItemCode}
+			</if>
+			<if test="fatherItemName != null and fatherItemName != ''">
+				AND a.father_item_name = #{fatherItemName}
+			</if>
+			<if test="fatherItemPdn != null and fatherItemPdn != ''">
+				AND a.father_item_pdn = #{fatherItemPdn}
+			</if>
+			<if test="fatherItemSpec != null and fatherItemSpec != ''">
+				AND a.father_item_spec = #{fatherItemSpec}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MdmProductBom" >
+		SELECT 
+			<include refid="mdmProductBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="mdmProductBomJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_productbom(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			product_item_code,
+			product_item_name,
+			item_code,
+			item_name,
+			item_pdn,
+			item_spec,
+			item_measure,
+			lead_time_assemble,
+			num_in_father,
+			father_item_code,
+			father_item_name,
+			father_item_pdn,
+			father_item_spec,
+			is_leaf
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{productItemCode},
+			#{productItemName},
+			#{itemCode},
+			#{itemName},
+			#{itemPdn},
+			#{itemSpec},
+			#{itemMeasure},
+			#{leadTimeAssemble},
+			#{numInFather},
+			#{fatherItemCode},
+			#{fatherItemName},
+			#{fatherItemPdn},
+			#{fatherItemSpec},
+			#{isLeaf}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_productbom SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			product_item_code = #{productItemCode},
+			product_item_name = #{productItemName},
+			item_code = #{itemCode},
+			item_name = #{itemName},
+			item_pdn = #{itemPdn},
+			item_spec = #{itemSpec},
+			item_measure = #{itemMeasure},
+			lead_time_assemble = #{leadTimeAssemble},
+			num_in_father = #{numInFather},
+			father_item_code = #{fatherItemCode},
+			father_item_name = #{fatherItemName},
+			father_item_pdn = #{fatherItemPdn},
+			father_item_spec = #{fatherItemSpec},
+			is_leaf = #{isLeaf}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_productbom
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_productbom SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="MdmProductBom" statementType="STATEMENT">
+		select * FROM mdm_productbom  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,233 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.purinvcheckpunctual.mapper.PurInvCheckPunctualMapper">
+    
+<!-- 	<sql id="purInvCheckPunctualColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.serialnum AS "serialNum",
+		a.make_date AS "makeDate",
+		a.billnum AS "billNum",
+		a.sup_id AS "supId",
+		a.sup_name AS "supName",
+		a.item_code AS "itemCode",
+		a.item_name AS "itemName",
+		a.item_specmodel AS "itemSpecmodel",
+		a.con_check_qty AS "makeNum",
+		a.arrive_date AS "arriveDate",
+		a.actual_arrive_date AS "actualArriveDate",
+		a.check_qty AS "checkQty",
+		a.delayed_days AS "delayedDays",
+		a.make_empid AS "makeEmpid",
+		a.make_empname AS "makeEmpname",
+		a.remark AS "remark"
+	</sql> -->
+
+	<sql id="purInvCheckPunctualColumnsNew">
+		c.create_date AS "makeDate",
+		c.bill_num AS "billNum",
+		a.sup_id AS "supId",
+		a.sup_name AS "supName",
+		e.code AS "itemCode",
+		b.item_name AS "itemName",
+		b.item_specmodel AS "itemSpecmodel",
+		d.item_qty AS "makeNum",
+		a.arrive_date AS "arriveDate",
+		a.update_date AS "actualArriveDate",
+		b.check_qty AS "checkQty",
+		DATEDIFF(a.update_date, a.arrive_date) AS "delayedDays",
+		c.make_empid AS "makeEmpid",
+		c.make_empname AS "makeEmpname",
+		b.item_notes AS "remark"
+	</sql>
+	
+	<sql id="purInvCheckPunctualJoins">
+		LEFT JOIN pur_invcheckmain a ON a.billnum = b.billnum
+		LEFT JOIN pur_contractmain c ON c.bill_num = a.contract_id
+		LEFT JOIN pur_contractdetail d ON d.bill_num = c.bill_num AND d.item_code = b.item_code
+		LEFT JOIN mdm_item e ON e.id = d.item_code 
+	</sql>
+	
+    
+	<select id="get" resultType="PurInvCheckPunctual" >
+		SELECT 
+			<include refid="purInvCheckPunctualColumnsNew"/>
+		FROM pur_invcheck_punctual b
+		<include refid="purInvCheckPunctualJoins"/>
+		WHERE b.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurInvCheckPunctual" >
+		SELECT 
+			<include refid="purInvCheckPunctualColumnsNew"/>
+		FROM pur_invcheckdetail b 
+		<include refid="purInvCheckPunctualJoins"/>
+		<where>
+			b.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			AND a.contract_id !='' AND a.bill_state_flag = 'E'
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND c.create_date BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="billNum != null and billNum != ''">
+				AND c.billnum LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="supId != null and supId != ''">
+				AND a.sup_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supId},'%')</if>
+			</if>
+			<if test="supName != null and supName != ''">
+				AND a.sup_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supName},'%')</if>
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND e.code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemCode},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND b.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+ 			<otherwise>
+				ORDER BY b.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurInvCheckPunctual" >
+		SELECT 
+			<include refid="purInvCheckPunctualColumnsNew"/>
+		FROM pur_invcheck_punctual b
+		<include refid="purInvCheckPunctualJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY b.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_invcheck_punctual(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			serialnum,
+			make_date,
+			billnum,
+			sup_id,
+			sup_name,
+			item_code,
+			item_name,
+			item_specmodel,
+			con_check_qty,
+			arrive_date,
+			actual_arrive_date,
+			check_qty,
+			delayed_days,
+			make_empid,
+			make_empname,
+			remark
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{serialNum},
+			#{makeDate},
+			#{billNum},
+			#{supId},
+			#{supName},
+			#{itemCode},
+			#{itemName},
+			#{itemSpecmodel},
+			#{makeNum},
+			#{arriveDate},
+			#{actualArriveDate},
+			#{checkQty},
+			#{delayedDays},
+			#{makeEmpid},
+			#{makeEmpname},
+			#{remark}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_invcheck_punctual SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			serialnum = #{serialNum},
+			make_date = #{makeDate},
+			billnum = #{billNum},
+			sup_id = #{supId},
+			sup_name = #{supName},
+			item_code = #{itemCode},
+			item_name = #{itemName},
+			item_specmodel = #{itemSpecmodel},
+			con_check_qty = #{makeNum},
+			arrive_date = #{arriveDate},
+			actual_arrive_date = #{actualArriveDate},
+			check_qty = #{checkQty},
+			delayed_days = #{delayedDays},
+			make_empid = #{makeEmpid},
+			make_empname = #{makeEmpname},
+			remark = #{remark}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_invcheck_punctual
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_invcheck_punctual SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurInvCheckPunctual" statementType="STATEMENT">
+		select * FROM pur_invcheck_punctual  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

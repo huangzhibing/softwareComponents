@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.contractmodel.mapper.CtrItemsModelMapper">
+    
+	<sql id="ctrItemsModelColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.item_order AS "itemOrder",
+		a.item_name AS "itemName",
+		a.item_contents AS "itemContents"
+	</sql>
+	
+	<sql id="ctrItemsModelJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="CtrItemsModel" >
+		SELECT 
+			<include refid="ctrItemsModelColumns"/>
+		FROM sal_ctr_items_model a
+		<include refid="ctrItemsModelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CtrItemsModel" >
+		SELECT 
+			<include refid="ctrItemsModelColumns"/>
+		FROM sal_ctr_items_model a
+		<include refid="ctrItemsModelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="itemOrder != null and itemOrder != ''">
+				AND a.item_order LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemOrder}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemOrder}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemOrder},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	<select id="findAllList" resultType="CtrItemsModel" >
+		SELECT 
+			<include refid="ctrItemsModelColumns"/>
+		FROM sal_ctr_items_model a
+		<include refid="ctrItemsModelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_ctr_items_model(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			item_order,
+			item_name,
+			item_contents
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{itemOrder},
+			#{itemName},
+			#{itemContents}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_ctr_items_model SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			item_order = #{itemOrder},
+			item_name = #{itemName},
+			item_contents = #{itemContents}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_ctr_items_model
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_ctr_items_model SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CtrItemsModel" statementType="STATEMENT">
+		select * FROM sal_ctr_items_model  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

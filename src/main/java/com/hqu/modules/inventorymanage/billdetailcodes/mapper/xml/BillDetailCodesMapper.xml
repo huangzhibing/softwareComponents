@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.billdetailcodes.mapper.BillDetailCodesMapper">
+
+	<sql id="billDetailCodesColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.item_code AS "itemCode",
+		a.serial_num AS "serialNum",
+		a.item_barcode AS "itemBarcode",
+		a.sup_barcode AS "supBarcode",
+		a.bin_id AS "binId",
+		a.loc_id AS "locId"
+	</sql>
+
+	<sql id="billDetailCodesJoins">
+
+	</sql>
+
+
+	<select id="get" resultType="BillDetailCodes" >
+		SELECT
+		<include refid="billDetailCodesColumns"/>
+		FROM inv_billdetailcode a
+		<include refid="billDetailCodesJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="BillDetailCodes" >
+		SELECT
+		<include refid="billDetailCodesColumns"/>
+		FROM inv_billdetailcode a
+		<include refid="billDetailCodesJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum.id != null and billNum.id != ''">
+				AND a.bill_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{billNum.id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum.id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum.id},'%')</if>
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND a.item_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemCode},'%')</if>
+			</if>
+			<if test="serialNum != null and serialNum != ''">
+				AND a.serial_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{serialNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{serialNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{serialNum},'%')</if>
+			</if>
+			<if test="itemBarcode != null and itemBarcode != ''">
+				AND a.item_barcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemBarcode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemBarcode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemBarcode},'%')</if>
+			</if>
+			<if test="supBarcode != null and supBarcode != ''">
+				AND a.sup_barcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{supBarcode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{supBarcode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{supBarcode},'%')</if>
+			</if>
+			<if test="binId != null and binId != ''">
+				AND a.bin_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{binId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{binId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{binId},'%')</if>
+			</if>
+			<if test="locId != null and locId != ''">
+				AND a.loc_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{locId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{locId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{locId},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="BillDetailCodes" >
+		SELECT
+		<include refid="billDetailCodesColumns"/>
+		FROM inv_billdetailcode a
+		<include refid="billDetailCodesJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO inv_billdetailcode(
+		id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		del_flag,
+		bill_num,
+		item_code,
+		serial_num,
+		item_barcode,
+		sup_barcode,
+		bin_id,
+		loc_id
+		) VALUES (
+		#{id},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{delFlag},
+		#{billNum},
+		#{itemCode},
+		#{serialNum},
+		#{itemBarcode},
+		#{supBarcode},
+		#{binId},
+		#{locId}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE inv_billdetailcode SET
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		bill_num = #{billNum.id},
+		item_code = #{itemCode},
+		serial_num = #{serialNum},
+		item_barcode = #{itemBarcode},
+		sup_barcode = #{supBarcode},
+		bin_id = #{binId},
+		loc_id = #{locId}
+		WHERE id = #{id}
+	</update>
+
+
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_billdetailcode
+		WHERE id = #{id}
+	</update>
+
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_billdetailcode SET
+		del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="BillDetailCodes" statementType="STATEMENT">
+		select * FROM inv_billdetailcode  where ${propertyName} = '${value}'
+	</select>
+
+</mapper>

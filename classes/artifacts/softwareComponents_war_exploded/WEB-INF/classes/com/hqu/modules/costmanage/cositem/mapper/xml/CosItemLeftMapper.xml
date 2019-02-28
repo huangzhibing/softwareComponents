@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.cositem.mapper.CosItemLeftMapper">
+
+    <resultMap id="cosItemLeftResult" type="CosItemLeft">
+   		<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="sort" column="sort" />
+		<result property="parentIds" column="parentIds" />
+		<result property="itemCode" column="itemCode" />
+		<association property="hasChildren" column="id" select="hasChildren" />
+    </resultMap>
+    
+	<sql id="cosItemLeftColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.parent_id AS "parent.id",
+		a.parent_ids AS "parentIds",
+		a.sort AS "sort",
+		a.item_code AS "itemCode",
+		a.name AS "name"
+	</sql>
+	
+
+	
+
+	<sql id="cosItemLeftJoins">
+		
+	</sql>
+	
+
+    
+	<select id="get" resultType="CosItemLeft">
+		SELECT 
+			<include refid="cosItemLeftColumns"/>
+		FROM cos_item_left a
+		<include refid="cosItemLeftJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CosItemLeft">
+		SELECT 
+			<include refid="cosItemLeftColumns"/>
+		FROM cos_item_left a
+		<include refid="cosItemLeftJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="parent != null and parent.id != null and parent.id != ''">
+				AND a.parent_id = #{parent.id}
+			</if>
+			<if test="parentIds != null and parentIds != ''">
+				AND a.parent_ids LIKE 
+					<if test="dbName == 'oracle'">'%'||#{parentIds}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{parentIds}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{parentIds},'%')</if>
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND a.item_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemCode},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<select id="findAllList" resultType="CosItemLeft">
+		SELECT 
+			<include refid="cosItemLeftColumns"/>
+		FROM cos_item_left a
+		<include refid="cosItemLeftJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<select id="getChildren" parameterType="String" resultMap="cosItemLeftResult">  
+        select * from cos_item_left where parent_id = #{id} ORDER BY sort 
+    </select> 
+     
+    <select id="hasChildren" parameterType="String" resultType="Boolean">  
+         select case when exists(select 1 from cos_item_left where parent_id = #{id}) then 1 else 0 end ${dual}
+    </select>
+    
+    <select id="hasItem" parameterType="String" resultType="Boolean">  
+         select case when exists(select 1 from cos_item where father_id = #{id}) then 1 else 0 end ${dual}
+    </select>
+    
+	<select id="findByParentIdsLike" resultType="CosItemLeft">
+		SELECT
+			a.id,
+			a.parent_id AS "parent.id",
+			a.parent_ids
+		FROM cos_item_left a
+		<include refid="cosItemLeftJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND a.parent_ids LIKE #{parentIds}
+		</where>
+		ORDER BY a.sort ASC
+	</select>
+	
+	<select id="getMaximumCode" resultType="String">
+		SELECT MAX(a.item_code) FROM cos_item_left a WHERE
+		<choose>
+			<when test="parent == null">
+				a.parent_id = '0'
+			</when>
+			<when test="parent != null and parent.id != null">
+				a.parent_id = #{id}
+			</when>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cos_item_left(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			parent_id,
+			parent_ids,
+			sort,
+			item_code,
+			name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{parent.id},
+			#{parentIds},
+			#{sort},
+			#{itemCode},
+			#{name}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cos_item_left SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			parent_id = #{parent.id},
+			parent_ids = #{parentIds},
+			sort = #{sort},
+			item_code = #{itemCode},
+			name = #{name}
+		WHERE id = #{id}
+	</update>
+	
+	<update id="updateParentIds">
+		UPDATE cos_item_left SET 
+			parent_id = #{parent.id}, 
+			parent_ids = #{parentIds}
+		WHERE id = #{id}
+	</update>
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM cos_item_left
+		WHERE id = #{id} OR parent_ids LIKE 
+		<if test="dbName == 'oracle'">'%,'||#{id}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{id}+',%'</if>
+        <if test="dbName == 'mysql'">CONCAT('%,', #{id}, ',%')</if>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE cos_item_left SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id} OR parent_ids LIKE 
+		<if test="dbName == 'oracle'">'%,'||#{id}||',%'</if>
+		<if test="dbName == 'mssql'">'%,'+#{id}+',%'</if>
+        <if test="dbName == 'mysql'">CONCAT('%,', #{id}, ',%')</if>
+	</update>
+	
+</mapper>

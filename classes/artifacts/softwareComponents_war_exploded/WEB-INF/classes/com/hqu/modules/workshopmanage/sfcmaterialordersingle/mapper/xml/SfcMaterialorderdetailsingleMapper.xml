@@ -1,0 +1,348 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.sfcmaterialordersingle.mapper.SfcMaterialorderdetailsingleMapper">
+    
+	<sql id="sfcMaterialorderdetailsingleColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.materialorder AS "materialorder",
+		a.sequenceid AS "sequenceid",
+		a.materialid AS "materialid",
+		a.materialname AS "materialname",
+		a.numunit AS "numunit",
+		a.materialspec AS "materialspec",
+		a.requirenum AS "requirenum",
+		a.receivenum AS "receivenum",
+		a.receivednum AS "receivednum",
+		a.unitprice AS "unitprice",
+		a.sumprice AS "sumprice",
+		a.realprice AS "realprice",
+		a.realsum AS "realsum",
+		a.mpsid AS "mpsid",
+		a.projid AS "projid",
+		a.orderid AS "orderid",
+		a.taskid AS "taskid",
+		a.batchid AS "batchid",
+		a.itemcode AS "itemcode",
+		a.itemname AS "itemname",
+		a.ordernum AS "ordernum",
+		a.sizeperitem AS "sizeperitem",
+		a.operno AS "operno",
+		a.opercode AS "opercode",
+		a.itembatch AS "itembatch",
+		a.binid AS "binid",
+		a.binname AS "binname",
+		a.locid AS "locid",
+		a.locname AS "locname",
+		a.materialorderdetail AS "materialorderdetail",
+		a.islack AS "islack",
+		a.lackqty AS "lackqty"
+	</sql>
+	
+	<sql id="sfcMaterialorderdetailsingleJoins">
+		LEFT JOIN sfc_materialordermainsingle b ON b.id = a.materialorder
+		
+	</sql>
+	
+    
+	<select id="get" resultType="SfcMaterialorderdetailsingle" >
+		SELECT 
+			<include refid="sfcMaterialorderdetailsingleColumns"/>
+		FROM sfc_materialorderdetailsingle a
+		<include refid="sfcMaterialorderdetailsingleJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SfcMaterialorderdetailsingle" >
+		SELECT 
+			<include refid="sfcMaterialorderdetailsingleColumns"/>
+		FROM sfc_materialorderdetailsingle a
+		<include refid="sfcMaterialorderdetailsingleJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="materialorder != null and materialorder != ''">
+				AND a.materialorder LIKE 
+					<if test="dbName == 'oracle'">'%'||#{materialorder}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{materialorder}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{materialorder},'%')</if>
+			</if>
+			<if test="sequenceid != null and sequenceid != ''">
+				AND a.sequenceid = #{sequenceid}
+			</if>
+			<if test="materialid != null and materialid != ''">
+				AND a.materialid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{materialid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{materialid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{materialid},'%')</if>
+			</if>
+			<if test="materialname != null and materialname != ''">
+				AND a.materialname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{materialname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{materialname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{materialname},'%')</if>
+			</if>
+			<if test="numunit != null and numunit != ''">
+				AND a.numunit = #{numunit}
+			</if>
+			<if test="materialspec != null and materialspec != ''">
+				AND a.materialspec = #{materialspec}
+			</if>
+			<if test="mpsid != null and mpsid != ''">
+				AND a.mpsid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mpsid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mpsid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mpsid},'%')</if>
+			</if>
+			<if test="projid != null and projid != ''">
+				AND a.projid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{projid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{projid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{projid},'%')</if>
+			</if>
+			<if test="orderid != null and orderid != ''">
+				AND a.orderid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{orderid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{orderid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{orderid},'%')</if>
+			</if>
+			<if test="taskid != null and taskid != ''">
+				AND a.taskid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{taskid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{taskid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{taskid},'%')</if>
+			</if>
+			<if test="batchid != null and batchid != ''">
+				AND a.batchid = #{batchid}
+			</if>
+			<if test="itemcode != null and itemcode != ''">
+				AND a.itemcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemcode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemcode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemcode},'%')</if>
+			</if>
+			<if test="itemname != null and itemname != ''">
+				AND a.itemname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemname},'%')</if>
+			</if>
+			<if test="operno != null and operno != ''">
+				AND a.operno = #{operno}
+			</if>
+			<if test="opercode != null and opercode != ''">
+				AND a.opercode = #{opercode}
+			</if>
+			<if test="itembatch != null and itembatch != ''">
+				AND a.itembatch = #{itembatch}
+			</if>
+			<if test="binid != null and binid != ''">
+				AND a.binid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{binid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{binid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{binid},'%')</if>
+			</if>
+			<if test="binname != null and binname != ''">
+				AND a.binname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{binname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{binname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{binname},'%')</if>
+			</if>
+			<if test="locid != null and locid != ''">
+				AND a.locid = #{locid}
+			</if>
+			<if test="locname != null and locname != ''">
+				AND a.locname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{locname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{locname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{locname},'%')</if>
+			</if>
+			<if test="materialorderdetail != null and materialorderdetail != ''">
+				AND a.materialorderdetail LIKE 
+					<if test="dbName == 'oracle'">'%'||#{materialorderdetail}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{materialorderdetail}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{materialorderdetail},'%')</if>
+			</if>
+			<if test="islack != null and islack != ''">
+				AND a.islack = #{islack}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SfcMaterialorderdetailsingle" >
+		SELECT 
+			<include refid="sfcMaterialorderdetailsingleColumns"/>
+		FROM sfc_materialorderdetailsingle a
+		<include refid="sfcMaterialorderdetailsingleJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_materialorderdetailsingle(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			materialorder,
+			sequenceid,
+			materialid,
+			materialname,
+			numunit,
+			materialspec,
+			requirenum,
+			receivenum,
+			receivednum,
+			unitprice,
+			sumprice,
+			realprice,
+			realsum,
+			mpsid,
+			projid,
+			orderid,
+			taskid,
+			batchid,
+			itemcode,
+			itemname,
+			ordernum,
+			sizeperitem,
+			operno,
+			opercode,
+			itembatch,
+			binid,
+			binname,
+			locid,
+			locname,
+			materialorderdetail,
+			islack,
+			lackqty
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{materialorder},
+			#{sequenceid},
+			#{materialid},
+			#{materialname},
+			#{numunit},
+			#{materialspec},
+			#{requirenum},
+			#{receivenum},
+			#{receivednum},
+			#{unitprice},
+			#{sumprice},
+			#{realprice},
+			#{realsum},
+			#{mpsid},
+			#{projid},
+			#{orderid},
+			#{taskid},
+			#{batchid},
+			#{itemcode},
+			#{itemname},
+			#{ordernum},
+			#{sizeperitem},
+			#{operno},
+			#{opercode},
+			#{itembatch},
+			#{binid},
+			#{binname},
+			#{locid},
+			#{locname},
+			#{materialorderdetail},
+			#{islack},
+			#{lackqty}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_materialorderdetailsingle SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			materialorder = #{materialorder},
+			sequenceid = #{sequenceid},
+			materialid = #{materialid},
+			materialname = #{materialname},
+			numunit = #{numunit},
+			materialspec = #{materialspec},
+			requirenum = #{requirenum},
+			receivenum = #{receivenum},
+			receivednum = #{receivednum},
+			unitprice = #{unitprice},
+			sumprice = #{sumprice},
+			realprice = #{realprice},
+			realsum = #{realsum},
+			mpsid = #{mpsid},
+			projid = #{projid},
+			orderid = #{orderid},
+			taskid = #{taskid},
+			batchid = #{batchid},
+			itemcode = #{itemcode},
+			itemname = #{itemname},
+			ordernum = #{ordernum},
+			sizeperitem = #{sizeperitem},
+			operno = #{operno},
+			opercode = #{opercode},
+			itembatch = #{itembatch},
+			binid = #{binid},
+			binname = #{binname},
+			locid = #{locid},
+			locname = #{locname},
+			materialorderdetail = #{materialorderdetail},
+			islack = #{islack},
+			lackqty = #{lackqty}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_materialorderdetailsingle
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_materialorderdetailsingle SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SfcMaterialorderdetailsingle" statementType="STATEMENT">
+		select * FROM sfc_materialorderdetailsingle  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,234 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.invcheckmain.mapper.ReInvCheckDetailMapper">
+    
+	<sql id="reInvCheckDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "reInvCheckMain.id",
+		a.serial_num AS "serialNum",
+		a.item_code AS "itemCode",
+		a.item_spec AS "itemSpec",
+		a.item_name AS "itemName",
+		a.meas_unit AS "measUnit",
+		a.item_qty AS "itemQty",
+		a.item_price AS "itemPrice",
+		a.item_sum AS "itemSum",
+		a.item_batch AS "itemBatch",
+		a.bin_id AS "binId",
+		a.bin_name AS "binName",
+		a.loc_id AS "locId",
+		a.loc_name AS "locName",
+		a.hg_qty AS "hgQty"
+	</sql>
+	
+	<sql id="reInvCheckDetailJoins">
+		
+			LEFT JOIN inv_checkmain b ON b.id = a.bill_num
+	</sql>
+	
+    
+	<select id="get" resultType="ReInvCheckDetail" >
+		SELECT 
+			<include refid="reInvCheckDetailColumns"/>
+		FROM inv_checkdetail a
+		<include refid="reInvCheckDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ReInvCheckDetail" >
+		SELECT 
+			<include refid="reInvCheckDetailColumns"/>
+		FROM inv_checkdetail a
+		<include refid="reInvCheckDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="reInvCheckMain != null and reInvCheckMain.id != null and reInvCheckMain.id != ''">
+				AND a.bill_num = #{reInvCheckMain.id}
+			</if>
+			<if test="serialNum != null and serialNum != ''">
+				AND a.serial_num = #{serialNum}
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND a.item_code = #{itemCode}
+			</if>
+			<if test="itemSpec != null and itemSpec != ''">
+				AND a.item_spec = #{itemSpec}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name = #{itemName}
+			</if>
+			<if test="measUnit != null and measUnit != ''">
+				AND a.meas_unit = #{measUnit}
+			</if>
+			<if test="itemQty != null and itemQty != ''">
+				AND a.item_qty = #{itemQty}
+			</if>
+			<if test="itemPrice != null and itemPrice != ''">
+				AND a.item_price = #{itemPrice}
+			</if>
+			<if test="itemSum != null and itemSum != ''">
+				AND a.item_sum = #{itemSum}
+			</if>
+			<if test="itemBatch != null and itemBatch != ''">
+				AND a.item_batch = #{itemBatch}
+			</if>
+			<if test="binId != null and binId != ''">
+				AND a.bin_id = #{binId}
+			</if>
+			<if test="binName != null and binName != ''">
+				AND a.bin_name = #{binName}
+			</if>
+			<if test="locId != null and locId != ''">
+				AND a.loc_id = #{locId}
+			</if>
+			<if test="locName != null and locName != ''">
+				AND a.loc_name = #{locName}
+			</if>
+			<if test="hgQty != null and hgQty != ''">
+				AND a.hg_qty = #{hgQty}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ReInvCheckDetail" >
+		SELECT 
+			<include refid="reInvCheckDetailColumns"/>
+		FROM inv_checkdetail a
+		<include refid="reInvCheckDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_checkdetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			serial_num,
+			item_code,
+			item_spec,
+			item_name,
+			meas_unit,
+			item_qty,
+			item_price,
+			item_sum,
+			item_batch,
+			bin_id,
+			bin_name,
+			loc_id,
+			loc_name,
+			hg_qty
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{reInvCheckMain.id},
+			#{serialNum},
+			#{itemCode},
+			#{itemSpec},
+			#{itemName},
+			#{measUnit},
+			#{itemQty},
+			#{itemPrice},
+			#{itemSum},
+			#{itemBatch},
+			#{binId},
+			#{binName},
+			#{locId},
+			#{locName},
+			#{hgQty}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_checkdetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{reInvCheckMain.id},
+			serial_num = #{serialNum},
+			item_code = #{itemCode},
+			item_spec = #{itemSpec},
+			item_name = #{itemName},
+			meas_unit = #{measUnit},
+			item_qty = #{itemQty},
+			item_price = #{itemPrice},
+			item_sum = #{itemSum},
+			item_batch = #{itemBatch},
+			bin_id = #{binId},
+			bin_name = #{binName},
+			loc_id = #{locId},
+			loc_name = #{locName},
+			hg_qty = #{hgQty}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_checkdetail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{reInvCheckMain.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_checkdetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{reInvCheckMain.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ReInvCheckDetail" statementType="STATEMENT">
+		select * FROM inv_checkdetail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

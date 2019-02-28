@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.paytypedef.mapper.PayTypeDefMapper">
+    
+	<sql id="payTypeDefColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.type_code AS "typeCode",
+		a.type_name AS "typeName",
+		a.notes AS "notes"
+	</sql>
+	
+	<sql id="payTypeDefJoins">
+		
+	</sql>
+	
+    <select id="selectMax" resultType="String" >
+		select max(type_code) from sal_paytypedef a
+	</select>
+
+	<select id="get" resultType="PayTypeDef" >
+		SELECT 
+			<include refid="payTypeDefColumns"/>
+		FROM sal_paytypedef a
+		<include refid="payTypeDefJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PayTypeDef" >
+		SELECT 
+			<include refid="payTypeDefColumns"/>
+		FROM sal_paytypedef a
+		<include refid="payTypeDefJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="typeCode != null and typeCode != ''">
+				AND a.type_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{typeCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{typeCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{typeCode},'%')</if>
+			</if>
+			<if test="typeName != null and typeName != ''">
+				AND a.type_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{typeName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{typeName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{typeName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.type_code ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PayTypeDef" >
+		SELECT 
+			<include refid="payTypeDefColumns"/>
+		FROM sal_paytypedef a
+		<include refid="payTypeDefJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.type_code ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_paytypedef(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			type_code,
+			type_name,
+			notes
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{typeCode},
+			#{typeName},
+			#{notes}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_paytypedef SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			type_code = #{typeCode},
+			type_name = #{typeName},
+			notes = #{notes}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_paytypedef
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_paytypedef SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PayTypeDef" statementType="STATEMENT">
+		select * FROM sal_paytypedef  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

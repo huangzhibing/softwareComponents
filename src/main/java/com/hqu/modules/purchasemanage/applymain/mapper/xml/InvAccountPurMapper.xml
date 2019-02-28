@@ -1,0 +1,404 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.applymain.mapper.InvAccountPurMapper">
+    
+	<sql id="invAccountColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.ware_id AS "ware.id",
+		a.item_code AS "item.id",
+		a.year AS "year",
+		a.period AS "period",
+		a.begin_qty AS "beginQty",
+		a.begin_num AS "beginSum",
+		a.curr_in_qty AS "currInQty",
+		a.curr_in_sum AS "currInSum",
+		a.curr_out_qty AS "currOutQty",
+		a.curr_out_sum AS "currOutSum",
+		a.now_qty AS "nowQty",
+		a.now_sum AS "nowSum",
+		a.cost_price AS "costPrice",
+		a.cost_tax AS "costTax",
+		a.begin_sub AS "beginSub",
+		a.curr_in_sub AS "currInSub",
+		a.curr_out_sub AS "currOutSub",
+		a.now_sub AS "nowSub",
+		a.min_cost AS "minCost",
+		a.max_cost AS "maxCost",
+		a.company_code AS "companyCode",
+		a.tin_sum AS "tinSum",
+		a.tout_sum AS "toutSum",
+		a.din_qty AS "dinQty",
+		a.din_sum AS "dinSum",
+		a.dout_qty AS "doutQty",
+		a.dout_sum AS "doutSum",
+		a.pin_qty AS "pinQty",
+		a.pin_sum AS "pinSum",
+		a.pout_qty AS "poutQty",
+		a.pout_sum AS "poutSum",
+		a.qin_qty AS "qinQty",
+		a.qin_sum AS "qinSum",
+		a.qout_qty AS "qoutQty",
+		a.qout_sum AS "qoutSum",
+		a.check_flag AS "checkFlag",
+		a.tool_flag AS "toolFlag",
+		a.bin_id AS "bin.id",
+		a.loc_id AS "loc.id",
+		a.item_batch AS "itemBatch",
+		a.cor_id AS "corId",
+		a.dept_id AS "deptId",
+		a.apply_code AS "applyCode",
+		a.order_code AS "orderCode",
+		a.oper_no AS "operNo",
+		a.source_flag AS "sourceFlag",
+		a.sal_qty AS "salQty",
+		a.pur_qty AS "purQty",
+		a.din_tran_qty AS "dinTranQty",
+		a.dout_tran_qty AS "doutTranQty",
+		a.sfc_qty AS "sfcQty",
+		a.qms_qty AS "qmsQty",
+		a.real_qty AS "realQty",
+				
+				
+				
+				
+				
+				
+				
+		ware.ware_id AS "ware.wareID",
+				
+		item.code AS "item.code",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		bin.bin_id AS "bin.binId",
+				
+		loc.loc_id AS "loc.locId"
+	</sql>
+	
+	<sql id="invAccountJoins">
+		
+		LEFT JOIN inv_warehouse ware ON ware.id = a.ware_id
+		LEFT JOIN mdm_item item ON item.id = a.item_code
+		LEFT JOIN inv_bin bin ON bin.id = a.bin_id
+		LEFT JOIN inv_location loc ON loc.id = a.loc_id
+	</sql>
+	
+    
+	<select id="get" resultType="InvAccount" >
+		SELECT 
+			<include refid="invAccountColumns"/>
+		FROM inv_account a
+		<include refid="invAccountJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="InvAccount" >
+		SELECT 
+			<include refid="invAccountColumns"/>
+		FROM inv_account a
+		<include refid="invAccountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="ware != null and ware.id != null and ware.id != ''">
+				AND a.ware_id = #{ware.id}
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code = #{item.id}
+			</if>
+			<if test="year != null and year != ''">
+				AND a.year = #{year}
+			</if>
+			<if test="period != null and period != ''">
+				AND a.period = #{period}
+			</if>
+			<if test="bin != null and bin.id != null and bin.id != ''">
+				AND a.bin_id = #{bin.id}
+			</if>
+			<if test="loc != null and loc.id != null and loc.id != ''">
+				AND a.loc_id = #{loc.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="InvAccount" >
+		SELECT 
+			<include refid="invAccountColumns"/>
+		FROM inv_account a
+		<include refid="invAccountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_account(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			ware_id,
+			item_code,
+			year,
+			period,
+			begin_qty,
+			begin_num,
+			curr_in_qty,
+			curr_in_sum,
+			curr_out_qty,
+			curr_out_sum,
+			now_qty,
+			now_sum,
+			cost_price,
+			cost_tax,
+			begin_sub,
+			curr_in_sub,
+			curr_out_sub,
+			now_sub,
+			min_cost,
+			max_cost,
+			company_code,
+			tin_sum,
+			tout_sum,
+			din_qty,
+			din_sum,
+			dout_qty,
+			dout_sum,
+			pin_qty,
+			pin_sum,
+			pout_qty,
+			pout_sum,
+			qin_qty,
+			qin_sum,
+			qout_qty,
+			qout_sum,
+			check_flag,
+			tool_flag,
+			bin_id,
+			loc_id,
+			item_batch,
+			cor_id,
+			dept_id,
+			apply_code,
+			order_code,
+			oper_no,
+			source_flag,
+			sal_qty,
+			pur_qty,
+			din_tran_qty,
+			dout_tran_qty,
+			sfc_qty,
+			qms_qty,
+			real_qty
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{ware.id},
+			#{item.id},
+			#{year},
+			#{period},
+			#{beginQty},
+			#{beginSum},
+			#{currInQty},
+			#{currInSum},
+			#{currOutQty},
+			#{currOutSum},
+			#{nowQty},
+			#{nowSum},
+			#{costPrice},
+			#{costTax},
+			#{beginSub},
+			#{currInSub},
+			#{currOutSub},
+			#{nowSub},
+			#{minCost},
+			#{maxCost},
+			#{companyCode},
+			#{tinSum},
+			#{toutSum},
+			#{dinQty},
+			#{dinSum},
+			#{doutQty},
+			#{doutSum},
+			#{pinQty},
+			#{pinSum},
+			#{poutQty},
+			#{poutSum},
+			#{qinQty},
+			#{qinSum},
+			#{qoutQty},
+			#{qoutSum},
+			#{checkFlag},
+			#{toolFlag},
+			#{bin.id},
+			#{loc.id},
+			#{itemBatch},
+			#{corId},
+			#{deptId},
+			#{applyCode},
+			#{orderCode},
+			#{operNo},
+			#{sourceFlag},
+			#{salQty},
+			#{purQty},
+			#{dinTranQty},
+			#{doutTranQty},
+			#{sfcQty},
+			#{qmsQty},
+			#{realQty}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_account SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			ware_id = #{ware.id},
+			item_code = #{item.id},
+			year = #{year},
+			period = #{period},
+			begin_qty = #{beginQty},
+			begin_num = #{beginSum},
+			curr_in_qty = #{currInQty},
+			curr_in_sum = #{currInSum},
+			curr_out_qty = #{currOutQty},
+			curr_out_sum = #{currOutSum},
+			now_qty = #{nowQty},
+			now_sum = #{nowSum},
+			cost_price = #{costPrice},
+			cost_tax = #{costTax},
+			begin_sub = #{beginSub},
+			curr_in_sub = #{currInSub},
+			curr_out_sub = #{currOutSub},
+			now_sub = #{nowSub},
+			min_cost = #{minCost},
+			max_cost = #{maxCost},
+			company_code = #{companyCode},
+			tin_sum = #{tinSum},
+			tout_sum = #{toutSum},
+			din_qty = #{dinQty},
+			din_sum = #{dinSum},
+			dout_qty = #{doutQty},
+			dout_sum = #{doutSum},
+			pin_qty = #{pinQty},
+			pin_sum = #{pinSum},
+			pout_qty = #{poutQty},
+			pout_sum = #{poutSum},
+			qin_qty = #{qinQty},
+			qin_sum = #{qinSum},
+			qout_qty = #{qoutQty},
+			qout_sum = #{qoutSum},
+			check_flag = #{checkFlag},
+			tool_flag = #{toolFlag},
+			bin_id = #{bin.id},
+			loc_id = #{loc.id},
+			item_batch = #{itemBatch},
+			cor_id = #{corId},
+			dept_id = #{deptId},
+			apply_code = #{applyCode},
+			order_code = #{orderCode},
+			oper_no = #{operNo},
+			source_flag = #{sourceFlag},
+			sal_qty = #{salQty},
+			pur_qty = #{purQty},
+			din_tran_qty = #{dinTranQty},
+			dout_tran_qty = #{doutTranQty},
+			sfc_qty = #{sfcQty},
+			qms_qty = #{qmsQty},
+			real_qty = #{realQty}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_account
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_account SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="InvAccount" statementType="STATEMENT">
+		select * FROM inv_account  where ${propertyName} = '${value}'
+	</select>
+	<!-- 
+	<select id="getInvAccountByItemCode" resultType="com.hqu.modules.inventorymanage.invaccount.entity.InvAccount">
+    
+    	select * FROM inv_account where inv_account.item_code=#{itemCode}
+    	
+    </select>
+     -->
+     
+</mapper>

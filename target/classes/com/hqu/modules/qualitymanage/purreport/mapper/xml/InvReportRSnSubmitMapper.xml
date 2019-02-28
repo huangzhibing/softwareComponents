@@ -1,0 +1,215 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.purreport.mapper.InvReportRSnSubmitMapper">
+    
+	<sql id="invReportRSnColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.report_id AS "PurReport.id",
+		a.obj_sn AS "objSn",
+		a.obj_code AS "objectDef.id",
+		a.obj_name AS "objName",
+		a.check_result AS "checkResult",
+		a.matter_code AS "matterCode",
+		a.matter_name AS "matterType.id",
+		a.check_date AS "checkDate",
+		a.check_time AS "checkTime",
+		a.cpersion_code AS "cpersionCode",
+		a.check_person AS "checkPerson",
+		a.memo AS "memo",
+		a.qcnorm_name AS "qCNorm.id",		
+		a.is_qmatter AS "isQmatter",						
+		objectDef.obj_code AS "objectDef.objCode",		
+		matterType.matter_name AS "matterType.mattername",		
+		qCNorm.qcnorm_name AS "qCNorm.qcnormname"
+	</sql>
+	
+	<sql id="invReportRSnJoins">		
+	    LEFT JOIN qms_purreport b ON b.id = a.report_id
+		LEFT JOIN qms_objectdef objectDef ON objectDef.id = a.obj_code
+		LEFT JOIN qms_mattertype matterType ON matterType.id = a.matter_name
+		LEFT JOIN qms_qcnorm qCNorm ON qCNorm.id = a.qcnorm_name
+	</sql>
+	
+    
+	<select id="get" resultType="PurReportRSn" >
+		SELECT 
+			<include refid="invReportRSnColumns"/>
+		FROM qms_purreportrsn a
+		<include refid="invReportRSnJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurReportRSn" >
+		SELECT 
+			<include refid="invReportRSnColumns"/>
+		FROM qms_purreportrsn a
+		<include refid="invReportRSnJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="PurReport != null and PurReport.id != null and PurReport.id != ''">
+				AND a.report_id = #{PurReport.id}
+			</if>
+			<if test="objSn != null and objSn != ''">
+				AND a.obj_sn = #{objSn}
+			</if>
+			<if test="objectDef != null and objectDef.id != null and objectDef.id != ''">
+				AND a.obj_code = #{objectDef.id}
+			</if>
+			<if test="objName != null and objName != ''">
+				AND a.obj_name = #{objName}
+			</if>
+			<if test="checkResult != null and checkResult != ''">
+				AND a.check_result = #{checkResult}
+			</if>
+			<if test="matterCode != null and matterCode != ''">
+				AND a.matter_code = #{matterCode}
+			</if>
+			<if test="matterType != null and matterType.id != null and matterType.id != ''">
+				AND a.matter_name = #{matterType.id}
+			</if>
+			<if test="checkDate != null and checkDate != ''">
+				AND a.check_date = #{checkDate}
+			</if>
+			<if test="checkTime != null and checkTime != ''">
+				AND a.check_time = #{checkTime}
+			</if>
+			<if test="checkPerson != null and checkPerson != ''">
+				AND a.check_person = #{checkPerson}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurReportRSn" >
+		SELECT 
+			<include refid="invReportRSnColumns"/>
+		FROM qms_purreportrsn a
+		<include refid="invReportRSnJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_purreportrsn(
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			report_id,
+			obj_sn,
+			obj_code,
+			obj_name,
+			check_result,
+			matter_code,
+			matter_name,
+			check_date,
+			check_time,
+			cpersion_code,
+			check_person,
+			memo,
+			qcnorm_name
+		) VALUES (
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{PurReport.id},
+			#{objSn},
+			#{objectDef.id},
+			#{objName},
+			#{checkResult},
+			#{matterCode},
+			#{matterType.id},
+			#{checkDate},
+			#{checkTime},
+			#{cpersionCode},
+			#{checkPerson},
+			#{memo},
+			#{qCNorm.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_purreportrsn SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			report_id = #{PurReport.id},
+			obj_sn = #{objSn},
+			obj_code = #{objectDef.id},
+			obj_name = #{objName},
+			check_result = #{checkResult},
+			matter_code = #{matterCode},
+			matter_name = #{matterType.id},
+			check_date = #{checkDate},
+			check_time = #{checkTime},
+			cpersion_code = #{cpersionCode},
+			check_person = #{checkPerson},
+			memo = #{memo},
+			qcnorm_name = #{qCNorm.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_purreportrsn
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE report_id = #{PurReport.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_purreportrsn SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE report_id = #{PurReport.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurReportRSn" statementType="STATEMENT">
+		select * FROM qms_purreportrsn  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

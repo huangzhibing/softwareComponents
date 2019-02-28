@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.team.mapper.TeamMapper">
+    
+	<sql id="teamColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.team_code AS "teamCode",
+		a.team_name AS "teamName",
+		a.dept_code AS "deptCode.id",
+		a.dept_name AS "deptName",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		deptCode.code AS "deptCode.code"
+	</sql>
+	
+	<sql id="teamJoins">
+		
+		LEFT JOIN sys_office deptCode ON deptCode.id = a.dept_code
+	</sql>
+	
+    
+	<select id="get" resultType="Team" >
+		SELECT 
+			<include refid="teamColumns"/>
+		FROM mdm_team a
+		<include refid="teamJoins"/>
+		WHERE (a.id = #{id} OR a.team_code = #{id})
+	</select>
+	
+	<select id="findList" resultType="Team" >
+		SELECT 
+			<include refid="teamColumns"/>
+		FROM mdm_team a
+		<include refid="teamJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="teamCode != null and teamCode != ''">
+				AND a.team_code = #{teamCode}
+			</if>
+			<if test="teamName != null and teamName != ''">
+				AND a.team_name = #{teamName}
+			</if>
+			<if test="deptCode != null and deptCode.id != null and deptCode.id != ''">
+				AND a.dept_code = #{deptCode.id}
+			</if>
+			<if test="deptName != null and deptName != ''">
+				AND a.dept_name = #{deptName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.team_code DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Team" >
+		SELECT 
+			<include refid="teamColumns"/>
+		FROM mdm_team a
+		<include refid="teamJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_team(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			team_code,
+			team_name,
+			dept_code,
+			dept_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{teamCode},
+			#{teamName},
+			#{deptCode.id},
+			#{deptName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_team SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			team_code = #{teamCode},
+			team_name = #{teamName},
+			dept_code = #{deptCode.id},
+			dept_name = #{deptName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_team
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_team SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Team" statementType="STATEMENT">
+		select * FROM mdm_team  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.transtype.mapper.TranStypeMapper">
+    
+	<sql id="tranStypeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.transtypeid AS "transtypeid",
+		a.transtypename AS "transtypename",
+		a.notes AS "notes"
+	</sql>
+	
+	<sql id="tranStypeJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="TranStype" >
+		SELECT 
+			<include refid="tranStypeColumns"/>
+		FROM pur_transtype a
+		<include refid="tranStypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TranStype" >
+		SELECT 
+			<include refid="tranStypeColumns"/>
+		FROM pur_transtype a
+		<include refid="tranStypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="transtypeid != null and transtypeid != ''">
+				AND a.transtypeid LIKE
+				<if test="dbName == 'oracle'">'%'||#{transtypeid}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{transtypeid}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{transtypeid},'%')</if>
+			</if>
+
+			<if test="transtypename != null and transtypename != ''">
+				AND a.transtypename LIKE
+				<if test="dbName == 'oracle'">'%'||#{transtypename}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{transtypename}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{transtypename},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	<select id="getMaxTranstypeid" resultType="String">
+	    SELECT MAX(transtypeid)
+	    FROM pur_transtype
+	</select>
+	
+	
+	<select id="findAllList" resultType="TranStype" >
+		SELECT 
+			<include refid="tranStypeColumns"/>
+		FROM pur_transtype a
+		<include refid="tranStypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_transtype(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			transtypeid,
+			transtypename,
+			notes
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{transtypeid},
+			#{transtypename},
+			#{notes}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_transtype SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			transtypeid = #{transtypeid},
+			transtypename = #{transtypename},
+			notes = #{notes}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_transtype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_transtype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="TranStype" statementType="STATEMENT">
+		select * FROM pur_transtype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

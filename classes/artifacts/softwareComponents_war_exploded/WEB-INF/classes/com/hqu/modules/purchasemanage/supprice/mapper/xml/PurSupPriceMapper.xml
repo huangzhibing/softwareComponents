@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.supprice.mapper.PurSupPriceMapper">
+    
+	<sql id="purSupPriceColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.sup_id AS "account.id",
+		a.sup_name AS "supName",
+		a.area_code AS "areaCode",
+		a.area_name AS "areaName",
+		a.sup_type_id AS "supType.id",
+		a.sup_type_name AS "supTypeName",
+		a.prop AS "prop",
+		a.address AS "address",
+				
+				
+				
+				
+				
+				
+				
+		account.account_code AS "account.accountCode",
+				
+				
+				
+				
+		supType.suptype_id AS "supType.suptypeId"
+	</sql>
+	
+	<sql id="purSupPriceJoins">
+		
+		LEFT JOIN mdm_account account ON account.id = a.sup_id
+		LEFT JOIN pur_suptype supType ON supType.id = a.sup_type_id
+	</sql>
+	
+    
+	<select id="get" resultType="PurSupPrice" >
+		SELECT 
+			<include refid="purSupPriceColumns"/>
+		FROM pur_supprice a
+		<include refid="purSupPriceJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurSupPrice" >
+		SELECT 
+			<include refid="purSupPriceColumns"/>
+		FROM pur_supprice a
+		<include refid="purSupPriceJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="account != null and account.id != null and account.id != ''">
+				AND a.sup_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{account.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{account.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{account.id},'%')</if>
+			</if>
+			<if test="supName != null and supName != ''">
+				AND a.sup_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supName},'%')</if>
+			</if>
+			<if test="areaCode != null and areaCode != ''">
+				AND a.area_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{areaCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{areaCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{areaCode},'%')</if>
+			</if>
+			<if test="areaName != null and areaName != ''">
+				AND a.area_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{areaName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{areaName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{areaName},'%')</if>
+			</if>
+			<if test="supType != null and supType.id != null and supType.id != ''">
+				AND a.sup_type_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supType.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supType.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supType.id},'%')</if>
+			</if>
+			<if test="supTypeName != null and supTypeName != ''">
+				AND a.sup_type_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supTypeName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supTypeName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supTypeName},'%')</if>
+			</if>
+			<if test="prop != null and prop != ''">
+				AND a.prop LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prop}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prop}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prop},'%')</if>
+			</if>
+			<if test="address != null and address != ''">
+				AND a.address LIKE 
+					<if test="dbName == 'oracle'">'%'||#{address}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{address}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{address},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurSupPrice" >
+		SELECT 
+			<include refid="purSupPriceColumns"/>
+		FROM pur_supprice a
+		<include refid="purSupPriceJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_supprice(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			sup_id,
+			sup_name,
+			area_code,
+			area_name,
+			sup_type_id,
+			sup_type_name,
+			prop,
+			address
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{account.id},
+			#{supName},
+			#{areaCode},
+			#{areaName},
+			#{supType.id},
+			#{supTypeName},
+			#{prop},
+			#{address}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_supprice SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			sup_id = #{account.id},
+			sup_name = #{supName},
+			area_code = #{areaCode},
+			area_name = #{areaName},
+			sup_type_id = #{supType.id},
+			sup_type_name = #{supTypeName},
+			prop = #{prop},
+			address = #{address}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_supprice
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_supprice SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurSupPrice" statementType="STATEMENT">
+		select * FROM pur_supprice  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

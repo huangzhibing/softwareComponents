@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.incomingstatistics.mapper.IncomingstatisticsMapper">
+    
+	<sql id="incomingstatisticsColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.sup_name AS "supName",
+		a.sum_batch AS "sumBatch",
+		a.bad_batch AS "badBatch",
+		a.y AS "y",
+		a.m AS "m"
+	</sql>
+	
+	<sql id="incomingstatisticsJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Incomingstatistics" >
+		SELECT 
+			<include refid="incomingstatisticsColumns"/>
+		FROM qms_incomingstatistics a
+		<include refid="incomingstatisticsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Incomingstatistics" >
+		SELECT 
+			<include refid="incomingstatisticsColumns"/>
+		FROM qms_incomingstatistics a
+		<include refid="incomingstatisticsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="y != null and y != ''">
+				AND a.y = #{y}
+			</if>
+			<if test="m != null and m != ''">
+				AND a.m = #{m}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Incomingstatistics" >
+		SELECT 
+			<include refid="incomingstatisticsColumns"/>
+		FROM qms_incomingstatistics a
+		<include refid="incomingstatisticsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_incomingstatistics(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			sup_name,
+			sum_batch,
+			bad_batch,
+			y,
+			m
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{supName},
+			#{sumBatch},
+			#{badBatch},
+			#{y},
+			#{m}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_incomingstatistics SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			sup_name = #{supName},
+			sum_batch = #{sumBatch},
+			bad_batch = #{badBatch},
+			y = #{y},
+			m = #{m}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_incomingstatistics
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_incomingstatistics SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Incomingstatistics" statementType="STATEMENT">
+		select * FROM qms_incomingstatistics  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

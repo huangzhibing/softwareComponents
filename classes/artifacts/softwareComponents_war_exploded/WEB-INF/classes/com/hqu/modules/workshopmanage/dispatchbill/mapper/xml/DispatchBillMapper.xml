@@ -1,0 +1,212 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.dispatchbill.mapper.DispatchBillMapper">
+    
+	<sql id="dispatchBillColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.routinebillno AS "routineBillNo",
+		a.routingcode AS "routingCode",
+		a.dispatchno AS "dispatchNo",
+		a.centercode AS "centerCode",
+		a.actualcentercode AS "actualcenterCode",
+		a.personincharge AS "personInCharge",
+		a.teamcode AS "teamCode",
+		a.actualteamcode AS "actualTeamCode",
+		a.shiftcode AS "shiftCode",
+		a.workhour AS "workHour",
+		a.actualworkhour AS "actualWorkHour"
+	</sql>
+	
+	<sql id="dispatchBillJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="DispatchBill" >
+		SELECT 
+			<include refid="dispatchBillColumns"/>
+		FROM sfc_dispatchbill a
+		<include refid="dispatchBillJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="DispatchBill" >
+		SELECT 
+			<include refid="dispatchBillColumns"/>
+		FROM sfc_dispatchbill a
+		<include refid="dispatchBillJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="routineBillNo != null and routineBillNo != ''">
+				AND a.routinebillno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routineBillNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routineBillNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routineBillNo},'%')</if>
+			</if>
+			<if test="routingCode != null and routingCode != ''">
+				AND a.routingcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routingCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routingCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routingCode},'%')</if>
+			</if>
+			<if test="dispatchNo != null and dispatchNo != ''">
+				AND a.dispatchno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{dispatchNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{dispatchNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{dispatchNo},'%')</if>
+			</if>
+			<if test="centerCode != null and centerCode != ''">
+				AND a.centercode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{centerCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{centerCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{centerCode},'%')</if>
+			</if>
+			<if test="actualcenterCode != null and actualcenterCode != ''">
+				AND a.actualcentercode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{actualcenterCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{actualcenterCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{actualcenterCode},'%')</if>
+			</if>
+			<if test="personInCharge != null and personInCharge != ''">
+				AND a.personincharge LIKE 
+					<if test="dbName == 'oracle'">'%'||#{personInCharge}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{personInCharge}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{personInCharge},'%')</if>
+			</if>
+			<if test="teamCode != null and teamCode != ''">
+				AND a.teamcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{teamCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{teamCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{teamCode},'%')</if>
+			</if>
+			<if test="actualTeamCode != null and actualTeamCode != ''">
+				AND a.actualteamcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{actualTeamCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{actualTeamCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{actualTeamCode},'%')</if>
+			</if>
+			<if test="shiftCode != null and shiftCode != ''">
+				AND a.shiftcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{shiftCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{shiftCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{shiftCode},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="DispatchBill" >
+		SELECT 
+			<include refid="dispatchBillColumns"/>
+		FROM sfc_dispatchbill a
+		<include refid="dispatchBillJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_dispatchbill(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			routinebillno,
+			routingcode,
+			dispatchno,
+			centercode,
+			actualcentercode,
+			personincharge,
+			teamcode,
+			actualteamcode,
+			shiftcode,
+			workhour,
+			actualworkhour
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{routineBillNo},
+			#{routingCode},
+			#{dispatchNo},
+			#{centerCode},
+			#{actualcenterCode},
+			#{personInCharge},
+			#{teamCode},
+			#{actualTeamCode},
+			#{shiftCode},
+			#{workHour},
+			#{actualWorkHour}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_dispatchbill SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			routinebillno = #{routineBillNo},
+			routingcode = #{routingCode},
+			dispatchno = #{dispatchNo},
+			centercode = #{centerCode},
+			actualcentercode = #{actualcenterCode},
+			personincharge = #{personInCharge},
+			teamcode = #{teamCode},
+			actualteamcode = #{actualTeamCode},
+			shiftcode = #{shiftCode},
+			workhour = #{workHour},
+			actualworkhour = #{actualWorkHour}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_dispatchbill
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_dispatchbill SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="DispatchBill" statementType="STATEMENT">
+		select * FROM sfc_dispatchbill  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

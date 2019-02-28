@@ -1,0 +1,228 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.workcenter.mapper.WorkCenterMapper">
+    
+	<sql id="workCenterColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.center_code AS "centerCode",
+		a.center_name AS "centerName",
+		a.dept_code AS "deptCode.id",
+		a.dept_name AS "deptName",
+		a.center_type AS "centerType",
+		a.center_key AS "centerKey",
+		a.person_num AS "personNum",
+		a.machine_num AS "machineNum",
+		a.team_num AS "teamNum",
+		a.center_rate AS "centerRate",
+		a.machine_rate AS "machineRate",
+		a.team_rate AS "teamRate",
+		a.machine_type_code AS "machineTypeCode.id",
+		a.machine_type_name AS "machineTypeName",
+		a.note AS "note",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		deptCode.name AS "deptCode.name",
+		deptCode.code As "deptCode.code",		
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		machineTypeCode.machine_type_name AS "machineTypeCode.machineTypeName",
+		machineTypeCode.machine_type_code AS "machineTypeCode.machineTypeCode"
+	</sql>
+	
+	<sql id="workCenterJoins">
+		
+		LEFT JOIN sys_office deptCode ON deptCode.id = a.dept_code
+		LEFT JOIN mdm_machinetype machineTypeCode ON machineTypeCode.id = a.machine_type_code
+	</sql>
+	
+    
+	<select id="get" resultType="WorkCenter" >
+		SELECT 
+			<include refid="workCenterColumns"/>
+		FROM mdm_workcenter a
+		<include refid="workCenterJoins"/>
+		WHERE a.id = #{id} 
+	</select>
+	
+	<select id="findList" resultType="WorkCenter" >
+		SELECT 
+			<include refid="workCenterColumns"/>
+		FROM mdm_workcenter a
+		<include refid="workCenterJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="centerCode != null and centerCode != ''">
+				AND a.center_code LIKE
+					<if test="dbName == 'oracle'">'%'||#{centerCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{centerCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{centerCode},'%')</if>
+			</if>
+			<if test="centerName != null and centerName != ''">
+				AND a.center_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{centerName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{centerName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{centerName},'%')</if>
+			</if>
+			<if test="deptCode != null and deptCode.id != null and deptCode.id != ''">
+				AND a.dept_code = #{deptCode.id}
+			</if>
+			<if test="centerType != null and centerType != ''">
+				AND a.center_type = #{centerType}
+			</if>
+			<if test="centerKey != null and centerKey != ''">
+				AND a.center_key = #{centerKey}
+			</if>
+			<if test="machineTypeCode != null and machineTypeCode.id != null and machineTypeCode.id != ''">
+				AND a.machine_type_code = #{machineTypeCode.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.center_code ASC
+			</otherwise>
+		</choose>
+		 
+	</select>
+	
+	<select id="findAllList" resultType="WorkCenter" >
+		SELECT 
+			<include refid="workCenterColumns"/>
+		FROM mdm_workcenter a
+		<include refid="workCenterJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.center_code ASC
+			</otherwise>
+		</choose>
+		
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_workcenter(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			center_code,
+			center_name,
+			dept_code,
+			dept_name,
+			center_type,
+			center_key,
+			person_num,
+			machine_num,
+			team_num,
+			center_rate,
+			machine_rate,
+			team_rate,
+			machine_type_code,
+			machine_type_name,
+			note
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{centerCode},
+			#{centerName},
+			#{deptCode.id},
+			#{deptName},
+			#{centerType},
+			#{centerKey},
+			#{personNum},
+			#{machineNum},
+			#{teamNum},
+			#{centerRate},
+			#{machineRate},
+			#{teamRate},
+			#{machineTypeCode.id},
+			#{machineTypeName},
+			#{note}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_workcenter SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			center_code = #{centerCode},
+			center_name = #{centerName},
+			dept_code = #{deptCode.id},
+			dept_name = #{deptName},
+			center_type = #{centerType},
+			center_key = #{centerKey},
+			person_num = #{personNum},
+			machine_num = #{machineNum},
+			team_num = #{teamNum},
+			center_rate = #{centerRate},
+			machine_rate = #{machineRate},
+			team_rate = #{teamRate},
+			machine_type_code = #{machineTypeCode.id},
+			machine_type_name = #{machineTypeName},
+			note = #{note}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_workcenter
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_workcenter SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="WorkCenter" statementType="STATEMENT">
+		select * FROM mdm_workcenter  where ${propertyName} = '${value}'
+	</select>
+	
+	<select id="findMaxCode" resultType="String">
+		select max(center_code) from mdm_workcenter
+	</select>
+	
+</mapper>

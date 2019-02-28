@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.purinvcheckmain.mapper.InvCheckDetailCodeMapper">
+    
+	<sql id="invCheckDetailCodeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.billnum AS "billnum",
+		a.item_code AS "itemCode",
+		a.sup_bar_code AS "supBarcode",
+		a.serialnum AS "serialnum",
+		a.item_bar_code AS "itemBarcode",
+		a.user_dept_code AS "userDeptCode",
+		
+		a.item_name AS "itemName"
+	</sql>
+	
+	<sql id="invCheckDetailCodeJoins">
+	LEFT JOIN pur_invcheckmain b ON b.id = a.billnum
+	</sql>
+	
+    
+	<select id="get" resultType="InvCheckDetailCode" >
+		SELECT 
+			<include refid="invCheckDetailCodeColumns"/>
+		FROM pur_invcheckdetailcode a
+		<include refid="invCheckDetailCodeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="InvCheckDetailCode" >
+		SELECT 
+			<include refid="invCheckDetailCodeColumns"/>
+		FROM pur_invcheckdetailcode a
+		<include refid="invCheckDetailCodeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="billnum != null and billnum != ''">
+				AND a.billnum = #{billnum}
+			</when>
+            <when test="itemBarcode != null and itemBarcode != ''">
+                AND a.item_bar_code = #{itemBarcode}
+            </when>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findListbyBillNum" resultType="InvCheckDetailCode" >
+		SELECT 
+			*
+		FROM pur_invcheckdetailcode a
+		WHERE
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			a.billnum = #{billnum}
+	</select>
+	
+	<select id="findAllList" resultType="InvCheckDetailCode" >
+		SELECT 
+			<include refid="invCheckDetailCodeColumns"/>
+		FROM pur_invcheckdetailcode a
+		<include refid="invCheckDetailCodeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_invcheckdetailcode(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			billnum,
+			item_code,
+			sup_bar_code,
+			serialnum,
+			item_bar_code,
+			user_dept_code,
+			item_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billnum},
+			#{itemCode},
+			#{supBarcode},
+			#{serialnum},
+			#{itemBarcode},
+			#{userDeptCode},
+			#{itemName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_invcheckdetailcode SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			billnum = #{billnum},
+			item_code = #{itemCode},
+			item_name = #{itemName},
+			sup_bar_code = #{supBarcode},
+			serialnum = #{serialnum},
+			item_bar_code = #{itemBarcode},
+			user_dept_code = #{userDeptCode}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_invcheckdetailcode
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_invcheckdetailcode SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="InvCheckDetailCode" statementType="STATEMENT">
+		select * FROM pur_invcheckdetailcode  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.adtmodel.mapper.AdtModelMapper">
+    
+	<sql id="adtModelColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.sn AS "sn",
+		a.model_code AS "modelCode",
+		a.jperson_code AS "jpersonCode",
+		a.justify_person AS "justifyPerson",
+		a.jposition_code  AS "role.id",
+		a.jpostion_name AS "roleName",
+		a.jdept_code AS "jdeptCode",
+		a.jdept_name AS "jdeptName",
+
+		a.is_firstperson AS "isFirstperson",
+
+				
+				
+				
+				
+				
+				
+				
+		role.enname AS "role.enname",
+		role.name AS "role.name"
+	</sql>
+	
+	<sql id="adtModelJoins">
+		
+		LEFT JOIN sys_role role ON role.id = a.jposition_code
+	</sql>
+	
+    
+	<select id="get" resultType="AdtModel" >
+		SELECT 
+			<include refid="adtModelColumns"/>
+		FROM adt_model a
+		<include refid="adtModelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="AdtModel" >
+		SELECT 
+			<include refid="adtModelColumns"/>
+		FROM adt_model a
+		<include refid="adtModelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="modelCode != null and modelCode != ''">
+				AND a.model_code = #{modelCode}
+			</if>
+			<if test="role != null and role.id != null and role.id != ''">
+				AND a.jposition_code = #{role.id}
+			</if>
+			<if test="roleName != null and roleName != ''">
+				AND a.jpostion_name = #{roleName}
+			</if>
+			<if test="jpersonCode != null and jpersonCode != ''">
+				AND a.jperson_code = #{jpersonCode}
+			</if>
+			<if test="justifyPerson != null and justifyPerson != ''">
+				AND a.justify_person = #{justifyPerson}
+			</if>
+			<if test="jdeptCode != null and jdeptCode != ''">
+				AND a.jdept_code = #{jdeptCode}
+			</if>
+			<if test="jdeptName != null and jdeptName != ''">
+				AND a.jdept_name = #{jdeptName}
+			</if>
+			<if test="isFirstperson != null and isFirstperson != ''">
+				AND a.is_firstperson = #{isFirstperson}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="AdtModel" >
+		SELECT 
+			<include refid="adtModelColumns"/>
+		FROM adt_model a
+		<include refid="adtModelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO adt_model(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			sn,
+			model_code,
+			jposition_code,
+			jpostion_name,
+			jperson_code,
+			justify_person,
+			jdept_code,
+			jdept_name,
+			is_firstperson
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{sn},
+			#{modelCode},
+			#{role.id},
+			#{roleName},
+			#{jpersonCode},
+			#{justifyPerson},
+			#{jdeptCode},
+			#{jdeptName},
+			#{isFirstperson}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE adt_model SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			sn = #{sn},
+			model_code = #{modelCode},
+			jposition_code = #{role.id},
+			jpostion_name = #{roleName},
+			jperson_code=#{jpersonCode},
+			justify_person=#{justifyPerson},
+			jdept_code = #{jdeptCode},
+			jdept_name = #{jdeptName},
+			is_firstperson = #{isFirstperson}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM adt_model
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE adt_model SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="AdtModel" statementType="STATEMENT">
+		select * FROM adt_model  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

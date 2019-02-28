@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.objectdef.mapper.ObjectDefMapper">
+    
+	<sql id="objectDefColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.obj_name AS "objName",
+		a.obj_code AS "objCode",
+		a.obj_id AS "objId",
+		a.objt_name AS "objtNameRu",
+		a.mp_flag AS "mpFlag",
+		a.is_sale AS "isSale",
+		a.quality_norm AS "qualityNorm",
+		a.samp_norm AS "sampNorm",
+		a.check_method AS "checkMethod",
+		a.samp_method AS "sampMethod",
+		a.qms_flag AS "qmsFlag",	
+				
+				
+				
+				
+				
+				
+				
+				
+		objt.objt_name AS "objt.objtname",
+		objt.objt_code AS "objt.objtcode"
+		
+	</sql>
+	
+	<sql id="objectDefJoins">
+		
+		LEFT JOIN qms_objecttype objt ON objt.id = a.objt_code
+	</sql>
+	
+    
+	<select id="get" resultType="ObjectDef" >
+		SELECT 
+			<include refid="objectDefColumns"/>
+		FROM qms_objectdef a
+		<include refid="objectDefJoins"/>
+		WHERE a.id = #{id}
+	</select>
+		<select id="getByObjCode" resultType="ObjectDef" >
+		SELECT 
+			<include refid="objectDefColumns"/>
+		FROM qms_objectdef a
+		<include refid="objectDefJoins"/>
+		WHERE a.obj_code = #{objCode}
+	</select>
+	
+	<select id="findList" resultType="ObjectDef" >
+		SELECT 
+			<include refid="objectDefColumns"/>
+		FROM qms_objectdef a
+		<include refid="objectDefJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="objName != null and objName != ''">
+				AND a.obj_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{objName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{objName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{objName},'%')</if>
+			</if>
+			<if test="objCode != null and objCode != ''">
+				AND a.obj_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{objCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{objCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{objCode},'%')</if>
+			</if>
+
+			<if test="objId != null and objId != ''">
+				AND a.obj_id = #{objId}
+			</if>
+			<if test="objt != null and objt.objtcode != null and objt.objtcode != ''">
+				AND a.objt_code = #{objt.objtcode}
+			</if>
+			<if test="objtNameRu != null and objtNameRu != ''">
+				AND a.objt_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{objtNameRu}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{objtNameRu}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{objtNameRu},'%')</if>
+
+			</if>
+			<if test="mpFlag != null and mpFlag != ''">
+				AND a.mp_flag = #{mpFlag}
+			</if>
+			<if test="isSale != null and isSale != ''">
+				AND a.is_sale = #{isSale}
+			</if>
+			<if test="qualityNorm != null and qualityNorm != ''">
+				AND a.quality_norm LIKE
+				<if test="dbName == 'oracle'">'%'||#{qualityNorm}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qualityNorm}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qualityNorm},'%')</if>
+			</if>
+			<if test="sampNorm != null and sampNorm != ''">
+				AND a.samp_norm LIKE
+				<if test="dbName == 'oracle'">'%'||#{sampNorm}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{sampNorm}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{sampNorm},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+    <select id="getCodeNum" resultType="Integer">
+        SELECT COUNT(*)
+        FROM qms_objectdef
+        WHERE obj_code = #{objCode}
+    </select>
+
+	<select id="findAllList" resultType="ObjectDef" >
+		SELECT 
+			<include refid="objectDefColumns"/>
+		FROM qms_objectdef a
+		<include refid="objectDefJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_objectdef(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			obj_name,
+			obj_code,
+			objt_code,
+			objt_name,
+			mp_flag,
+			is_sale,
+			quality_norm,
+			samp_norm,
+			check_method,
+			samp_method,
+			qms_flag
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{objName},
+			#{objCode},
+			#{objt.objtcode},
+			#{objtNameRu},
+			#{mpFlag},
+			#{isSale},
+			#{qualityNorm},
+			#{sampNorm},
+			#{checkMethod},
+			#{sampMethod},
+			#{qmsFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_objectdef SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			obj_name = #{objName},
+			obj_code = #{objCode},
+			objt_code = #{objt.objtcode},
+			objt_name = #{objtNameRu},
+			mp_flag = #{mpFlag},
+			is_sale = #{isSale},
+			quality_norm = #{qualityNorm},
+			samp_norm = #{sampNorm},
+			check_method = #{checkMethod},
+			samp_method = #{sampMethod},
+			qms_flag = #{qmsFlag}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_objectdef
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_objectdef SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ObjectDef" statementType="STATEMENT">
+		select * FROM qms_objectdef  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

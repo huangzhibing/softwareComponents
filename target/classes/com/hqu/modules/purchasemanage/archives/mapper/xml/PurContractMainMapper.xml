@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.archives.mapper.PurContractMainMapper">
+    
+	<sql id="purContractMainColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.bill_type AS "billType",
+		a.make_date AS "makeDate",
+		a.make_empid AS "user.id",
+		a.make_empname AS "makeEmpname",
+		a.make_notes AS "makeNotes",
+		a.bill_state_flag AS "billStateFlag",
+		a.sup_id AS "Puraccount.id",
+		a.sup_name AS "supName",
+		a.sup_address AS "supAddress",
+		a.sup_manager AS "supManager",
+		a.tax_ratio AS "taxRatio",
+		a.buyer_id AS "groupBuyer.user.id",
+		a.buyer_name AS "buyerName",
+		a.payment_notes AS "paymentNotes",
+		a.advance_pay AS "advancePay",
+		a.advance_date AS "advanceDate",
+		a.end_date AS "endDate",
+		a.tranmode_id AS "transType.id",
+		a.tranmode_name AS "tranmodeName",
+		a.tranprice_payer AS "tranpricePayer",
+		a.tranprice AS "tranprice",
+		a.goods_sum AS "goodsSum",
+		a.goods_sum_taxed AS "goodsSumTaxed",
+		a.deal_note AS "dealNote",
+		a.trans_contract_num AS "transContractNum",
+		a.bill_notes AS "billNotes",
+		a.contr_state AS "contrState",
+		a.pay_mode AS "payMode.id",
+		a.paymode_name AS "paymodeName",
+		a.bdate AS "bdate",
+		a.alter_flag AS "alterFlag",
+		a.contract_need_sum AS "contractNeedSum",
+		a.user_dept_code AS "userDeptCode",
+		a.contype_id AS "contractType.id",
+		a.contype_name AS "contypeName",
+		a.contract_model_id AS "contractModel.id",
+		a.contract_model_name AS "contractModelName",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		groupBuyer.buyername AS "groupBuyer.buyername",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		contractType.contype_id AS "contractType.contypeid",
+				
+				
+				
+		contractModel.contract_id AS "contractModel.contractId"
+	</sql>
+	
+	<sql id="purContractMainJoins">
+		
+			LEFT JOIN mdm_account b ON b.id = a.sup_id
+		LEFT JOIN pur_groupbuyer groupBuyer ON groupBuyer.id = a.buyer_id
+		LEFT JOIN pur_contracttype contractType ON contractType.id = a.contype_id
+		LEFT JOIN pur_contractnotesmodel contractModel ON contractModel.id = a.contract_model_id
+	</sql>
+	
+    
+	<select id="get" resultType="PurContractMain" >
+		SELECT 
+			<include refid="purContractMainColumns"/>
+		FROM pur_contractmain a
+		<include refid="purContractMainJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurContractMain" >
+		SELECT 
+			<include refid="purContractMainColumns"/>
+		FROM pur_contractmain a
+		<include refid="purContractMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="billType != null and billType != ''">
+				AND a.bill_type = #{billType}
+			</if>
+			<if test="makeDate != null and makeDate != ''">
+				AND a.make_date = #{makeDate}
+			</if>
+			<if test="makeEmpname != null and makeEmpname != ''">
+				AND a.make_empname = #{makeEmpname}
+			</if>
+			<if test="Puraccount != null and Puraccount.id != null and Puraccount.id != ''">
+				AND a.sup_id = #{Puraccount.id}
+			</if>
+			<if test="supName != null and supName != ''">
+				AND a.sup_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supName},'%')</if>
+			</if>
+			<if test="buyerName != null and buyerName != ''">
+				AND a.buyer_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{buyerName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{buyerName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{buyerName},'%')</if>
+			</if>
+			<if test="tranprice != null and tranprice != ''">
+				AND a.tranprice = #{tranprice}
+			</if>
+			<if test="goodsSum != null and goodsSum != ''">
+				AND a.goods_sum = #{goodsSum}
+			</if>
+			<if test="goodsSumTaxed != null and goodsSumTaxed != ''">
+				AND a.goods_sum_taxed = #{goodsSumTaxed}
+			</if>
+			<if test="dealNote != null and dealNote != ''">
+				AND a.deal_note = #{dealNote}
+			</if>
+			<if test="contrState != null and contrState != ''">
+				AND a.contr_state = #{contrState}
+			</if>
+			<if test="contractNeedSum != null and contractNeedSum != ''">
+				AND a.contract_need_sum = #{contractNeedSum}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurContractMain" >
+		SELECT 
+			<include refid="purContractMainColumns"/>
+		FROM pur_contractmain a
+		<include refid="purContractMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_contractmain(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			bill_type,
+			make_date,
+			make_empid,
+			make_empname,
+			make_notes,
+			bill_state_flag,
+			sup_id,
+			sup_name,
+			sup_address,
+			sup_manager,
+			tax_ratio,
+			buyer_id,
+			buyer_name,
+			payment_notes,
+			advance_pay,
+			advance_date,
+			end_date,
+			tranmode_id,
+			tranmode_name,
+			tranprice_payer,
+			tranprice,
+			goods_sum,
+			goods_sum_taxed,
+			deal_note,
+			trans_contract_num,
+			bill_notes,
+			contr_state,
+			pay_mode,
+			paymode_name,
+			bdate,
+			alter_flag,
+			contract_need_sum,
+			user_dept_code,
+			contype_id,
+			contype_name,
+			contract_model_id,
+			contract_model_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{billType},
+			#{makeDate},
+			#{user.id},
+			#{makeEmpname},
+			#{makeNotes},
+			#{billStateFlag},
+			#{Puraccount.id},
+			#{supName},
+			#{supAddress},
+			#{supManager},
+			#{taxRatio},
+			#{groupBuyer.user.id},
+			#{buyerName},
+			#{paymentNotes},
+			#{advancePay},
+			#{advanceDate},
+			#{endDate},
+			#{transType.id},
+			#{tranmodeName},
+			#{tranpricePayer},
+			#{tranprice},
+			#{goodsSum},
+			#{goodsSumTaxed},
+			#{dealNote},
+			#{transContractNum},
+			#{billNotes},
+			#{contrState},
+			#{payMode.id},
+			#{paymodeName},
+			#{bdate},
+			#{alterFlag},
+			#{contractNeedSum},
+			#{userDeptCode},
+			#{contractType.id},
+			#{contypeName},
+			#{contractModel.id},
+			#{contractModelName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_contractmain SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			bill_type = #{billType},
+			make_date = #{makeDate},
+			make_empid = #{user.id},
+			make_empname = #{makeEmpname},
+			make_notes = #{makeNotes},
+			bill_state_flag = #{billStateFlag},
+			sup_id = #{Puraccount.id},
+			sup_name = #{supName},
+			sup_address = #{supAddress},
+			sup_manager = #{supManager},
+			tax_ratio = #{taxRatio},
+			buyer_id = #{groupBuyer.user.id},
+			buyer_name = #{buyerName},
+			payment_notes = #{paymentNotes},
+			advance_pay = #{advancePay},
+			advance_date = #{advanceDate},
+			end_date = #{endDate},
+			tranmode_id = #{transType.id},
+			tranmode_name = #{tranmodeName},
+			tranprice_payer = #{tranpricePayer},
+			tranprice = #{tranprice},
+			goods_sum = #{goodsSum},
+			goods_sum_taxed = #{goodsSumTaxed},
+			deal_note = #{dealNote},
+			trans_contract_num = #{transContractNum},
+			bill_notes = #{billNotes},
+			contr_state = #{contrState},
+			pay_mode = #{payMode.id},
+			paymode_name = #{paymodeName},
+			bdate = #{bdate},
+			alter_flag = #{alterFlag},
+			contract_need_sum = #{contractNeedSum},
+			user_dept_code = #{userDeptCode},
+			contype_id = #{contractType.id},
+			contype_name = #{contypeName},
+			contract_model_id = #{contractModel.id},
+			contract_model_name = #{contractModelName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_contractmain
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE sup_id = #{Puraccount.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_contractmain SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE sup_id = #{Puraccount.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurContractMain" statementType="STATEMENT">
+		select * FROM pur_contractmain  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

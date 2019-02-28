@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.qmschecktype.mapper.ChecktypeMapper">
+    
+	<sql id="checktypeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.checkt_code AS "checktcode",
+		a.checkt_name AS "checktname",
+		a.checkt_des AS "checktdes"
+	</sql>
+	
+	<sql id="checktypeJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Checktype" >
+		SELECT 
+			<include refid="checktypeColumns"/>
+		FROM qms_checktype a
+		<include refid="checktypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Checktype" >
+		SELECT 
+			<include refid="checktypeColumns"/>
+		FROM qms_checktype a
+		<include refid="checktypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="checktcode != null and checktcode != ''">
+				AND a.checkt_code LIKE
+					<if test="dbName == 'oracle'">'%'||#{checktcode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{checktcode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{checktcode},'%')</if>		
+			</if>
+			<if test="checktname != null and checktname != ''">
+				AND a.checkt_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{checktname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{checktname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{checktname},'%')</if>	
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Checktype" >
+		SELECT 
+			<include refid="checktypeColumns"/>
+		FROM qms_checktype a
+		<include refid="checktypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_checktype(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			checkt_code,
+			checkt_name,
+			checkt_des
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{checktcode},
+			#{checktname},
+			#{checktdes}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_checktype SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			checkt_code = #{checktcode},
+			checkt_name = #{checktname},
+			checkt_des = #{checktdes}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_checktype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_checktype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Checktype" statementType="STATEMENT">
+		select * FROM qms_checktype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

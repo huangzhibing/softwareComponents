@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.group.mapper.GroupSupMapper">
+    
+	<sql id="groupSupColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.groupid AS "Group.groupid",
+		a.supid AS "supid.id",
+		a.supname AS "supname",
+		a.supid AS "account.id",
+		account.account_code AS "account.accountCode"
+	<!--	supid.suptype_id AS "supid.suptypeId",
+		supid.suptype_name AS "supid.suptypeName"
+		-->
+	</sql>
+	
+	<sql id="groupSupJoins">
+		
+			LEFT JOIN pur_group b ON b.id = a.groupid
+		    LEFT JOIN mdm_account account ON account.id = a.supid
+	</sql>
+	
+    
+	<select id="get" resultType="GroupSup" >
+		SELECT 
+			<include refid="groupSupColumns"/>
+		FROM pur_groupsup a
+		<include refid="groupSupJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="GroupSup" >
+		SELECT 
+			<include refid="groupSupColumns"/>
+		FROM pur_groupsup a
+		<include refid="groupSupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="Group != null and Group.groupid != null and Group.groupid != ''">
+				AND a.groupid = #{Group.groupid}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="GroupSup" >
+		SELECT 
+			<include refid="groupSupColumns"/>
+		FROM pur_groupsup a
+		<include refid="groupSupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_groupsup(
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			groupid,
+			supid,
+			supname
+		) VALUES (
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{Group.groupid},
+		<!--	#{supid.id},   -->
+		   #{account.id},
+			#{supname}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_groupsup SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			groupid = #{Group.groupid},
+		<!--	supid = #{supid.id},   -->
+		    supid = #{account.id},
+			supname = #{supname}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_groupsup
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE groupid = #{Group.groupid}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_groupsup SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE groupid = #{Group.groupid}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="GroupSup" statementType="STATEMENT">
+		select * FROM pur_groupsup  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

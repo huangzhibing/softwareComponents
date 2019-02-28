@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.bin.mapper.BinMapper">
+    
+	<sql id="binColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.ware_id AS "wareId",
+		a.bin_id AS "binId",
+		a.bin_desc AS "binDesc",
+		a.note AS "note",
+		a.is_leaf AS "isLeaf"
+	</sql>
+	
+	<sql id="binJoins">
+		
+	</sql>
+
+    <select id="getMaxId" resultType="String">
+        SELECT MAX(bin_id) FROM inv_bin WHERE ware_id = #{wareId}
+    </select>
+
+
+
+	
+    
+	<select id="get" resultType="Bin" >
+		SELECT 
+			<include refid="binColumns"/>
+		FROM inv_bin a
+		<include refid="binJoins"/>
+		WHERE (a.id = #{id}||a.bin_id = #{binId})
+	</select>
+
+    <select id="getByBinId" resultType="Bin" >
+        SELECT
+        <include refid="binColumns"/>
+        FROM inv_bin a
+        <include refid="binJoins"/>
+        WHERE a.bin_id = #{binId}
+    </select>
+	
+	<select id="findList" resultType="Bin" >
+		SELECT 
+			<include refid="binColumns"/>
+		FROM inv_bin a
+		<include refid="binJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="wareId != null and wareId != ''">
+				AND a.ware_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareId},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.bin_id ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Bin" >
+		SELECT 
+			<include refid="binColumns"/>
+		FROM inv_bin a
+		<include refid="binJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.bin_id ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_bin(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			ware_id,
+			bin_id,
+			bin_desc,
+			note,
+			is_leaf
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{wareId},
+			#{binId},
+			#{binDesc},
+			#{note},
+			#{isLeaf}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_bin SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			ware_id = #{wareId},
+			bin_id = #{binId},
+			bin_desc = #{binDesc},
+			note = #{note},
+			is_leaf = #{isLeaf}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_bin
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_bin SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Bin" statementType="STATEMENT">
+		select * FROM inv_bin  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.mdmcalendar.mapper.MdmCalendarMapper">
+    
+	<sql id="mdmCalendarColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.cur_date AS "curDate",
+		a.week_day AS "weekDay",
+		a.work_flag AS "workFlag",
+		a.day_name AS "dayName",
+		a.work_time AS "workTime"
+	</sql>
+	
+	<sql id="mdmCalendarJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="MdmCalendar" >
+		SELECT 
+			<include refid="mdmCalendarColumns"/>
+		FROM mdm_calendar a
+		<include refid="mdmCalendarJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MdmCalendar" >
+		SELECT 
+			<include refid="mdmCalendarColumns"/>
+		FROM mdm_calendar a
+		<include refid="mdmCalendarJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="beginCurDate != null and endCurDate != null and beginCurDate != '' and endCurDate != ''">
+				AND a.cur_date BETWEEN #{beginCurDate} AND #{endCurDate}
+			</if>
+			<if test="weekDay != null and weekDay != ''">
+				AND a.week_day = #{weekDay}
+			</if>
+			<if test="workFlag != null and workFlag != ''">
+				AND a.work_flag = #{workFlag}
+			</if>
+			<if test="dayName != null and dayName != ''">
+				AND a.day_name = #{dayName}
+			</if>
+			<if test="workTime != null and workTime != ''">
+				AND a.work_time = #{workTime}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MdmCalendar" >
+		SELECT 
+			<include refid="mdmCalendarColumns"/>
+		FROM mdm_calendar a
+		<include refid="mdmCalendarJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_calendar(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			cur_date,
+			week_day,
+			work_flag,
+			day_name,
+			work_time
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{curDate},
+			#{weekDay},
+			#{workFlag},
+			#{dayName},
+			#{workTime}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_calendar SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			cur_date = #{curDate},
+			week_day = #{weekDay},
+			work_flag = #{workFlag},
+			day_name = #{dayName},
+			work_time = #{workTime}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_calendar
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_calendar SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="MdmCalendar" statementType="STATEMENT">
+		select * FROM mdm_calendar  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

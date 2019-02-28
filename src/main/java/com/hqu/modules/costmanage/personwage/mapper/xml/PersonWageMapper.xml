@@ -1,0 +1,271 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.personwage.mapper.PersonWageMapper">
+    
+	<sql id="personWageColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.period_id AS "periodId",
+		a.routing_code AS "routing.routingCode",
+		a.team_code AS "team.teamCode",
+		a.item_code AS "itemCode.item.code",
+		a.item_unit AS "itemUnit",
+		a.item_qty AS "itemQty",
+		a.wage_unit AS "wageUnit",
+		a.bill_status AS "billStatus",
+		a.bill_mode AS "billMode",
+		a.check_id AS "checkId",
+		a.check_date AS "checkDate",
+		a.check_name AS "checkName",
+		a.make_id AS "makeId",
+		a.make_date AS "makeDate",
+		a.make_name AS "makeName",
+		a.cos_bill_num AS "cosBillNum",
+	  	a.bill_num AS "billNum",
+	  	a.processbillno AS "processBillNo",
+	  	a.order_id AS "orderId",
+
+-- 		workCode.work_procedure_name AS "workCode.workProcedureName",
+		routing.routing_name AS "routing.routingName",
+		team.team_name AS "team.teamName",
+		itemCode.item_name AS "itemCode.item.name"
+
+-- 		personCode.name AS "personCode.name"
+	</sql>
+	
+	<sql id="personWageJoins">
+		LEFT JOIN mdm_team team ON team.team_code = a.team_code
+		LEFT JOIN mdm_routing routing ON routing.routing_code = a.routing_code
+-- 		LEFT JOIN mdm_workprocedure workCode ON workCode.work_procedure_id = a.work_code
+		LEFT JOIN mdm_product itemCode ON itemCode.item_code = a.item_code
+-- 		LEFT JOIN sys_user personCode ON personCode.no = a.person_code
+	</sql>
+	
+    
+	<select id="get" resultType="PersonWage" >
+		SELECT 
+			<include refid="personWageColumns"/>
+		FROM cos_personwage a
+		<include refid="personWageJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="getPersonWageList" resultType="personWage">
+		SELECT
+			<include refid="personWageColumns"/>
+		FROM cos_personWage a
+		<include refid="personWageJoins"/>
+		WHERE a.cos_bill_num = #{billNum}
+	</select>
+	
+	<select id="checkExist" resultType="PersonWage">
+		SELECT
+			<include refid="personWageColumns"/>
+		FROM cos_personwage a
+		<include refid="personWageJoins"/>
+		<where>
+			a.period_id = #{periodId} AND
+			a.routing_code = #{routingCode} AND
+			a.team_code = #{teamCode} AND
+			a.item_code = #{prodCode}
+		</where>
+	</select>
+
+	<select id="findMaxBillNum" resultType="String">
+			SELECT MAX(bill_num) FROM cos_personwage WHERE bill_num LIKE concat(concat(#{_parameter}),"%")
+	</select>
+
+	<select id="getBack" resultType="PersonWage" >
+		SELECT 
+			<include refid="personWageColumns"/>
+		FROM cos_personwage a
+		<include refid="personWageJoins"/>
+		WHERE a.cos_bill_num = #{id}
+	</select>
+
+	<select id="getOrderId" resultType="String" >
+		SELECT DISTINCT mps.reqid FROM ppc_mserialno m
+		LEFT JOIN ppc_mpsplan mps ON mps.mpsplanid = m.mpsplanid
+		WHERE m.processbillNo = #{processBillNo}
+	</select>
+	
+	<select id="findList" resultType="PersonWage" >
+		SELECT 
+			<include refid="personWageColumns"/>
+		FROM cos_personwage a
+		<include refid="personWageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="periodId != null and periodId != ''">
+				AND a.period_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{periodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{periodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{periodId},'%')</if>
+			</if>
+			<if test="itemCode != null and itemCode.item.code != null and itemCode.item.code != ''">
+				AND a.item_code = #{itemCode.item.code}
+			</if>
+			<if test="billStatus != null and billStatus != ''">
+				AND a.bill_status LIKE concat('%',#{billStatus},'%')
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PersonWage" >
+		SELECT 
+			<include refid="personWageColumns"/>
+		FROM cos_personwage a
+		<include refid="personWageJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getQty" resultType="Double">
+		SELECT sum(a.item_qty) 
+		FROM cos_personwage a 
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="periodId != null and periodId != ''">
+				AND a.period_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{periodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{periodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{periodId},'%')</if>
+			</if>
+			<if test="team != null and team.teamCode != null and team.teamCode != ''">
+				AND a.team_code = #{team.teamCode}
+			</if>
+			<if test="billStatus != null and billStatus != ''">
+				AND a.bill_status LIKE concat('%',#{billStatus},'%')
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cos_personwage(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			period_id,
+			routing_code,
+			team_code,
+			item_code,
+			item_unit,
+			item_qty,
+			wage_unit,
+			bill_status,
+			bill_mode,
+			check_id,
+			check_date,
+			check_name,
+			make_id,
+			make_date,
+			make_name,
+			cos_bill_num,
+			bill_num,
+			processbillno,
+			order_id
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{periodId},
+			#{routing.routingCode},
+			#{team.teamCode},
+			#{itemCode.item.code},
+			#{itemUnit},
+			#{itemQty},
+			#{wageUnit},
+			#{billStatus},
+			#{billMode},
+			#{checkId},
+			#{checkDate},
+			#{checkName},
+			#{makeId},
+			#{makeDate},
+			#{makeName},
+			#{cosBillNum},
+			#{billNum},
+			#{processBillNo},
+			#{orderId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cos_personwage SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			period_id = #{periodId},
+			routing_code = #{routing.routingCode},
+			team_code = #{team.teamCode},
+			item_code = #{itemCode.item.code},
+			item_unit = #{itemUnit},
+			item_qty = #{itemQty},
+			wage_unit = #{wageUnit},
+			bill_status = #{billStatus},
+			bill_mode = #{billMode},
+			check_id = #{checkId},
+			check_date = #{checkDate},
+			check_name = #{checkName},
+			make_id = #{makeId},
+			make_date = #{makeDate},
+			make_name = #{makeName},
+			cos_bill_num = #{cosBillNum},
+			bill_num = #{billNum}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM cos_personwage
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE cos_personwage SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PersonWage" statementType="STATEMENT">
+		select * FROM cos_personwage  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

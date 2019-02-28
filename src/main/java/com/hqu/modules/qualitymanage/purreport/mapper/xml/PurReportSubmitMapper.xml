@@ -1,0 +1,370 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.purreport.mapper.PurReportSubmitMapper">
+    
+	<sql id="purReportColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.report_id AS "reportId",
+		a.billnum AS "invCheckMain.id",
+		a.checkt_code AS "checktCode",
+		a.checkt_name AS "checktName",
+		a.rnd_ful AS "rndFul",
+		a.quality_norm AS "qualityNorm",
+		a.cdept_code AS "cdeptCode",
+	 	a.cdept_name AS "office.id",
+	 <!--   a.cdept_name AS "cdeptName", -->
+		a.cposition_code AS "cpositionCode",
+		a.cposition_name AS "cpositionName",
+		a.check_date AS "checkDate",
+		a.check_time AS "checkTime",
+		a.cperson_code AS "cpersonCode",
+		a.check_person AS "checkPerson",
+		a.check_result AS "checkResult",
+		a.jdept_code AS "deptOffice.jdeptCode",
+		a.jdept_name AS "jdeptName",
+		a.jposition_code AS "jpositionCode",
+		a.jposition_name AS "jpositionName",
+		a.justify_date AS "justifyDate",
+		a.jperson_code AS "jpersonCode",
+		a.justify_person AS "justifyPerson",
+		a.justify_result AS "justifyResult",
+		a.memo AS "memo",
+		a.state AS "state",
+		a.is_qmatter AS "isQmatter",
+		a.justify_remark AS "justifyRemark",		
+		invCheckMain.billnum AS "invCheckMain.billnum",		
+		office.name AS "office.name",		
+		deptOffice.name AS "deptOffice.name",
+		invCheckMain.qms_flag AS "invCheckMain.qmsFlag"
+	</sql>
+	
+	<sql id="purReportJoins">
+		
+		LEFT JOIN pur_invcheckmain invCheckMain ON invCheckMain.id = a.billnum
+		LEFT JOIN sys_office office ON office.id = a.cdept_name
+		LEFT JOIN sys_office deptOffice ON deptOffice.id = a.jdept_name
+	</sql>
+	
+    
+	<select id="get" resultType="PurReport" >
+		SELECT 
+			<include refid="purReportColumns"/>
+		FROM qms_purreport a
+		<include refid="purReportJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurReport" >
+		SELECT 
+			<include refid="purReportColumns"/>
+		FROM qms_purreport a
+		<include refid="purReportJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="reportId != null and reportId != ''">
+					AND a.report_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{reportId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{reportId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{reportId},'%')</if>			
+			</if>
+			<if test="invCheckMain != null and invCheckMain.id != null and invCheckMain.id != ''">
+			  	AND a.billnum = #{invCheckMain.id}
+			   <!--    AND a.billnum = #{billnum}-->
+			</if>
+			<if test="checktName != null and checktName != ''">
+				AND a.checkt_name = #{checktName}
+			</if>
+			<if test="rndFul != null and rndFul != ''">
+				AND a.rnd_ful = #{rndFul}
+			</if>
+			<if test="qualityNorm != null and qualityNorm != ''">
+				AND a.quality_norm = #{qualityNorm}
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND a.cdept_name = #{office.id}
+			</if>
+			<if test="cpositionCode != null and cpositionCode != ''">
+				AND a.cposition_code = #{cpositionCode}
+			</if>
+			<if test="beginCheckDate != null and endCheckDate != null and beginCheckDate != '' and endCheckDate != ''">
+				AND a.check_date BETWEEN #{beginCheckDate} AND #{endCheckDate}
+			</if>
+			<if test="cpersonCode != null and cpersonCode != ''">
+				AND a.cperson_code = #{cpersonCode}
+			</if>
+			<if test="checkResult != null and checkResult != ''">
+				AND a.check_result = #{checkResult}
+			</if>
+			<if test="deptOffice != null and deptOffice.id != null and deptOffice.id != ''">
+				AND a.jdept_name = #{deptOffice.id}
+			</if>
+			<if test="jpositionName != null and jpositionName != ''">
+				AND a.jposition_name = #{jpositionName}
+			</if>
+			<if test="justifyDate != null and justifyDate != ''">
+				AND a.justify_date = #{justifyDate}
+			</if>
+			<if test="justifyPerson != null and justifyPerson != ''">
+				AND a.justify_person = #{justifyPerson}
+			</if>
+			<if test="justifyResult != null and justifyResult != ''">
+				AND a.justify_result = #{justifyResult}
+			</if>
+			<if test="memo != null and memo != ''">
+				AND a.memo = #{memo}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<select id="findListNew" resultType="PurReport" >
+		SELECT 
+			<include refid="purReportColumns"/>
+		FROM qms_purreport a
+		<include refid="purReportJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="reportId != null and reportId != ''">
+					AND a.report_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{reportId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{reportId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{reportId},'%')</if>			
+			</if>
+			<if test="invCheckMain != null and invCheckMain.id != null and invCheckMain.id != ''">
+			  	AND a.billnum = #{invCheckMain.id}
+			   <!--    AND a.billnum = #{billnum}-->
+			</if>
+		    <if test="checktName != null and checktName != ''">
+				AND a.checkt_name = #{checktName}
+			</if>		
+			<if test="rndFul != null and rndFul != ''">
+				AND a.rnd_ful = #{rndFul}
+			</if>
+			<if test="qualityNorm != null and qualityNorm != ''">
+				AND a.quality_norm = #{qualityNorm}
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND a.cdept_name = #{office.id}
+			</if>
+			<if test="cpositionCode != null and cpositionCode != ''">
+				AND a.cposition_code = #{cpositionCode}
+			</if>
+			<if test="beginCheckDate != null and endCheckDate != null and beginCheckDate != '' and endCheckDate != ''">
+				AND a.check_date BETWEEN #{beginCheckDate} AND #{endCheckDate}
+			</if>
+			<if test="cpersonCode != null and cpersonCode != ''">
+				AND a.cperson_code = #{cpersonCode}
+			</if>
+			<if test="checkResult != null and checkResult != ''">
+				AND a.check_result = #{checkResult}
+			</if>
+			<if test="deptOffice != null and deptOffice.id != null and deptOffice.id != ''">
+				AND a.jdept_name = #{deptOffice.id}
+			</if>
+			<if test="jpositionName != null and jpositionName != ''">
+				AND a.jposition_name = #{jpositionName}
+			</if>
+			<if test="justifyDate != null and justifyDate != ''">
+				AND a.justify_date = #{justifyDate}
+			</if>
+			<if test="justifyPerson != null and justifyPerson != ''">
+				AND a.justify_person = #{justifyPerson}
+			</if>
+			<if test="justifyResult != null and justifyResult != ''">
+				AND a.justify_result = #{justifyResult}
+			</if>
+			<if test="memo != null and memo != ''">
+				AND a.memo = #{memo}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test='sendState != null and sendState == "Y"'>
+                AND invCheckMain.qms_flag = '1'							 	    		 
+			</if>
+			<if test='sendState != null and sendState == "N"'>
+			    AND invCheckMain.qms_flag != '1'							 	    		 
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+		
+	<select id="findAllList" resultType="PurReport" >
+		SELECT 
+			<include refid="purReportColumns"/>
+		FROM qms_purreport a
+		<include refid="purReportJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_purreport(
+		    process_instance_id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			report_id,
+			billnum,
+			checkt_code,
+			checkt_name,
+			rnd_ful,
+			quality_norm,
+			cdept_code,
+			cdept_name,
+			cposition_code,
+			cposition_name,
+			check_date,
+			check_time,
+			cperson_code,
+			check_person,
+			check_result,
+			jdept_code,
+			jdept_name,
+			jposition_code,
+			jposition_name,
+			justify_date,
+			jperson_code,
+			justify_person,
+			justify_result,
+			memo,
+			state,
+			justify_remark
+		) VALUES (
+		    #{processInstanceId},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{reportId},
+			#{invCheckMain.id},
+			#{checktCode},
+			#{checktName},
+			#{rndFul},
+			#{qualityNorm},
+			#{cdeptCode},
+			#{office.id},
+			#{cpositionCode},
+			#{cpositionName},
+			#{checkDate},
+			#{checkTime},
+			#{cpersonCode},
+			#{checkPerson},
+			#{checkResult},
+			#{jdeptCode},
+			#{deptOffice.id},
+			#{jpositionCode},
+			#{jpositionName},
+			#{justifyDate},
+			#{jpersonCode},
+			#{justifyPerson},
+			#{justifyResult},
+			#{memo},
+			#{state},
+			#{justifyRemark}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_purreport SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			report_id = #{reportId},
+			billnum = #{invCheckMain.id},
+			checkt_code = #{checktCode},
+			checkt_name = #{checktName},
+			rnd_ful = #{rndFul},
+			quality_norm = #{qualityNorm},
+			cdept_code = #{cdeptCode},
+			cdept_name = #{office.id},
+			cposition_code = #{cpositionCode},
+			cposition_name = #{cpositionName},
+			check_date = #{checkDate},
+			check_time = #{checkTime},
+			cperson_code = #{cpersonCode},
+			check_person = #{checkPerson},
+			check_result = #{checkResult},
+			jdept_code = #{jdeptCode},
+			jdept_name = #{deptOffice.id},
+			jposition_code = #{jpositionCode},
+			jposition_name = #{jpositionName},
+			justify_date = #{justifyDate},
+			jperson_code = #{jpersonCode},
+			justify_person = #{justifyPerson},
+			justify_result = #{justifyResult},
+			memo = #{memo},
+			state = #{state},
+			justify_remark = #{justifyRemark}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_purreport
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_purreport SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurReport" statementType="STATEMENT">
+		select * FROM qms_purreport  where ${propertyName} = '${value}'
+	</select>
+	
+	<!--更新流程实例ID-->
+	<update id="updateProcessInstanceId">
+		UPDATE oa_leave SET 
+			process_instance_id = #{processInstanceId}
+		WHERE id = #{id}
+	</update>
+	
+</mapper>

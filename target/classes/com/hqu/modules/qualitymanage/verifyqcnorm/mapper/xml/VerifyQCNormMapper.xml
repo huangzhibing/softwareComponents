@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.verifyqcnorm.mapper.VerifyQCNormMapper">
+    
+	<sql id="verifyQCNormColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.report_id AS "reportId",
+		a.obj_sn AS "objSn",
+		a.obj_code AS "objCode",
+		a.obj_name AS "objName",
+		a.rule_id AS "ruleId",
+		a.checkprj AS "checkprj",
+		a.qcnorm_id AS "qcnormId",
+		a.qcnorm_name AS "qcnormName",
+		a.isfisished AS "isfisished",
+		a.role_code AS "roleCode",
+		a.role_name AS "roleName",
+		a.is_quality AS "isQuality"
+	</sql>
+	
+	<sql id="verifyQCNormJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="VerifyQCNorm" >
+		SELECT 
+			<include refid="verifyQCNormColumns"/>
+		FROM qms_verifyqcnorm a
+		<include refid="verifyQCNormJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="VerifyQCNorm" >
+		SELECT 
+			<include refid="verifyQCNormColumns"/>
+		FROM qms_verifyqcnorm a
+		<include refid="verifyQCNormJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="reportId != null and reportId != ''">
+				AND a.report_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{reportId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{reportId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{reportId},'%')</if>
+			</if>
+
+			<if test="objSn != null and objSn != ''">
+				AND a.obj_sn LIKE
+				<if test="dbName == 'oracle'">'%'||#{objSn}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{objSn}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{objSn},'%')</if>
+			</if>
+
+			<if test="objCode != null and objCode != ''">
+				AND a.obj_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{objCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{objCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{objCode},'%')</if>
+			</if>
+
+			<if test="objName != null and objName != ''">
+				AND a.obj_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{objName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{objName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{objName},'%')</if>
+			</if>
+
+			<if test="ruleId != null and ruleId != ''">
+				AND a.rule_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{ruleId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{ruleId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{ruleId},'%')</if>
+			</if>
+
+			<if test="checkprj != null and checkprj != ''">
+				AND a.checkprj LIKE
+				<if test="dbName == 'oracle'">'%'||#{checkprj}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{checkprj}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{checkprj},'%')</if>
+			</if>
+
+			<if test="qcnormId != null and qcnormId != ''">
+				AND a.qcnorm_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{qcnormId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qcnormId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qcnormId},'%')</if>
+			</if>
+
+			<if test="qcnormName != null and qcnormName != ''">
+				AND a.qcnorm_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{qcnormName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qcnormName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qcnormName},'%')</if>
+			</if>
+
+			<if test="isfisished != null and isfisished != ''">
+				AND a.isfisished LIKE
+				<if test="dbName == 'oracle'">'%'||#{isfisished}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{isfisished}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{isfisished},'%')</if>
+			</if>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="VerifyQCNorm" >
+		SELECT 
+			<include refid="verifyQCNormColumns"/>
+		FROM qms_verifyqcnorm a
+		<include refid="verifyQCNormJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_verifyqcnorm(
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			report_id,
+			obj_sn,
+			obj_code,
+			obj_name,
+			rule_id,
+			checkprj,
+			qcnorm_id,
+			qcnorm_name,
+			isfisished,
+			role_code,
+			role_name,
+			is_quality
+		) VALUES (
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{reportId},
+			#{objSn},
+			#{objCode},
+			#{objName},
+			#{ruleId},
+			#{checkprj},
+			#{qcnormId},
+			#{qcnormName},
+			#{isfisished},
+			#{roleCode},
+			#{roleName},
+			#{isQuality}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_verifyqcnorm SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			report_id = #{reportId},
+			obj_sn = #{objSn},
+			obj_code = #{objCode},
+			obj_name = #{objName},
+			rule_id = #{ruleId},
+			checkprj = #{checkprj},
+			qcnorm_id = #{qcnormId},
+			qcnorm_name = #{qcnormName},
+			isfisished = #{isfisished},
+			role_code = #{roleCode},
+			role_name = #{roleName},
+			is_quality = #{isQuality}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_verifyqcnorm
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_verifyqcnorm SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="VerifyQCNorm" statementType="STATEMENT">
+		select * FROM qms_verifyqcnorm  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.ppcsearch.mapper.MSerialNoSearchMapper">
+    
+	<sql id="mSerialNoColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.mserialno AS "mserialno",
+		a.mpsplanid AS "mpsplanid",
+		a.processbillno AS "processbillno",
+		a.batchno AS "batchno",
+		a.routinebillno AS "routinebillno",
+		a.routingcode AS "routingcode",
+		a.seqno AS "seqno",
+		a.isassigned AS "isassigned",
+		a.prodcode AS "prodcode",
+		a.prodname AS "prodname",
+		a.remarks AS "remarks",
+		a.obj_sn AS "objSn",
+		mps.reqid AS "reqid",
+		sfc.centercode AS "centercode",
+		sfc.actualbdate AS "actualbdate",
+		inv.billNoDetail AS "billNoDetail"
+	</sql>
+	
+	<sql id="mSerialNoJoins">
+		LEFT JOIN ppc_mpsplan mps ON mps.mpsplanid = a.mpsplanid
+		RIGHT JOIN sfc_processroutinedetail sfc ON sfc.mserialno = a.mserialno
+		INNER JOIN sfc_invcheckdetail inv ON inv.mserialno = a.mserialno
+	</sql>
+	
+    
+	<select id="get" resultType="MSerialNoSearch" >
+		SELECT 
+			<include refid="mSerialNoColumns"/>
+		FROM ppc_mserialno a
+		<include refid="mSerialNoJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MSerialNoSearch" >
+		SELECT DISTINCT
+			<include refid="mSerialNoColumns"/>
+		FROM ppc_mserialno a
+		<include refid="mSerialNoJoins"/>
+		<where>
+			${dataScope}
+			<if test="mserialno != null and mserialno != ''">
+				AND a.mserialno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mserialno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mserialno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mserialno},'%')</if>
+			</if>
+			<if test="mpsplanid != null and mpsplanid != ''">
+				AND a.mpsplanid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mpsplanid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mpsplanid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mpsplanid},'%')</if>
+			</if>
+			<if test="processbillno != null and processbillno != ''">
+				AND a.processbillno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{processbillno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{processbillno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{processbillno},'%')</if>
+			</if>
+			<if test="batchno != null and batchno != ''">
+				AND a.batchno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{batchno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{batchno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{batchno},'%')</if>
+			</if>
+			<if test="routinebillno != null and routinebillno != ''">
+				AND a.routinebillno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routinebillno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routinebillno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routinebillno},'%')</if>
+			</if>
+			<if test="routingcode != null and routingcode != ''">
+				AND a.routingcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routingcode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routingcode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routingcode},'%')</if>
+			</if>
+			<if test="seqno != null and seqno != ''">
+				AND a.seqno = #{seqno}
+			</if>
+			<if test="objSn != null and objSn != ''">
+				AND a.obj_sn LIKE concat('%',#{objSn},'%')
+			</if>
+			<if test="isassigned != null and isassigned != ''">
+				AND a.isassigned = #{isassigned}
+			</if>
+			<if test="prodcode != null and prodcode != ''">
+				AND a.prodcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prodcode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodcode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodcode},'%')</if>
+			</if>
+			<if test="prodname != null and prodname != ''">
+				AND a.prodname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prodname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodname},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+</mapper>

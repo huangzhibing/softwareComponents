@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.reportmanage.resourceImportOutputmapper.resourceImputMapper">
+<select id="findList" resultType="ResourceImport">
+	select 
+	inv_billmain.account_name as "corName",
+	inv_billmain.bill_date as "billDate",
+	inv_billmain.bill_num as "billNum",
+	inv_bill_type.io_desc as "ioDesc",
+	inv_billmain.ware_name as "wareName",
+	
+	pur_relations.front_num as "frontNum",
+	
+	inv_billdetail.item_code as "itemCode",
+	inv_billdetail.item_name as "itemName",
+	inv_billdetail.item_spec as "itemSpec",
+	inv_billdetail.meas_unit as "measUnit",
+	inv_billdetail.item_qty as "itemQty",
+	inv_billdetail.item_price as "itemPrice",
+	inv_billdetail.item_sum as "itemSum",
+	
+	<!-- inv_billmain.bill_person as "billPerson", -->
+	inv_billmain.ware_empname as "wareEmpname",
+	
+	inv_billdetail.note as "note",
+	billp.`name` as "billPerson",
+	<!-- inv_billmain.bill_empname as "billEmpname"-->
+	 sys_user.`name` as "billEmpname"
+	from inv_billmain
+	inner join pur_relations on inv_billmain.cor_bill_num = pur_relations.after_num
+	inner join inv_billdetail on inv_billmain.id = inv_billdetail.bill_num
+	 inner join sys_user on sys_user.`no` = inv_billmain.bill_empid
+	inner join sys_user billp on billp.`no` = inv_billmain.bill_person
+	inner join inv_bill_type on inv_bill_type.io_type = inv_billmain.io_type
+	<where>
+		<if test = "billNum != null and billNum != '' ">
+			inv_billmain.bill_num like 
+				<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+		</if>
+		<if test="beginBillDate != null and endBillDate != null and beginBillDate != '' and endBillDate != ''">
+				AND inv_billmain.bill_date BETWEEN #{beginBillDate} AND #{endBillDate}
+		</if>
+		<if test = "ioDesc != null and ioDesc != '' ">
+			AND inv_bill_type.io_desc like 
+				<if test="dbName == 'oracle'">'%'||#{ioDesc}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{ioDesc}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{ioDesc},'%')</if>
+		</if>
+		<if test = "wareName != null and wareName != '' ">
+			AND inv_billmain.ware_name like 
+				<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+		</if>
+		<if test = "frontNum != null and frontNum != '' ">
+			AND pur_relations.front_num like 
+				<if test="dbName == 'oracle'">'%'||#{frontNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{frontNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{frontNum},'%')</if>
+		</if>
+		<if test = "itemName != null and itemName != '' ">
+			AND inv_billdetail.item_name like 
+				<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+		</if>
+		<if test = "corName != null and corName != '' ">
+			AND inv_billmain.account_name like 
+				<if test="dbName == 'oracle'">'%'||#{corName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{corName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{corName},'%')</if>
+		</if>
+	</where>
+</select>
+</mapper>

@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.salcontract.mapper.CtrFIleMapper">
+    
+	<sql id="ctrFIleColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.contract_code AS "contract.id",
+		a.file_code AS "fileCode",
+		a.file_name AS "fileName",
+		a.file_path AS "filePath",
+		a.file_state AS "fileState"
+	</sql>
+	
+	<sql id="ctrFIleJoins">
+		
+			LEFT JOIN sal_contract b ON b.id = a.contract_code
+	</sql>
+	
+    
+	<select id="get" resultType="CtrFIle" >
+		SELECT 
+			<include refid="ctrFIleColumns"/>
+		FROM sal_ctrfile a
+		<include refid="ctrFIleJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CtrFIle" >
+		SELECT 
+			<include refid="ctrFIleColumns"/>
+		FROM sal_ctrfile a
+		<include refid="ctrFIleJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="contract != null and contract.id != null and contract.id != ''">
+				AND a.contract_code = #{contract.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CtrFIle" >
+		SELECT 
+			<include refid="ctrFIleColumns"/>
+		FROM sal_ctrfile a
+		<include refid="ctrFIleJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_ctrfile(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			contract_code,
+			file_code,
+			file_name,
+			file_path,
+			file_state
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{contract.id},
+			#{fileCode},
+			#{fileName},
+			#{filePath},
+			#{fileState}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_ctrfile SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			contract_code = #{contract.id},
+			file_code = #{fileCode},
+			file_name = #{fileName},
+			file_path = #{filePath},
+			file_state = #{fileState}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_ctrfile
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE contract_code = #{contract.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_ctrfile SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE contract_code = #{contract.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CtrFIle" statementType="STATEMENT">
+		select * FROM sal_ctrfile  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

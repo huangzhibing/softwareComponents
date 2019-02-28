@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.salorder.mapper.SalOrderMapper">
+    
+	<sql id="salOrderColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.contract_code AS "contract.id",
+		a.order_code AS "orderCode",
+		a.sign_date AS "signDate",
+		a.account_code AS "accountCode",
+		a.account_name AS "accountName",
+		a.input_date AS "inputDate",
+		a.input_person AS "inputPerson.id",
+		a.input_psn_name AS "inputPsnName",
+		a.order_stat AS "orderStat",
+		a.send_date AS "sendDate",
+				
+		inputPsn.name AS "inputPerson.name",
+		inputPsn.no AS "inputPerson.no",		
+				
+				
+				
+				
+				
+		contract.contract_code AS "contract.contractCode"
+	</sql>
+	
+	<sql id="salOrderJoins">
+		
+		LEFT JOIN sal_contract contract ON contract.id = a.contract_code
+		LEFT JOIN sys_user inputPsn ON inputPsn.id = a.input_person
+	</sql>
+	
+    
+	<select id="get" resultType="SalOrder" >
+		SELECT 
+			<include refid="salOrderColumns"/>
+		FROM sal_order a
+		<include refid="salOrderJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SalOrder" >
+		SELECT 
+			<include refid="salOrderColumns"/>
+		FROM sal_order a
+		<include refid="salOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="contract != null and contract.id != null and contract.id != ''">
+				AND a.contract_code = #{contract.id}
+			</if>
+			<if test="orderCode != null and orderCode != ''">
+				AND a.order_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{orderCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{orderCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{orderCode},'%')</if>
+			</if>
+			<if test="beginSignDate != null and endSignDate != null and beginSignDate != '' and endSignDate != ''">
+				AND a.sign_date BETWEEN #{beginSignDate} AND #{endSignDate}
+			</if>
+			<if test="accountCode != null and accountCode != ''">
+				AND a.account_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{accountCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{accountCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{accountCode},'%')</if>
+			</if>
+			<if test="accountName != null and accountName != ''">
+				AND a.account_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{accountName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{accountName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{accountName},'%')</if>
+			</if>
+			<if test="beginSendDate != null and endSendDate != null and beginSendDate != '' and endSendDate != ''">
+				AND a.send_date BETWEEN #{beginSendDate} AND #{endSendDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SalOrder" >
+		SELECT 
+			<include refid="salOrderColumns"/>
+		FROM sal_order a
+		<include refid="salOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_order(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			contract_code,
+			order_code,
+			sign_date,
+			account_code,
+			account_name,
+			input_date,
+			input_person,
+			input_psn_name,
+			order_stat,
+			send_date
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{contract.id},
+			#{orderCode},
+			#{signDate},
+			#{accountCode},
+			#{accountName},
+			#{inputDate},
+			#{inputPerson.id},
+			#{inputPsnName},
+			#{orderStat},
+			#{sendDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_order SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			contract_code = #{contract.id},
+			order_code = #{orderCode},
+			sign_date = #{signDate},
+			account_code = #{accountCode},
+			account_name = #{accountName},
+			input_date = #{inputDate},
+			input_person = #{inputPerson.id},
+			input_psn_name = #{inputPsnName},
+			order_stat = #{orderStat},
+			send_date = #{sendDate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_order
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_order SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SalOrder" statementType="STATEMENT">
+		select * FROM sal_order  where ${propertyName} = '${value}'
+	</select>
+	<select id="getMaxIdByTypeAndDate" resultType="String">
+        SELECT MAX(order_code) FROM sal_order WHERE order_code LIKE concat(concat(#{_parameter}),"%")
+    </select>
+    
+    <select id="findProductList" resultType="String" parameterType="com.hqu.modules.basedata.product.entity.Product">
+		SELECT 
+			a.order_code
+		FROM sal_order_item a
+		<where>
+			<if test="item != null and item.code  != null and item.code  != ''">
+				AND a.prod_code like concat(concat("%"),#{item.code },"%")
+			</if>
+			<if test="itemNameRu != null and itemNameRu != ''">
+				AND a.prod_name LIKE concat(concat("%",#{itemNameRu}),"%")
+			</if>
+			<if test="itemSpec != null and itemSpec != ''">
+				AND a.prod_spec LIKE concat(concat("%",#{itemSpec}),"%")
+			</if>
+		</where>
+	</select>
+	
+	<select id="selectPartCode" resultType="SalOrderItem">
+		Select
+		"" AS "id",
+		"0" AS "delFlag",
+		item_code AS "prodCode.id",
+		item_name AS "prodName",
+		item_spec AS "prodSpec",
+		item_measure AS "unitName"
+		from MDM_ProductBom inner join MDM_Item on MDM_ProductBom.item_code =MDM_Item.code where MDM_Item.is_part='y'
+		and MDM_ProductBom. product_item_code in (
+		<foreach collection="list" item="code" separator=",">
+			#{code}
+		</foreach>
+		)
+	</select>
+</mapper>

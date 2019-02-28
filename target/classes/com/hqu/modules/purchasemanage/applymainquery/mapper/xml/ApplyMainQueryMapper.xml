@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.applymainquery.mapper.ApplyMainQueryMapper">
+    
+	<sql id="applyMainQueryColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.make_date AS "makeDate",
+		a.apply_date AS "applyDate",
+		a.apply_type_id AS "applyType.id",
+		a.apply_type_name AS "applyName",
+		a.bill_state_flag AS "billStateFlag",
+		a.apply_dept_id AS "office.id",
+		a.apply_dept AS "applyDept",
+		a.make_empid AS "user.id",
+		a.make_empname AS "makeEmpname",
+		a.make_notes AS "makeNotes",
+		a.bill_type AS "billType",
+		a.period_id AS "periodId",
+		a.source_flag AS "sourceFlag",
+		a.apply_qty AS "applyQty",
+		a.apply_sum AS "applySum",
+		a.apply_note AS "applyNote",
+		a.fbr_no AS "fbrNo",
+		a.user_dept_code AS "userDeptCode",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		applyType.applytypeid AS "applyType.applytypeid",
+				
+				
+				
+		office.code AS "office.code",
+				
+				
+		user.no AS "user.no"
+	</sql>
+	
+	<sql id="applyMainQueryJoins">
+		
+		LEFT JOIN pur_applytype applyType ON applyType.id = a.apply_type_id
+		LEFT JOIN sys_office office ON office.id = a.apply_dept_id
+		LEFT JOIN sys_user user ON user.id = a.make_empid
+	</sql>
+	
+    
+	<select id="get" resultType="ApplyMainQuery" >
+		SELECT 
+			<include refid="applyMainQueryColumns"/>
+		FROM pur_applymain a
+		<include refid="applyMainQueryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ApplyMainQuery" >
+		SELECT 
+			<include refid="applyMainQueryColumns"/>
+		FROM pur_applymain a
+		<include refid="applyMainQueryJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.make_date BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="beginApplyDate != null and endApplyDate != null and beginApplyDate != '' and endApplyDate != ''">
+				AND a.apply_date BETWEEN #{beginApplyDate} AND #{endApplyDate}
+			</if>
+			<if test="applyType != null and applyType.id != null and applyType.id != ''">
+				AND a.apply_type_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{applyType.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{applyType.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{applyType.id},'%')</if>
+			</if>
+			<if test="billStateFlag != null and billStateFlag != ''">
+				AND a.bill_state_flag = #{billStateFlag}
+			</if>
+			<if test="applyName != null and applyName != ''">
+				AND a.apply_type_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{applyName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{applyName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{applyName},'%')</if>
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND a.apply_dept_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{office.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{office.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{office.id},'%')</if>
+			</if>
+			<if test="applyDept != null and applyDept != ''">
+				AND a.apply_dept LIKE 
+					<if test="dbName == 'oracle'">'%'||#{applyDept}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{applyDept}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{applyDept},'%')</if>
+			</if>
+			<if test="user != null and user.id != null and user.id != ''">
+				AND a.make_empid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{user.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{user.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{user.id},'%')</if>
+			</if>
+			<if test="makeEmpname != null and makeEmpname != ''">
+				AND a.make_empname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makeEmpname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makeEmpname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makeEmpname},'%')</if>
+			</if>
+			<if test="userDeptCode != null and userDeptCode != ''">
+				AND a.user_dept_code = #{userDeptCode}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ApplyMainQuery" >
+		SELECT 
+			<include refid="applyMainQueryColumns"/>
+		FROM pur_applymain a
+		<include refid="applyMainQueryJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_applymain(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			make_date,
+			apply_date,
+			apply_type_id,
+			apply_type_name,
+			bill_state_flag,
+			apply_dept_id,
+			apply_dept,
+			make_empid,
+			make_empname,
+			make_notes,
+			bill_type,
+			period_id,
+			source_flag,
+			apply_qty,
+			apply_sum,
+			apply_note,
+			fbr_no,
+			user_dept_code
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{makeDate},
+			#{applyDate},
+			#{applyType.id},
+			#{applyName},
+			#{billStateFlag},
+			#{office.id},
+			#{applyDept},
+			#{user.id},
+			#{makeEmpname},
+			#{makeNotes},
+			#{billType},
+			#{periodId},
+			#{sourceFlag},
+			#{applyQty},
+			#{applySum},
+			#{applyNote},
+			#{fbrNo},
+			#{userDeptCode}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_applymain SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			make_date = #{makeDate},
+			apply_date = #{applyDate},
+			apply_type_id = #{applyType.id},
+			apply_type_name = #{applyName},
+			bill_state_flag = #{billStateFlag},
+			apply_dept_id = #{office.id},
+			apply_dept = #{applyDept},
+			make_empid = #{user.id},
+			make_empname = #{makeEmpname},
+			make_notes = #{makeNotes},
+			bill_type = #{billType},
+			period_id = #{periodId},
+			source_flag = #{sourceFlag},
+			apply_qty = #{applyQty},
+			apply_sum = #{applySum},
+			apply_note = #{applyNote},
+			fbr_no = #{fbrNo},
+			user_dept_code = #{userDeptCode}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_applymain
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_applymain SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ApplyMainQuery" statementType="STATEMENT">
+		select * FROM pur_applymain  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

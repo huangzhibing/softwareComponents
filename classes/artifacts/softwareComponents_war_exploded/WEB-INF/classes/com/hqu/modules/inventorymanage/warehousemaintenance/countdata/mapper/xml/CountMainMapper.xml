@@ -1,0 +1,242 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.warehousemaintenance.countdata.mapper.CountMainMapper">
+    
+	<sql id="countMainColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.ware_id AS "ware.id",
+		a.ware_name AS "wareName",
+		a.batch_flag AS "batchFlag",
+		a.bin_id AS "bin.id",
+		a.bin_name AS "binName",
+		a.loc_id AS "loc.id",
+		a.loc_name AS "locName",
+		a.check_date AS "checkDate",
+		a.checkemp_id AS "checkEmpId.id",
+		a.adjemp_id AS "adjEmpId.id",
+		a.proc_flag AS "procFlag",
+		a.note AS "note",
+				
+				
+				
+				
+				
+				
+				
+				
+		ware.ware_name AS "ware.wareName",
+		ware.ware_id AS "ware.wareID",
+				
+				
+				
+		bin.bin_id AS "bin.binId",
+				
+				
+		loc.loc_id AS "loc.locId",
+				
+				
+				
+		checkEmpId.name AS "checkEmpId.name",
+		checkEmpId.no AS "checkEmpId.no",
+
+		adjEmpId.name AS "adjEmpId.name"
+	</sql>
+	
+	<sql id="countMainJoins">
+		
+		LEFT JOIN inv_warehouse ware ON ware.id = a.ware_id
+		LEFT JOIN inv_bin bin ON bin.id = a.bin_id
+		LEFT JOIN inv_location loc ON loc.id = a.loc_id
+		LEFT JOIN sys_user checkEmpId ON checkEmpId.id = a.checkemp_id
+		LEFT JOIN sys_user adjEmpId ON adjEmpId.id = a.adjemp_id
+	</sql>
+	
+    
+	<select id="get" resultType="CountMain" >
+		SELECT 
+			<include refid="countMainColumns"/>
+		FROM inv_count_main a
+		<include refid="countMainJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CountMain" >
+		SELECT 
+			<include refid="countMainColumns"/>
+		FROM inv_count_main a
+		<include refid="countMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="ware != null and ware.id != null and ware.id != ''">
+				AND a.ware_id = #{ware.id}
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="bin != null and bin.id != null and bin.id != ''">
+				AND a.bin_id = #{bin.id}
+			</if>
+			<if test="binName != null and binName != ''">
+				AND a.bin_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{binName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{binName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{binName},'%')</if>
+			</if>
+			<if test="loc != null and loc.id != null and loc.id != ''">
+				AND a.loc_id = #{loc.id}
+			</if>
+			<if test="locName != null and locName != ''">
+				AND a.loc_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{locName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{locName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{locName},'%')</if>
+			</if>
+			<if test="beginCheckDate != null and endCheckDate != null and beginCheckDate != '' and endCheckDate != ''">
+				AND a.check_date BETWEEN #{beginCheckDate} AND #{endCheckDate}
+			</if>
+			<if test="checkEmpId != null and checkEmpId.id != null and checkEmpId.id != ''">
+				AND a.checkemp_id = #{checkEmpId.id}
+			</if>
+			<if test="adjEmpId != null and adjEmpId.id != null and adjEmpId.id != ''">
+				AND a.adjemp_id = #{adjEmpId.id}
+			</if>
+            <if test="procFlag != null and procFlag != ''">
+                AND a.proc_flag = #{procFlag}
+            </if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CountMain" >
+		SELECT 
+			<include refid="countMainColumns"/>
+		FROM inv_count_main a
+		<include refid="countMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_count_main(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			ware_id,
+			ware_name,
+			batch_flag,
+			bin_id,
+			bin_name,
+			loc_id,
+			loc_name,
+			check_date,
+			checkemp_id,
+			adjemp_id,
+			proc_flag,
+			note
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{ware.id},
+			#{wareName},
+			#{batchFlag},
+			#{bin.id},
+			#{binName},
+			#{loc.id},
+			#{locName},
+			#{checkDate},
+			#{checkEmpId.id},
+			#{adjEmpId.id},
+			#{procFlag},
+			#{note}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_count_main SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			ware_id = #{ware.id},
+			ware_name = #{wareName},
+			batch_flag = #{batchFlag},
+			bin_id = #{bin.id},
+			bin_name = #{binName},
+			loc_id = #{loc.id},
+			loc_name = #{locName},
+			check_date = #{checkDate},
+			checkemp_id = #{checkEmpId.id},
+			adjemp_id = #{adjEmpId.id},
+			proc_flag = #{procFlag},
+			note = #{note}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_count_main
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_count_main SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CountMain" statementType="STATEMENT">
+		select * FROM inv_count_main  where ${propertyName} = '${value}'
+	</select>
+    <select id="getMaxIdByTypeAndDate" resultType="String">
+        SELECT MAX(bill_num) FROM inv_count_main WHERE bill_num LIKE concat(concat(#{_parameter}),"%")
+    </select>
+</mapper>

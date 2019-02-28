@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.taxratio.mapper.TaxRatioMapper">
+    
+	<sql id="taxRatioColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.taxratio_id AS "taxratioId",
+		a.tax_ratio AS "taxRatio",
+		a.user_dept_code AS "userDeptCode"
+	</sql>
+	
+	<sql id="taxRatioJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="TaxRatio" >
+		SELECT 
+			<include refid="taxRatioColumns"/>
+		FROM pur_tax_ratio a
+		<include refid="taxRatioJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TaxRatio" >
+		SELECT 
+			<include refid="taxRatioColumns"/>
+		FROM pur_tax_ratio a
+		<include refid="taxRatioJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="taxratioId != null and taxratioId != ''">
+				AND a.taxratio_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{taxratioId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{taxratioId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{taxratioId},'%')</if>
+			</if>
+			<if test="taxRatio != null and taxRatio != ''">
+				AND a.tax_ratio LIKE 
+					<if test="dbName == 'oracle'">'%'||#{taxRatio}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{taxRatio}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{taxRatio},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 查找最大流水号 -->
+	<select id="getMaxTaxratioId" resultType="String">
+		SELECT MAX(taxratio_id)
+		FROM pur_tax_ratio
+	</select>
+	
+	<select id="findAllList" resultType="TaxRatio" >
+		SELECT 
+			<include refid="taxRatioColumns"/>
+		FROM pur_tax_ratio a
+		<include refid="taxRatioJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_tax_ratio(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			taxratio_id,
+			tax_ratio,
+			user_dept_code
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{taxratioId},
+			#{taxRatio},
+			#{userDeptCode}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_tax_ratio SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			taxratio_id = #{taxratioId},
+			tax_ratio = #{taxRatio},
+			user_dept_code = #{userDeptCode}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_tax_ratio
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_tax_ratio SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="TaxRatio" statementType="STATEMENT">
+		select * FROM pur_tax_ratio  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

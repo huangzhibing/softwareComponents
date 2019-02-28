@@ -1,0 +1,446 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.rollplannewquery.mapper.RollPlanNewMapper">
+    
+	<sql id="rollPlanNewColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.bill_type AS "billType",
+		a.serial_num AS "serialNum",
+		a.item_code AS "itemCode.id",
+		a.item_name AS "itemName",
+		a.item_specmodel AS "itemSpecmodel",
+		a.unit_name AS "unitName",
+		a.apply_qty AS "applyQty",
+		a.plan_price AS "planPrice",
+		a.plan_sum AS "planSum",
+		a.request_date AS "requestDate",
+		a.plan_arrivedate AS "planArrivedate",
+		a.notes AS "notes",
+		a.mass_require AS "massRequire",
+		a.apply_qty_notes AS "applyQtyNotes",
+		a.batch_lt AS "batchLt",
+		a.pur_start_date AS "purStartDate",
+		a.pur_arrive_date AS "purArriveDate",
+		a.pur_qty AS "purQty",
+		a.inv_qty AS "invQty",
+		a.safety_qty AS "safetyQty",
+		a.real_qty AS "realQty",
+		a.road_qty AS "roadQty",
+		a.make_date AS "makeDate",
+		a.apply_dept_id AS "applyDeptId.id",
+		a.apply_dept AS "applyDept",
+		a.make_empid AS "makeEmpid.id",
+		a.make_empname AS "makeEmpname",
+		a.sourse_flag AS "sourseFlag",
+		a.op_flag AS "opFlag",
+		a.plan_num AS "planNum",
+		a.cost_price AS "costPrice",
+		a.item_texture AS "itemTexture",
+		a.apply_type_id AS "applyTypeId.id",
+		a.apply_type_name AS "applyTypeName",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		itemCode.code AS "itemCode.code",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		applyTypeId.applytypename AS "applyTypeId.applytypename",
+		applyTypeId.applytypeid AS "applyTypeId.applytypeid",
+				
+		applyDeptId.code AS "applyDeptId.code",
+				
+				
+		makeEmpid.no AS "makeEmpid.no"
+	</sql>
+	
+	<sql id="rollPlanNewJoins">
+		
+		LEFT JOIN mdm_item itemCode ON itemCode.id = a.item_code
+		LEFT JOIN sys_office applyDeptId ON applyDeptId.id = a.apply_dept_id
+		LEFT JOIN sys_user makeEmpid ON makeEmpid.id = a.make_empid
+		LEFT JOIN pur_applytype applyTypeId ON applyTypeId.id = a.apply_type_id
+	</sql>
+	
+    
+	<select id="get" resultType="RollPlanNew" >
+		SELECT 
+			<include refid="rollPlanNewColumns"/>
+		FROM pur_rollplannew a
+		<include refid="rollPlanNewJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="RollPlanNew" >
+		SELECT 
+			<include refid="rollPlanNewColumns"/>
+		FROM pur_rollplannew a
+		<include refid="rollPlanNewJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="billType != null and billType != ''">
+				AND a.bill_type = #{billType}
+			</if>
+			<if test="serialNum != null">
+				AND a.serial_num = #{serialNum}
+			</if>
+			<if test="itemCode != null and itemCode.id != null and itemCode.id != ''">
+				AND a.item_code = #{itemCode.id}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="itemSpecmodel != null and itemSpecmodel != ''">
+				AND a.item_specmodel LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemSpecmodel}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemSpecmodel}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemSpecmodel},'%')</if>
+			</if>
+			<if test="unitName != null and unitName != ''">
+				AND a.unit_name = #{unitName}
+			</if>
+			<if test="applyQty != null and applyQty != ''">
+				AND a.apply_qty = #{applyQty}
+			</if>
+			<if test="planPrice != null and planPrice != ''">
+				AND a.plan_price = #{planPrice}
+			</if>
+			<if test="planSum != null and planSum != ''">
+				AND a.plan_sum = #{planSum}
+			</if>
+			<if test="beginRequestDate != null and endRequestDate != null and beginRequestDate != '' and endRequestDate != ''">
+				AND a.request_date BETWEEN #{beginRequestDate} AND #{endRequestDate}
+			</if>
+			<if test="beginPlanArrivedate != null and endPlanArrivedate != null and beginPlanArrivedate != '' and endPlanArrivedate != ''">
+				AND a.plan_arrivedate BETWEEN #{beginPlanArrivedate} AND #{endPlanArrivedate}
+			</if>
+			<if test="notes != null and notes != ''">
+				AND a.notes = #{notes}
+			</if>
+			<if test="massRequire != null and massRequire != ''">
+				AND a.mass_require LIKE 
+					<if test="dbName == 'oracle'">'%'||#{massRequire}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{massRequire}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{massRequire},'%')</if>
+			</if>
+			<if test="applyQtyNotes != null and applyQtyNotes != ''">
+				AND a.apply_qty_notes LIKE 
+					<if test="dbName == 'oracle'">'%'||#{applyQtyNotes}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{applyQtyNotes}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{applyQtyNotes},'%')</if>
+			</if>
+			<if test="batchLt != null and batchLt != ''">
+				AND a.batch_lt = #{batchLt}
+			</if>
+			<if test="beginPurStartDate != null and endPurStartDate != null and beginPurStartDate != '' and endPurStartDate != ''">
+				AND a.pur_start_date BETWEEN #{beginPurStartDate} AND #{endPurStartDate}
+			</if>
+			<if test="beginPurArriveDate != null and endPurArriveDate != null and beginPurArriveDate != '' and endPurArriveDate != ''">
+				AND a.pur_arrive_date BETWEEN #{beginPurArriveDate} AND #{endPurArriveDate}
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.make_date BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="applyDeptId != null and applyDeptId.id != null and applyDeptId.id != ''">
+				AND a.apply_dept_id = #{applyDeptId.id}
+			</if>
+			<if test="applyDept != null and applyDept != ''">
+				AND a.apply_dept LIKE 
+					<if test="dbName == 'oracle'">'%'||#{applyDept}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{applyDept}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{applyDept},'%')</if>
+			</if>
+			<if test="makeEmpid != null and makeEmpid.id != null and makeEmpid.id != ''">
+				AND a.make_empid = #{makeEmpid.id}
+			</if>
+			<if test="makeEmpname != null and makeEmpname != ''">
+				AND a.make_empname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makeEmpname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makeEmpname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makeEmpname},'%')</if>
+			</if>
+			<if test="sourseFlag != null and sourseFlag != ''">
+				AND a.sourse_flag = #{sourseFlag}
+			</if>
+			<if test="opFlag != null and opFlag != ''">
+				<choose>
+					<when test='opFlag == "0"'>
+						AND (a.op_flag='0' OR a.op_flag is null)
+					</when>
+					<otherwise>
+						AND a.op_flag = #{opFlag}
+					</otherwise>
+				</choose>
+			</if>
+			<if test="planNum != null and planNum != ''">
+				AND a.plan_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{planNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{planNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{planNum},'%')</if>
+			</if>
+			<if test="costPrice != null and costPrice != ''">
+				AND a.cost_price = #{costPrice}
+			</if>
+			<if test="applyTypeId != null and applyTypeId.id != null and applyTypeId.id != ''">
+				AND a.apply_type_id = #{applyTypeId.id}
+			</if>
+			<if test="applyTypeName != null and applyTypeName != ''">
+				AND a.apply_type_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{applyTypeName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{applyTypeName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{applyTypeName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findListForPlan" resultType="RollPlanNew" >
+		SELECT
+		<include refid="rollPlanNewColumns"/>
+		FROM pur_rollplannew a
+		<include refid="rollPlanNewJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="opFlag != null and opFlag != ''">
+				<choose>
+					<when test='opFlag == "0"'>
+						AND (a.op_flag='0' OR a.op_flag is null)
+					</when>
+					<otherwise>
+						AND a.op_flag = #{opFlag}
+					</otherwise>
+				</choose>
+			</if>
+			<if test="planNum != null and planNum != ''">
+				OR a.plan_num = #{planNum}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="RollPlanNew" >
+		SELECT 
+			<include refid="rollPlanNewColumns"/>
+		FROM pur_rollplannew a
+		<include refid="rollPlanNewJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_rollplannew(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			bill_type,
+			serial_num,
+			item_code,
+			item_name,
+			item_specmodel,
+			unit_name,
+			apply_qty,
+			plan_price,
+			plan_sum,
+			request_date,
+			plan_arrivedate,
+			notes,
+			mass_require,
+			apply_qty_notes,
+			batch_lt,
+			pur_start_date,
+			pur_arrive_date,
+			pur_qty,
+			inv_qty,
+			safety_qty,
+			real_qty,
+			road_qty,
+			make_date,
+			apply_dept_id,
+			apply_dept,
+			make_empid,
+			make_empname,
+			sourse_flag,
+			op_flag,
+			plan_num,
+			cost_price,
+			item_texture,
+			apply_type_id,
+			apply_type_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{billType},
+			#{serialNum},
+			#{itemCode.id},
+			#{itemName},
+			#{itemSpecmodel},
+			#{unitName},
+			#{applyQty},
+			#{planPrice},
+			#{planSum},
+			#{requestDate},
+			#{planArrivedate},
+			#{notes},
+			#{massRequire},
+			#{applyQtyNotes},
+			#{batchLt},
+			#{purStartDate},
+			#{purArriveDate},
+			#{purQty},
+			#{invQty},
+			#{safetyQty},
+			#{realQty},
+			#{roadQty},
+			#{makeDate},
+			#{applyDeptId.id},
+			#{applyDept},
+			#{makeEmpid.id},
+			#{makeEmpname},
+			#{sourseFlag},
+			#{opFlag},
+			#{planNum},
+			#{costPrice},
+			#{itemTexture},
+			#{applyTypeId.id},
+			#{applyTypeName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_rollplannew SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			bill_type = #{billType},
+			serial_num = #{serialNum},
+			item_code = #{itemCode.id},
+			item_name = #{itemName},
+			item_specmodel = #{itemSpecmodel},
+			unit_name = #{unitName},
+			apply_qty = #{applyQty},
+			plan_price = #{planPrice},
+			plan_sum = #{planSum},
+			request_date = #{requestDate},
+			plan_arrivedate = #{planArrivedate},
+			notes = #{notes},
+			mass_require = #{massRequire},
+			apply_qty_notes = #{applyQtyNotes},
+			batch_lt = #{batchLt},
+			pur_start_date = #{purStartDate},
+			pur_arrive_date = #{purArriveDate},
+			pur_qty = #{purQty},
+			inv_qty = #{invQty},
+			safety_qty = #{safetyQty},
+			real_qty = #{realQty},
+			road_qty = #{roadQty},
+			make_date = #{makeDate},
+			apply_dept_id = #{applyDeptId.id},
+			apply_dept = #{applyDept},
+			make_empid = #{makeEmpid.id},
+			make_empname = #{makeEmpname},
+			sourse_flag = #{sourseFlag},
+			op_flag = #{opFlag},
+			plan_num = #{planNum},
+			cost_price = #{costPrice},
+			item_texture = #{itemTexture},
+			apply_type_id = #{applyTypeId.id},
+			apply_type_name = #{applyTypeName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_rollplannew
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_rollplannew SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="RollPlanNew" statementType="STATEMENT">
+		select * FROM pur_rollplannew  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

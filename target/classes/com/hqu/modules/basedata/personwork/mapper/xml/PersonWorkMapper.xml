@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.personwork.mapper.PersonWorkMapper">
+    
+	<sql id="personWorkColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.person_work_code AS "user.id",
+		a.person_work_name AS "personWorkName",
+		a.work_type_code AS "workTypeCode.id",
+		a.work_type_name AS "workTypeName",
+				
+
+		user.name AS "user.name",
+		user.no AS "user.no",
+
+		workTypeCode.work_type_code AS "workTypeCode.workTypeCode",
+		workTypeCode.work_type_name AS "workTypeCode.workTypeName"
+	</sql>
+	
+	<sql id="personWorkJoins">
+		LEFT JOIN sys_user user ON user.id = a.person_work_code
+		LEFT JOIN mdm_work_type workTypeCode ON workTypeCode.id = a.work_type_code
+	</sql>
+	
+    
+	<select id="get" resultType="PersonWork" >
+		SELECT 
+			<include refid="personWorkColumns"/>
+		FROM mdm_personwork a
+		<include refid="personWorkJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PersonWork" >
+		SELECT 
+			<include refid="personWorkColumns"/>
+		FROM mdm_personwork a
+		<include refid="personWorkJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="workTypeCode!=null and workTypeCode.id!=null  and workTypeCode.id!=''">
+				And a.work_type_code = #{workTypeCode.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PersonWork" >
+		SELECT 
+			<include refid="personWorkColumns"/>
+		FROM mdm_personwork a
+		<include refid="personWorkJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_personwork(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			person_work_code,
+			person_work_name,
+			work_type_code,
+			work_type_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{user.id},
+			#{personWorkName},
+			#{workTypeCode.id},
+			#{workTypeName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_personwork SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			person_work_code = #{user.id},
+			person_work_name = #{personWorkName},
+			work_type_code = #{workTypeCode.id},
+			work_type_name = #{workTypeName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_personwork
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_personwork SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PersonWork" statementType="STATEMENT">
+		select * FROM mdm_personwork  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

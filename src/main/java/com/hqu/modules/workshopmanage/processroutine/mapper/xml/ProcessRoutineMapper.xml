@@ -1,0 +1,387 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.processroutine.mapper.ProcessRoutineMapper">
+    
+	<sql id="processRoutineColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.processbillno AS "processBillNo",
+		a.batchno AS "batchNo",
+		a.routinebillno AS "routineBillNo",
+		a.produceno AS "produceNo",
+		a.routingcode AS "routingCode",
+		a.workprocedurecode AS "workprocedureCode",
+		a.centercode AS "centerCode",
+		a.islastrouting AS "isLastRouting",
+		a.prodcode AS "prodCode",
+		a.prodname AS "prodName",
+		a.planqty AS "planQty",
+		a.planbdate AS "planBData",
+		a.realqty AS "realQty",
+		a.planedate AS "planEDate",
+		a.billstate AS "billState",
+		a.assignedstate AS "assignedState",
+		a.makepid AS "makePID",
+		a.actualcentercode AS "actualCenterCode",
+		a.personincharge AS "personIncharge",
+		a.teamcode AS "teamCode",
+		a.actualteamcode AS "actualTeamCode",
+		a.shiftname AS "shiftname",
+		a.workhour AS "workhour",
+		a.actualworkhour AS "actualWorkhour",
+		a.makedate AS "makeDate",
+		a.confirmpid AS "confirmPID",
+		a.confirmdate AS "confirmDate",
+		a.deliverypid AS "deliveryPID",
+		a.deliverydate AS "deliveryDate",
+		a.routingname AS "routingName",
+		a.seqno AS "seqNo",
+		a.cosbillnum AS "cosBillNum",
+		a.actualbdate AS "actualBDate"
+	</sql>
+	
+	<sql id="processRoutineJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="ProcessRoutine" >
+		SELECT 
+			<include refid="processRoutineColumns"/>
+		FROM sfc_processroutine a
+		<include refid="processRoutineJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ProcessRoutine" >
+		SELECT 
+			<include refid="processRoutineColumns"/>
+		FROM sfc_processroutine a
+		<include refid="processRoutineJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="processBillNo != null and processBillNo != ''">
+				AND a.processbillno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{processBillNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{processBillNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{processBillNo},'%')</if>
+			</if>
+			<if test="batchNo != null and batchNo != ''">
+				AND a.batchno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{batchNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{batchNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{batchNo},'%')</if>
+			</if>
+			<if test="routineBillNo != null and routineBillNo != ''">
+				AND a.routinebillno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routineBillNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routineBillNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routineBillNo},'%')</if>
+			</if>
+			<if test="produceNo != null and produceNo != ''">
+				AND a.produceno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{produceNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{produceNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{produceNo},'%')</if>
+			</if>
+			<if test="routingCode != null and routingCode != ''">
+				AND a.routingcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routingCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routingCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routingCode},'%')</if>
+			</if>
+			<if test="workprocedureCode != null and workprocedureCode != ''">
+				AND a.workprocedurecode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{workprocedureCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{workprocedureCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{workprocedureCode},'%')</if>
+			</if>
+			<if test="centerCode != null and centerCode != ''">
+				AND a.centercode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{centerCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{centerCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{centerCode},'%')</if>
+			</if>
+			<if test="isLastRouting != null and isLastRouting != ''">
+				AND a.islastrouting LIKE 
+					<if test="dbName == 'oracle'">'%'||#{isLastRouting}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{isLastRouting}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{isLastRouting},'%')</if>
+			</if>
+			<if test="prodCode != null and prodCode != ''">
+				AND a.prodcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prodCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodCode},'%')</if>
+			</if>
+			<if test="prodName != null and prodName != ''">
+				AND a.prodname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prodName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodName},'%')</if>
+			</if>
+			<if test="planQty != null and planQty != ''">
+				AND a.planqty = #{planQty}
+			</if>
+			<if test="beginPlanBData != null and endPlanBData != null and beginPlanBData != '' and endPlanBData != ''">
+				AND a.planbdate BETWEEN #{beginPlanBData} AND #{endPlanBData}
+			</if>
+			<if test="realQty != null and realQty != ''">
+				AND a.realqty = #{realQty}
+			</if>
+			<if test="beginPlanEDate != null and endPlanEDate != null and beginPlanEDate != '' and endPlanEDate != ''">
+				AND a.planedate BETWEEN #{beginPlanEDate} AND #{endPlanEDate}
+			</if>
+			<if test="billState != null and billState != ''">
+				AND a.billstate = #{billState}
+			</if>
+			<if test="assignedState != null and assignedState != ''">
+				AND a.assignedstate LIKE 
+					<if test="dbName == 'oracle'">'%'||#{assignedState}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{assignedState}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{assignedState},'%')</if>
+			</if>
+			<if test="makePID != null and makePID != ''">
+				AND a.makepid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makePID}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makePID}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makePID},'%')</if>
+			</if>
+			<if test="actualCenterCode != null and actualCenterCode != ''">
+				AND a.actualcentercode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{actualCenterCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{actualCenterCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{actualCenterCode},'%')</if>
+			</if>
+			<if test="personIncharge != null and personIncharge != ''">
+				AND a.personincharge LIKE 
+					<if test="dbName == 'oracle'">'%'||#{personIncharge}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{personIncharge}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{personIncharge},'%')</if>
+			</if>
+			<if test="teamCode != null and teamCode != ''">
+				AND a.teamcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{teamCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{teamCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{teamCode},'%')</if>
+			</if>
+			<if test="actualTeamCode != null and actualTeamCode != ''">
+				AND a.actualteamcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{actualTeamCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{actualTeamCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{actualTeamCode},'%')</if>
+			</if>
+			<if test="shiftname != null and shiftname != ''">
+				AND a.shiftname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{shiftname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{shiftname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{shiftname},'%')</if>
+			</if>
+			<if test="workhour != null and workhour != ''">
+				AND a.workhour = #{workhour}
+			</if>
+			<if test="actualWorkhour != null and actualWorkhour != ''">
+				AND a.actualworkhour = #{actualWorkhour}
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.makedate BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="confirmPID != null and confirmPID != ''">
+				AND a.confirmpid = #{confirmPID}
+			</if>
+			<if test="beginConfirmDate != null and endConfirmDate != null and beginConfirmDate != '' and endConfirmDate != ''">
+				AND a.confirmdate BETWEEN #{beginConfirmDate} AND #{endConfirmDate}
+			</if>
+			<if test="deliveryPID != null and deliveryPID != ''">
+				AND a.deliverypid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{deliveryPID}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{deliveryPID}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{deliveryPID},'%')</if>
+			</if>
+			<if test="beginDeliveryDate != null and endDeliveryDate != null and beginDeliveryDate != '' and endDeliveryDate != ''">
+				AND a.deliverydate BETWEEN #{beginDeliveryDate} AND #{endDeliveryDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.produceno ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ProcessRoutine" >
+		SELECT 
+			<include refid="processRoutineColumns"/>
+		FROM sfc_processroutine a
+		<include refid="processRoutineJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_processroutine(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			processbillno,
+			batchno,
+			routinebillno,
+			produceno,
+			routingcode,
+			workprocedurecode,
+			centercode,
+			islastrouting,
+			prodcode,
+			prodname,
+			planqty,
+			planbdate,
+			realqty,
+			planedate,
+			billstate,
+			assignedstate,
+			makepid,
+			actualcentercode,
+			personincharge,
+			teamcode,
+			actualteamcode,
+			shiftname,
+			workhour,
+			actualworkhour,
+			makedate,
+			confirmpid,
+			confirmdate,
+			deliverypid,
+			deliverydate,
+			routingname,
+			seqno,
+			cosbillnum,
+			actualbdate
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{processBillNo},
+			#{batchNo},
+			#{routineBillNo},
+			#{produceNo},
+			#{routingCode},
+			#{workprocedureCode},
+			#{centerCode},
+			#{isLastRouting},
+			#{prodCode},
+			#{prodName},
+			#{planQty},
+			#{planBData},
+			#{realQty},
+			#{planEDate},
+			#{billState},
+			#{assignedState},
+			#{makePID},
+			#{actualCenterCode},
+			#{personIncharge},
+			#{teamCode},
+			#{actualTeamCode},
+			#{shiftname},
+			#{workhour},
+			#{actualWorkhour},
+			#{makeDate},
+			#{confirmPID},
+			#{confirmDate},
+			#{deliveryPID},
+			#{deliveryDate},
+			#{routingName},
+			#{seqNo},
+			#{cosBillNum},
+			#{actualBDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_processroutine SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			processbillno = #{processBillNo},
+			batchno = #{batchNo},
+			routinebillno = #{routineBillNo},
+			produceno = #{produceNo},
+			routingcode = #{routingCode},
+			workprocedurecode = #{workprocedureCode},
+			centercode = #{centerCode},
+			islastrouting = #{isLastRouting},
+			prodcode = #{prodCode},
+			prodname = #{prodName},
+			planqty = #{planQty},
+			planbdate = #{planBData},
+			realqty = #{realQty},
+			planedate = #{planEDate},
+			billstate = #{billState},
+			assignedstate = #{assignedState},
+			makepid = #{makePID},
+			actualcentercode = #{actualCenterCode},
+			personincharge = #{personIncharge},
+			teamcode = #{teamCode},
+			actualteamcode = #{actualTeamCode},
+			shiftname = #{shiftname},
+			workhour = #{workhour},
+			actualworkhour = #{actualWorkhour},
+			makedate = #{makeDate},
+			confirmpid = #{confirmPID},
+			confirmdate = #{confirmDate},
+			deliverypid = #{deliveryPID},
+			deliverydate = #{deliveryDate},
+			routingname = #{routingName},
+			seqno = #{seqNo},
+			cosbillnum = #{cosBillNum},
+			actualbdate = #{actualBDate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_processroutine
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_processroutine SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ProcessRoutine" statementType="STATEMENT">
+		select * FROM sfc_processroutine  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.outsourcingoutput.mapper.BillMainOutsourcingMapper">
+    
+	<sql id="billMainColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.bill_date AS "billDate",
+		a.dept_id AS "dept.id",
+		a.dept_name AS "deptName",
+		a.io_type AS "io.id",
+		a.io_desc AS "ioDesc",
+		a.io_flag AS "ioFlag",
+		a.ware_id AS "ware.wareID",
+		a.ware_name AS "wareName",
+		a.bill_person AS "billPerson.id",
+		a.ware_empid AS "wareEmp.user.no",
+		a.ware_empname AS "wareEmpname",
+		a.cor_bill_num AS "corBillNum",
+		a.cor_id AS "corId",
+		a.cor_name AS "corName",
+		a.use_id AS "invuse.id",
+		a.use_name AS "useName",
+		a.bill_flag AS "billFlag",
+		a.estimate_flag AS "estimateFlag",
+		a.period_id AS "period.id",
+		a.bill_desc AS "billDesc",
+		a.rec_empid AS "recEmp.id",
+		a.rec_empname AS "recEmpname",
+		a.rec_date AS "recDate",
+		a.bill_empid AS "billEmp.id",
+		a.bill_empname AS "billEmpname",
+		a.note AS "note",
+		a.order_code AS "orderCode",
+		a.tax_ratio AS "taxRatio",
+		a.ino_id AS "inoId",
+		a.class_id AS "classId",
+		a.class_desc AS "classDesc",
+		a.cflag AS "cflag",
+		a.fnumber AS "fnumber",
+		a.finvoice_id AS "finvoiceID",
+		a.bill_type AS "billType",
+		a.red_flag AS "redFlag",
+		a.cg_flag AS "cgFlag",
+		a.total_sum AS "totalSum",
+		a.oper_date AS "operDate",
+		a.bill_source AS "billSource",
+		a.cg_num AS "cgNum",
+		a.work_poscode AS "workPoscode",
+		a.work_posname AS "wordPosname",
+		a.workshop_flag AS "workshopFlag",		
+		a.is_good AS "isGood",
+				
+				
+				
+				
+				
+				
+				
+		dept.code AS "dept.code",
+				
+				
+		io.io_type AS "io.ioType",
+				
+				
+				
+		ware.id AS "ware.id",
+				
+				
+		billPerson.no AS "billPerson.no",
+		billPerson.name AS "billPerson.name",
+				
+				
+				
+				
+				
+		invuse.use_id AS "invuse.useId",
+				
+				
+				
+				
+				
+				
+		recEmp.no AS "recEmp.no",
+		period.period_id AS "period.periodId",		
+		<!-- user.no AS "wareEmp.user.no", -->
+				
+		billEmp.no AS "billEmp.no"
+	</sql>
+	
+	<sql id="billMainJoins">
+		
+		LEFT JOIN sys_office dept ON dept.code = a.dept_id
+		LEFT JOIN inv_bill_type io ON io.io_type = a.io_type
+		LEFT JOIN inv_warehouse ware ON ware.ware_id = a.ware_id
+		LEFT JOIN sys_user billPerson ON billPerson.no = a.bill_person
+		LEFT JOIN inv_employee wareEmp ON wareEmp.emp_id = a.ware_empid
+		LEFT JOIN inv_use invuse ON invuse.use_id = a.use_id
+		LEFT JOIN sys_user recEmp ON recEmp.no = a.rec_empid
+		LEFT JOIN sys_user billEmp ON billEmp.no = a.bill_empid
+		LEFT JOIN mdm_period period ON period.period_id = a.period_id
+		LEFT JOIN sys_user user ON user.no = wareEmp.emp_id
+		
+	</sql>
+	
+    
+	<select id="get" resultType="BillMain" >
+		SELECT 
+			<include refid="billMainColumns"/>
+		FROM inv_billmain a
+		<include refid="billMainJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BillMain" >
+		SELECT 
+			<include refid="billMainColumns"/>
+		FROM inv_billmain a
+		<include refid="billMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="userId != null and userId != ''">
+				AND a.create_by = #{userId}
+			</if>
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+<!-- 			<if test="ioFlag != null and ioFlag != '' ">
+ -->				AND substring(a.bill_num from 1 for 3) like 'wgo'
+			<!-- </if> -->
+			<if test="beginBillDate != null and endBillDate != null and beginBillDate != '' and endBillDate != ''">
+				AND a.bill_date BETWEEN #{beginBillDate} AND #{endBillDate}
+			</if>
+			<if test="dept != null and dept.id != null and dept.id != ''">
+				AND a.dept_id = #{dept.code}
+			</if>
+			<if test="deptName != null and deptName != ''">
+				AND a.dept_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{deptName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{deptName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{deptName},'%')</if>
+			</if>
+			<if test="io != null and io.id != null and io.id != ''">
+				AND a.io_type = #{io.ioType}
+			</if>
+			<if test="ioDesc != null and ioDesc != ''">
+				AND a.io_desc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ioDesc}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ioDesc}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ioDesc},'%')</if>
+			</if>
+			<if test="ware != null and ware.id != null and ware.id != ''">
+				AND a.ware_id = #{ware.wareID}
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="billPerson != null and billPerson.id != null and billPerson.id != ''">
+				AND a.bill_person = #{billPerson.no}
+			</if>
+			<if test="wareEmp != null and wareEmp.id != null and wareEmp.id != ''">
+				AND a.ware_empid = #{wareEmp.user.no}
+			</if>
+			<if test="wareEmpname != null and wareEmpname != ''">
+				AND a.ware_empname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareEmpname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareEmpname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareEmpname},'%')</if>
+			</if>
+			<if test="invuse != null and invuse.id != null and invuse.id != ''">
+				AND a.use_id = #{invuse.useId}
+			</if>
+			<if test="useName != null and useName != ''">
+				AND a.use_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{useName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{useName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{useName},'%')</if>
+			</if>
+			<if test="billFlag != null and billFlag != ''">
+				AND a.bill_flag = #{billFlag}
+			</if>
+			<if test="recEmp != null and recEmp.id != null and recEmp.id != ''">
+				AND a.rec_empid = #{recEmp.no}
+			</if>
+			<if test="recEmpname != null and recEmpname != ''">
+				AND a.rec_empname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{recEmpname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{recEmpname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{recEmpname},'%')</if>
+			</if>
+			<if test="beginRecDate != null and endRecDate != null and beginRecDate != '' and endRecDate != ''">
+				AND a.rec_date BETWEEN #{beginRecDate} AND #{endRecDate}
+			</if>
+			<if test="billEmp != null and billEmp.id != null and billEmp.id != ''">
+				AND a.bill_empid = #{billEmp.no}
+			</if>
+			<if test="billEmpname != null and billEmpname != ''">
+				AND a.bill_empname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billEmpname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billEmpname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billEmpname},'%')</if>
+			</if>
+			<if test="period != null and period.periodId != '' and period.periodId != null ">
+				AND a.period_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{period.periodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{period.periodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{period.periodId},'%')</if>
+			</if>
+			<if test="billSource != null and billSource != '' ">
+				AND a.bill_source = #{billSource}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.bill_date DESC
+			</otherwise>
+		</choose>
+		
+	</select>
+	
+	<select id="findAllList" resultType="BillMain" >
+		SELECT 
+			<include refid="billMainColumns"/>
+		FROM inv_billmain a
+		<include refid="billMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.bill_source desc, a.bill_date DESC
+			</otherwise>
+		</choose>
+		
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_billmain(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			bill_date,
+			dept_id,
+			dept_name,
+			io_type,
+			io_desc,
+			io_flag,
+			ware_id,
+			ware_name,
+			bill_person,
+			ware_empid,
+			ware_empname,
+			cor_bill_num,
+			cor_id,
+			cor_name,
+			use_id,
+			use_name,
+			bill_flag,
+			estimate_flag,
+			period_id,
+			bill_desc,
+			rec_empid,
+			rec_empname,
+			rec_date,
+			bill_empid,
+			bill_empname,
+			note,
+			order_code,
+			tax_ratio,
+			ino_id,
+			class_id,
+			class_desc,
+			cflag,
+			fnumber,
+			finvoice_id,
+			bill_type,
+			red_flag,
+			cg_flag,
+			total_sum,
+			oper_date,
+			bill_source,
+			cg_num,
+			work_poscode,
+			work_posname,
+			workshop_flag,
+			is_good
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{billDate},
+			#{dept.code},
+			#{deptName},
+			#{io.ioType},
+			#{ioDesc},
+			#{ioFlag},
+			#{ware.wareID},
+			#{wareName},
+			#{billPerson.no},
+			#{wareEmp.user.no},
+			#{wareEmpname},
+			#{corBillNum},
+			#{corId},
+			#{corName},
+			#{invuse.useId},
+			#{useName},
+			#{billFlag},
+			#{estimateFlag},
+			#{period.id},
+			#{billDesc},
+			#{recEmp.id},
+			#{recEmpname},
+			#{recDate},
+			#{billEmp.id},
+			#{billEmpname},
+			#{note},
+			#{orderCode},
+			#{taxRatio},
+			#{inoId},
+			#{classId},
+			#{classDesc},
+			#{cflag},
+			#{fnumber},
+			#{finvoiceID},
+			#{billType},
+			#{redFlag},
+			#{cgFlag},
+			#{totalSum},
+			#{operDate},
+			#{billSource},
+			#{cgNum},
+			#{workPoscode},
+			#{wordPosname},
+			#{workshopFlag},
+			#{isGood}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_billmain SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			bill_date = #{billDate},
+			dept_id = #{dept.code},
+			dept_name = #{deptName},
+			io_type = #{io.ioType},
+			io_desc = #{ioDesc},
+			io_flag = #{ioFlag},
+			ware_id = #{ware.wareID},
+			ware_name = #{wareName},
+			bill_person = #{billPerson.no},
+			ware_empid = #{wareEmp.user.no},
+			ware_empname = #{wareEmpname},
+			cor_bill_num = #{corBillNum},
+			cor_id = #{corId},
+			cor_name = #{corName},
+			use_id = #{invuse.useId},
+			use_name = #{useName},
+			bill_flag = #{billFlag},
+			estimate_flag = #{estimateFlag},
+			period_id = #{period.id},
+			bill_desc = #{billDesc},
+			rec_empid = #{recEmp.id},
+			rec_empname = #{recEmpname},
+			rec_date = #{recDate},
+			bill_empid = #{billEmp.id},
+			bill_empname = #{billEmpname},
+			note = #{note},
+			order_code = #{orderCode},
+			tax_ratio = #{taxRatio},
+			ino_id = #{inoId},
+			class_id = #{classId},
+			class_desc = #{classDesc},
+			cflag = #{cflag},
+			fnumber = #{fnumber},
+			finvoice_id = #{finvoiceID},
+			bill_type = #{billType},
+			red_flag = #{redFlag},
+			cg_flag = #{cgFlag},
+			total_sum = #{totalSum},
+			oper_date = #{operDate},
+			bill_source = #{billSource},
+			cg_num = #{cgNum},
+			work_poscode = #{workPoscode},
+			work_posname = #{wordPosname},
+			workshop_flag = #{workshopFlag},
+			is_good = #{isGood}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_billmain
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_billmain SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="BillMain" statementType="STATEMENT">
+		select * FROM inv_billmain  where ${propertyName} = '${value}'
+	</select>
+
+
+    <select id="getMaxIdByTypeAndDate" resultType="String">
+        SELECT MAX(bill_num) FROM inv_billmain WHERE bill_num LIKE concat(concat(#{_parameter}),"%")
+    </select>
+    
+</mapper>

@@ -1,0 +1,146 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.paymode.mapper.PayModeMapper">
+    
+	<sql id="payModeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.paymodeid AS "paymodeid",
+		a.paymodename AS "paymodename",
+		a.notes AS "notes"
+	</sql>
+	
+	<sql id="payModeJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="PayMode" >
+		SELECT 
+			<include refid="payModeColumns"/>
+		FROM pur_paymode a
+		<include refid="payModeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	
+	<select id="findList" resultType="PayMode" >
+		SELECT 
+			<include refid="payModeColumns"/>
+		FROM pur_paymode a
+		<include refid="payModeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="paymodeid != null and paymodeid != ''">
+				AND a.paymodeid LIKE
+				<if test="dbName == 'oracle'">'%'||#{paymodeid}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{paymodeid}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{paymodeid},'%')</if>
+			</if>
+
+			<if test="paymodename != null and paymodename != ''">
+				AND a.paymodename LIKE
+				<if test="dbName == 'oracle'">'%'||#{paymodename}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{paymodename}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{paymodename},'%')</if>
+			</if>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getMaxPaymodeid" resultType="String">
+	    SELECT MAX(paymodeid)
+	    FROM pur_paymode
+	</select>
+	
+	<select id="findAllList" resultType="PayMode" >
+		SELECT 
+			<include refid="payModeColumns"/>
+		FROM pur_paymode a
+		<include refid="payModeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_paymode(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			paymodeid,
+			paymodename,
+			notes
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{paymodeid},
+			#{paymodename},
+			#{notes}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_paymode SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			paymodeid = #{paymodeid},
+			paymodename = #{paymodename},
+			notes = #{notes}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_paymode
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_paymode SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PayMode" statementType="STATEMENT">
+		select * FROM pur_paymode  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

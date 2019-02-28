@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.qmreportquery.mapper.QmReportQueryMapper">
+    
+	<sql id="qmReportQueryColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.sn AS "sn",
+		a.qmreport_id AS "qmreportId",
+		a.qm_person AS "qmPerson.id",
+		a.qm_date AS "qmDate",
+		a.mhandling_code AS "mhandlingCode",
+		a.mhandling_name AS "mhandlingName.id",
+		a.state AS "state",
+		a.remarks AS "remarks",
+		a.process_instance_id AS "processInstanceId",
+		a.qm_type AS "qmType",
+				
+				
+				
+				
+				
+				
+				
+		qmPerson.name AS "qmPerson.name",
+				
+				
+				
+		mhandlingName.mhandling_name AS "mhandlingName.mhandlingname"
+	</sql>
+	
+	<sql id="qmReportQueryJoins">
+		
+		LEFT JOIN sys_user qmPerson ON qmPerson.id = a.qm_person
+		LEFT JOIN qms_matterhandling mhandlingName ON mhandlingName.id = a.mhandling_name
+	</sql>
+
+	<sql id="qmReportQueryJoinsWithDetail">
+
+		LEFT JOIN sys_user qmPerson ON qmPerson.id = a.qm_person
+		LEFT JOIN qms_matterhandling mhandlingName ON mhandlingName.id = a.mhandling_name
+		LEFT JOIN qms_qmreportrsn detail ON detail.qmreport_id=a.id
+	</sql>
+	
+    
+	<select id="get" resultType="QmReportQuery" >
+		SELECT 
+			<include refid="qmReportQueryColumns"/>
+		FROM qms_qmreport a
+		<include refid="qmReportQueryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+
+
+	<select id="findListWithDetail" resultType="QmReportQuery" >
+		SELECT
+		<include refid="qmReportQueryColumns"/>
+		FROM qms_qmreport a
+		<include refid="qmReportQueryJoinsWithDetail"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="qmreportId != null and qmreportId != ''">
+				AND a.qmreport_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{qmreportId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qmreportId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qmreportId},'%')</if>
+			</if>
+			<if test="purreportId != null and purreportId != ''">
+				AND detail.report_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{purreportId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{purreportId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{purreportId},'%')</if>
+			</if>
+			<if test="qmPerson != null and qmPerson.id!= null and qmPerson.id != ''">
+				AND a.qm_person = #{qmPerson.id}
+			</if>
+			<if test="beginQmDate != null and endQmDate != null and beginQmDate != '' and endQmDate != ''">
+				AND a.qm_date BETWEEN #{beginQmDate} AND #{endQmDate}
+			</if>
+			<if test="mhandlingName != null and mhandlingName.id != null and mhandlingName.id != ''">
+				AND a.mhandling_name = #{mhandlingName.id}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="qmType != null and qmType != ''">
+				AND a.qm_type = #{qmType}
+			</if>
+			<choose>
+					<when test="isDeal == null || isDeal == ''">
+					</when>
+					<when test='isDeal == "0"'>
+						AND (detail.is_deal = '0' or detail.is_deal is null)
+					</when>
+					<otherwise>
+						AND detail.is_deal = #{isDeal}
+					</otherwise>
+			</choose>
+
+		</where>
+		GROUP BY a.id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+
+	</select>
+
+
+
+
+	<select id="findList" resultType="QmReportQuery" >
+		SELECT 
+			<include refid="qmReportQueryColumns"/>
+		FROM qms_qmreport a
+		<include refid="qmReportQueryJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="qmreportId != null and qmreportId != ''">
+				AND a.qmreport_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qmreportId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qmreportId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qmreportId},'%')</if>
+			</if>
+			<if test="qmPerson != null and qmPerson.id!= null and qmPerson.id != ''">
+				AND a.qm_person = #{qmPerson.id}
+			</if>
+			<if test="beginQmDate != null and endQmDate != null and beginQmDate != '' and endQmDate != ''">
+				AND a.qm_date BETWEEN #{beginQmDate} AND #{endQmDate}
+			</if>
+			<if test="mhandlingName != null and mhandlingName.id != null and mhandlingName.id != ''">
+				AND a.mhandling_name = #{mhandlingName.id}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="qmType != null and qmType != ''">
+				AND a.qm_type = #{qmType}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="QmReportQuery" >
+		SELECT 
+			<include refid="qmReportQueryColumns"/>
+		FROM qms_qmreport a
+		<include refid="qmReportQueryJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_qmreport(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			sn,
+			qmreport_id,
+			qm_person,
+			qm_date,
+			mhandling_code,
+			mhandling_name,
+			state,
+			remarks,
+			qm_type,
+			process_instance_id
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{sn},
+			#{qmreportId},
+			#{qmPerson.id},
+			#{qmDate},
+			#{mhandlingCode},
+			#{mhandlingName.id},
+			#{state},
+			#{remarks},
+			#{qmType},
+			#{processInstanceId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_qmreport SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			sn = #{sn},
+			qmreport_id = #{qmreportId},
+			qm_person = #{qmPerson.id},
+			qm_date = #{qmDate},
+			mhandling_code = #{mhandlingCode},
+			mhandling_name = #{mhandlingName.id},
+			state = #{state},
+			remarks = #{remarks},
+			qm_type=#{qmType},
+			process_instance_id = #{processInstanceId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_qmreport
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_qmreport SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="QmReportQuery" statementType="STATEMENT">
+		select * FROM qms_qmreport  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

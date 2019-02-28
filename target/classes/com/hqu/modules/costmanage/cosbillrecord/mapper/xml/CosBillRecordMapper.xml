@@ -1,0 +1,150 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.cosbillrecord.mapper.CosBillRecordMapper">
+    
+	<sql id="cosBillRecordColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.cor_bill_catalog AS "corBillCatalog",
+		a.cor_billnum AS "corBillNum",
+		a.cos_billnum AS "cosBillNum",
+		a.cos_billnum_status AS "cosBillNumStatus",
+		a.check_id AS "checkId.no",
+		a.check_date AS "checkDate",
+		a.check_name AS "checkName"
+	</sql>
+	<!-- LEFT JOIN cos_billrule b ON b.cor_type = a.cor_bill_catalog -->
+	<sql id="cosBillRecordJoins">
+		LEFT JOIN sys_user user ON user.no = a.check_id
+	</sql>
+	
+    
+	<select id="get" resultType="CosBillRecord" >
+		SELECT 
+			<include refid="cosBillRecordColumns"/>
+		FROM cos_billrecord a
+		<include refid="cosBillRecordJoins"/>
+		WHERE a.id = #{id} OR a.cor_billnum = #{id}
+	</select>
+	
+	<select id="getBack" resultType="CosBillRecord" >
+		SELECT 
+			<include refid="cosBillRecordColumns"/>
+		FROM cos_billrecord a
+		<include refid="cosBillRecordJoins"/>
+		WHERE a.cos_billnum = #{id}
+	</select>
+	
+	<select id="findList" resultType="CosBillRecord" >
+		SELECT 
+			<include refid="cosBillRecordColumns"/>
+		FROM cos_billrecord a
+		<include refid="cosBillRecordJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CosBillRecord" >
+		SELECT 
+			<include refid="cosBillRecordColumns"/>
+		FROM cos_billrecord a
+		<include refid="cosBillRecordJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cos_billrecord(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			cor_bill_catalog,
+			cor_billnum,
+			cos_billnum,
+			cos_billnum_status,
+			check_id,
+			check_date,
+			check_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{corBillCatalog},
+			#{corBillNum},
+			#{cosBillNum},
+			#{cosBillNumStatus},
+			#{checkId.no},
+			#{checkDate},
+			#{checkName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cos_billrecord SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			cor_bill_catalog = #{corBillCatalog},
+			cor_billnum = #{corBillNum},
+			cos_billnum = #{cosBillNum},
+			cos_billnum_status = #{cosBillNumStatus},
+			check_id = #{checkId.no},
+			check_date = #{checkDate},
+			check_name = #{checkName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM cos_billrecord
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE cos_billrecord SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CosBillRecord" statementType="STATEMENT">
+		select * FROM cos_billrecord  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

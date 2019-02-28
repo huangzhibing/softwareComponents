@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.salcontract.mapper.CtrItemMapper">
+    
+	<sql id="ctrItemColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.contract_code AS "contract.id",
+		a.item_code AS "itemCode",
+		a.prod_code AS "prodCode",
+		a.prod_name AS "prodName",
+		a.prod_spec AS "prodSpec",
+		a.unit_name AS "unitName",
+		a.prod_qty AS "prodQty",
+		a.prod_price AS "prodPrice",
+		a.prod_sum AS "prodSum",
+		a.prod_price_taxed AS "prodPriceTaxed",
+		a.prod_sum_taxed AS "prodSumTaxed",
+		a.pick_qty AS "pickQty",
+		a.trans_price AS "transPrice",
+		a.trans_sum AS "transSum",
+		a.period_id AS "periodId",
+		a.remark AS "remark",
+		a.product_code AS "productCode"
+	</sql>
+	
+	
+	<sql id="ctrItemJoins">
+		
+			LEFT JOIN sal_contract b ON b.id = a.contract_code
+	</sql>
+	
+    
+	<select id="get" resultType="CtrItem" >
+		SELECT 
+			<include refid="ctrItemColumns"/>
+		FROM sal_ctritem a
+		<include refid="ctrItemJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CtrItem" >
+		SELECT 
+			<include refid="ctrItemColumns"/>
+		FROM sal_ctritem a
+		<include refid="ctrItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="contract != null and contract.id != null and contract.id != ''">
+				AND a.contract_code = #{contract.id}
+			</if>
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CtrItem" >
+		SELECT 
+			<include refid="ctrItemColumns"/>
+		FROM sal_ctritem a
+		<include refid="ctrItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_ctritem(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			contract_code,
+			item_code,
+			prod_code,
+			prod_name,
+			prod_spec,
+			unit_name,
+			prod_qty,
+			prod_price,
+			prod_sum,
+			prod_price_taxed,
+			prod_sum_taxed,
+			pick_qty,
+			trans_price,
+			trans_sum,
+			period_id,
+			remark,
+			product_code
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{contract.id},
+			#{itemCode},
+			#{prodCode},
+			#{prodName},
+			#{prodSpec},
+			#{unitName},
+			#{prodQty},
+			#{prodPrice},
+			#{prodSum},
+			#{prodPriceTaxed},
+			#{prodSumTaxed},
+			#{pickQty},
+			#{transPrice},
+			#{transSum},
+			#{periodId},
+			#{remark},
+			#{productCode}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_ctritem SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			contract_code = #{contract.id},
+			item_code = #{itemCode},
+			prod_code = #{prodCode},
+			prod_name = #{prodName},
+			prod_spec = #{prodSpec},
+			unit_name = #{unitName},
+			prod_qty = #{prodQty},
+			prod_price = #{prodPrice},
+			prod_sum = #{prodSum},
+			prod_price_taxed = #{prodPriceTaxed},
+			prod_sum_taxed = #{prodSumTaxed},
+			pick_qty = #{pickQty},
+			trans_price = #{transPrice},
+			trans_sum = #{transSum},
+			period_id = #{periodId},
+			remark = #{remark},
+			product_code=#{productCode}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_ctritem
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE contract_code = #{contract.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_ctritem SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE contract_code = #{contract.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CtrItem" statementType="STATEMENT">
+		select * FROM sal_ctritem  where ${propertyName} = '${value}'
+	</select>
+	<select id="findByProdCode" resultType="String" parameterType="String">
+		select
+			a.contract_code
+		from sal_ctritem a
+		where a.prod_code=#{prodCode}
+	</select>
+</mapper>

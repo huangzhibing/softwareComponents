@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.qmreportquery.mapper.QmReportRSnQueryMapper">
+    
+	<sql id="qmReportRSnQueryColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.sn AS "sn",
+		a.qmreport_id AS "qmReportId.id",
+		a.report_id AS "reportId",
+		a.billnum AS "billNum",
+		a.obj_sn AS "objSn",
+		a.obj_code AS "objCode",
+		a.obj_name AS "objName",
+		a.check_result AS "checkResult",
+		a.check_date AS "checkDate",
+		a.check_time AS "checkTime",
+		a.cperson_code AS "cPersonCode",
+		a.check_person AS "checkPerson",
+		a.matter_code AS "matterCode",
+		a.matter_name AS "matterName",
+		a.memo AS "memo",
+		a.matter_type AS "matterType",
+		a.reportrsn_id AS "purReportRSnId",
+		a.is_deal AS "isDeal",
+		a.deal_result AS "deal_result"
+	</sql>
+	
+	<sql id="qmReportRSnQueryJoins">
+		
+			LEFT JOIN qms_qmreport b ON b.id = a.qmreport_id
+	</sql>
+	
+    
+	<select id="get" resultType="QmReportRSnQuery" >
+		SELECT 
+			<include refid="qmReportRSnQueryColumns"/>
+		FROM qms_qmreportrsn a
+		<include refid="qmReportRSnQueryJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="QmReportRSnQuery" >
+		SELECT 
+			<include refid="qmReportRSnQueryColumns"/>
+		FROM qms_qmreportrsn a
+		<include refid="qmReportRSnQueryJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="qmReportId != null and qmReportId.id != null and qmReportId.id != ''">
+				AND a.qmreport_id = #{qmReportId.id}
+			</if>
+			<if test="reportId != null and reportId != ''">
+				AND a.report_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{reportId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{reportId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{reportId},'%')</if>
+			</if>
+			<if test="isDeal != null and isDeal != ''">
+			AND a.is_deal = #{isDeal}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="QmReportRSnQuery" >
+		SELECT 
+			<include refid="qmReportRSnQueryColumns"/>
+		FROM qms_qmreportrsn a
+		<include refid="qmReportRSnQueryJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_qmreportrsn(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			sn,
+			qmreport_id,
+			report_id,
+			billnum,
+			obj_sn,
+			obj_code,
+			obj_name,
+			check_result,
+			check_date,
+			check_time,
+			cperson_code,
+			check_person,
+			matter_code,
+			matter_name,
+			memo,
+			reportrsn_id,
+			is_deal,
+			deal_result
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{sn},
+			#{qmReportId.id},
+			#{reportId},
+			#{billNum},
+			#{objSn},
+			#{objCode},
+			#{objName},
+			#{checkResult},
+			#{checkDate},
+			#{checkTime},
+			#{cPersonCode},
+			#{checkPerson},
+			#{matterCode},
+			#{matterName},
+			#{memo},
+			#{purReportRSnId},
+			#{isDeal},
+			#{dealResult}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_qmreportrsn SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			sn = #{sn},
+			qmreport_id = #{qmReportId.id},
+			report_id = #{reportId},
+			billnum = #{billNum},
+			obj_sn = #{objSn},
+			obj_code = #{objCode},
+			obj_name = #{objName},
+			check_result = #{checkResult},
+			check_date = #{checkDate},
+			check_time = #{checkTime},
+			cperson_code = #{cPersonCode},
+			check_person = #{checkPerson},
+			matter_code = #{matterCode},
+			matter_name = #{matterName},
+			memo = #{memo},
+			reportrsn_id = #{purReportRSnId},
+			is_deal=#{isDeal},
+			deal_result=#{dealResult}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_qmreportrsn
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE qmreport_id = #{qmReportId.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_qmreportrsn SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE qmreport_id = #{qmReportId.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="QmReportRSnQuery" statementType="STATEMENT">
+		select * FROM qms_qmreportrsn  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

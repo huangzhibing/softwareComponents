@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.billtype.mapper.BillTypeWareHouseMapper">
+    
+	<sql id="billTypeWareHouseColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.io_type AS "billType.io_type",
+		a.ware_id AS "wareHouse.wareID",
+		a.ware_name AS "wareName",
+		a.admin_mode AS "adminMode",
+				
+				
+				
+				
+				
+				
+				
+				
+		wareHouse.ware_name AS "wareHouse.wareName"
+	</sql>
+	
+	<sql id="billTypeWareHouseJoins">
+		
+			LEFT JOIN inv_bill_type b ON b.io_type = a.io_type
+		LEFT JOIN inv_warehouse wareHouse ON wareHouse.ware_id = a.ware_id
+	</sql>
+	
+    
+	<select id="get" resultType="BillTypeWareHouse" >
+		SELECT 
+			<include refid="billTypeWareHouseColumns"/>
+		FROM inv_bill_type_warehouse a
+		<include refid="billTypeWareHouseJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BillTypeWareHouse" >
+		SELECT 
+			<include refid="billTypeWareHouseColumns"/>
+		FROM inv_bill_type_warehouse a
+		<include refid="billTypeWareHouseJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billType != null and billType.id != null and billType.id != ''">
+				AND a.io_type = #{billType.ioType}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BillTypeWareHouse" >
+		SELECT 
+			<include refid="billTypeWareHouseColumns"/>
+		FROM inv_bill_type_warehouse a
+		<include refid="billTypeWareHouseJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_bill_type_warehouse(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			io_type,
+			ware_id,
+			ware_name,
+			admin_mode
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billType.ioType},
+			#{wareHouse.wareID},
+			#{wareName},
+			#{adminMode}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_bill_type_warehouse SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			io_type = #{billType.ioType},
+			ware_id = #{wareHouse.wareID},
+			ware_name = #{wareName},
+			admin_mode = #{adminMode}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_bill_type_warehouse
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE io_type = #{billType.ioType}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_bill_type_warehouse SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE io_type = #{billType.ioType}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="BillTypeWareHouse" statementType="STATEMENT">
+		select * FROM inv_bill_type_warehouse  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

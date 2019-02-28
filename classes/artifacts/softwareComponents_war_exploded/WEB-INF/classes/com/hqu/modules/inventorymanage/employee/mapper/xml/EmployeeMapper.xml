@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.employee.mapper.EmployeeMapper">
+    
+	<sql id="employeeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.emp_id AS "user.no",
+		a.emp_name AS "empName",
+		a.note AS "note",
+				
+				
+				
+				
+				
+				
+		user.name AS "user.name"
+	</sql>
+	
+	<sql id="employeeJoins">
+		
+		LEFT JOIN sys_user user ON user.no = a.emp_id
+	</sql>
+	
+    
+	<select id="get" resultType="Employee" >
+		SELECT 
+			<include refid="employeeColumns"/>
+		FROM inv_employee a
+		<include refid="employeeJoins"/>
+		WHERE (a.id = #{id}||a.emp_id = #{id})
+	</select>
+	
+	<select id="findList" resultType="Employee" >
+		SELECT 
+			<include refid="employeeColumns"/>
+		FROM inv_employee a
+		<include refid="employeeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="user != null and user.no != null and user.no != ''">
+				AND a.emp_id = #{user.no}
+			</if>
+			<if test="empName != null and empName != ''">
+				AND a.emp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{empName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{empName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{empName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Employee" >
+		SELECT 
+			<include refid="employeeColumns"/>
+		FROM inv_employee a
+		<include refid="employeeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_employee(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			emp_id,
+			emp_name,
+			note
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{user.no},
+			#{empName},
+			#{note}
+		)
+	</insert>
+
+	
+	<update id="update">
+		UPDATE inv_employee SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			emp_id = #{user.no},
+			emp_name = #{empName},
+			note = #{note}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_employee
+		WHERE id = #{id}
+	</update>
+
+	<update id="deleteByEmpId">
+		DELETE FROM inv_employee
+		WHERE emp_id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_employee SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Employee" statementType="STATEMENT">
+		select * FROM inv_employee  where ${propertyName} = '${value}'
+	</select>
+
+
+	
+</mapper>

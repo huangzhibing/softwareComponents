@@ -1,0 +1,286 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.supprice.mapper.PurSupPriceDetailMapper">
+    
+	<sql id="purSupPriceDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.serial_num AS "serialNum",
+		a.sup_id AS "account.id",
+		a.item_code AS "item.id",
+		a.item_name AS "itemName",
+		a.start_date AS "startDate",
+		a.end_date AS "endDate",
+		a.min_qty AS "minQty",
+		a.max_qty AS "maxQty",
+		a.sup_price AS "supPrice",
+		a.notes AS "notes",
+		item.code AS "item.code",
+		a.item_specmodel AS "itemSpecmodel",
+		a.unit_name AS "unitName",
+        b.sup_id AS "account.account.id"
+	</sql>
+	
+	<sql id="purSupPriceDetailJoins">
+		
+			LEFT JOIN pur_supprice b ON b.id = a.sup_id
+		    LEFT JOIN mdm_item item ON item.id = a.item_code
+		    
+	</sql>
+	
+    
+	<select id="get" resultType="PurSupPriceDetail" >
+		SELECT 
+			<include refid="purSupPriceDetailColumns"/>
+		FROM pur_supprice_detail a
+		    <include refid="purSupPriceDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurSupPriceDetail" >
+		SELECT 
+			<include refid="purSupPriceDetailColumns"/>
+		FROM pur_supprice_detail a
+		<include refid="purSupPriceDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			
+			<if test="account != null and account.id != null and account.id != ''">
+				AND a.sup_id = #{account.id}
+			</if>
+			
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{item.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{item.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{item.id},'%')</if>
+			</if>
+			
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			
+		    <if test="startDate != null and startDate != ''">
+				AND a.start_date = #{startDate}
+			</if>
+			<if test="endDate != null and endDate != ''">
+				AND a.end_date = #{endDate}
+			</if>
+			<if test="minQty != null and minQty != ''">
+				AND a.min_qty = #{minQty}
+			</if>
+			<if test="maxQty != null and maxQty != ''">
+				AND a.max_qty = #{maxQty}
+			</if>
+			<if test="supPrice != null and supPrice != ''">
+				AND a.sup_price = #{supPrice}
+			</if>
+			<if test="notes != null and notes != ''">
+				AND a.notes = #{notes}
+			</if>
+			
+			<if test="itemSpecmodel != null and itemSpecmodel != ''">
+				AND a.item_specmodel LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemSpecmodel}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemSpecmodel}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemSpecmodel},'%')</if>
+			</if>
+			<if test="unitName != null and unitName != ''">
+				AND a.unit_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{unitName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{unitName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{unitName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurSupPriceDetail" >
+		SELECT 
+			<include refid="purSupPriceDetailColumns"/>
+		FROM pur_supprice_detail a
+		<include refid="purSupPriceDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+   <select id="findPriceList" resultType="PurSupPriceDetail" >
+		SELECT 
+			<include refid="purSupPriceDetailColumns"/>
+		FROM pur_supprice_detail a
+		<include refid="purSupPriceDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			
+			<if test="account != null and account.id != null and account.id != ''">
+				AND a.sup_id = #{account.id}
+			</if>
+			
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{item.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{item.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{item.id},'%')</if>
+			</if>
+			<!-- 左开右闭-->
+		    <if test="startDate != null and startDate != ''">
+				AND a.start_date <![CDATA[ < ]]> #{startDate}
+			</if>
+			
+			<if test="endDate != null and endDate != ''">
+				AND a.end_date <![CDATA[ >= ]]> #{endDate}
+			</if> 
+			<!-- 
+		 	<if test="minQty != null">
+				AND a.min_qty <![CDATA[ <= ]]> #{minQty}
+			</if> 
+			
+			<if test="endDate != null">
+				AND a.max_qty <![CDATA[ >= ]]> #{maxQty}
+			</if> 
+			 -->
+			
+			<if test="minQty != null"><!-- 左开右闭 -->
+				AND a.min_qty <![CDATA[ < ]]> #{minQty}
+			</if>
+			
+			<if test="account != null and account.account != null and account.account.id != null and account.account.id != ''">
+				AND b.sup_id = #{account.account.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.min_qty ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO pur_supprice_detail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			serial_num,
+			sup_id,
+			item_code,
+			item_name,
+			start_date,
+			end_date,
+			min_qty,
+			max_qty,
+			sup_price,
+			notes,
+			item_specmodel,
+			unit_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{serialNum},
+			#{account.id},
+			#{item.id},
+			#{itemName},
+			#{startDate},
+			#{endDate},
+			#{minQty},
+			#{maxQty},
+			#{supPrice},
+			#{notes},
+			#{itemSpecmodel},
+			#{unitName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_supprice_detail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			serial_num = #{serialNum},
+			sup_id = #{account.id},
+			item_code = #{item.id},
+			item_name = #{itemName},
+			start_date = #{startDate},
+			end_date = #{endDate},
+			min_qty = #{minQty},
+			max_qty = #{maxQty},
+			sup_price = #{supPrice},
+			notes = #{notes},
+			item_specmodel = #{itemSpecmodel},
+			unit_name = #{unitName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_supprice_detail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE sup_id = #{account.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_supprice_detail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE sup_id = #{account.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurSupPriceDetail" statementType="STATEMENT">
+		select * FROM pur_supprice_detail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

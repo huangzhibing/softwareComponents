@@ -1,0 +1,207 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.qmsaudittask.mapper.AudittaskMapper">
+    
+	<sql id="audittaskColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.sn AS "sn",
+		a.auditt_id AS "audittId",
+		a.auditt_name AS "audittName",
+		a.audit_gl_code AS "auditGrouper.id",
+		a.audit_gl_name AS "auditGlName",
+		a.audit_date AS "auditDate",
+		a.audit_goal AS "auditGoal",
+		a.audit_scope AS "auditScope",
+		a.audit_result AS "auditResult",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		auditGrouper.no AS "auditGrouper.no"
+	</sql>
+	
+	<sql id="audittaskJoins">
+		
+		LEFT JOIN sys_user auditGrouper ON auditGrouper.id = a.audit_gl_code
+	</sql>
+	
+    
+	<select id="get" resultType="Audittask" >
+		SELECT 
+			<include refid="audittaskColumns"/>
+		FROM qms_audittask a
+		<include refid="audittaskJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Audittask" >
+		SELECT 
+			<include refid="audittaskColumns"/>
+		FROM qms_audittask a
+		<include refid="audittaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="audittId != null and audittId != ''">
+				AND a.auditt_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{audittId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{audittId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{audittId},'%')</if>
+			</if>
+			<if test="audittName != null and audittName != ''">
+				AND a.auditt_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{audittName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{audittName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{audittName},'%')</if>
+			</if>
+			<if test="auditGrouper != null and auditGrouper.id != null and auditGrouper.id != ''">
+				AND a.audit_gl_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditGrouper.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditGrouper.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditGrouper.id},'%')</if>
+			</if>
+			<if test="auditGlName != null and auditGlName != ''">
+				AND a.audit_gl_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditGlName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditGlName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditGlName},'%')</if>
+			</if>
+			<if test="beginAuditDate != null and endAuditDate != null and beginAuditDate != '' and endAuditDate != ''">
+				AND a.audit_date BETWEEN #{beginAuditDate} AND #{endAuditDate}
+			</if>
+			<if test="auditGoal != null and auditGoal != ''">
+				AND a.audit_goal LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditGoal}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditGoal}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditGoal},'%')</if>
+			</if>
+			<if test="auditScope != null and auditScope != ''">
+				AND a.audit_scope LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditScope}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditScope}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditScope},'%')</if>
+			</if>
+			<if test="auditResult != null and auditResult != ''">
+				AND a.audit_result LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditResult}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditResult}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditResult},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Audittask" >
+		SELECT 
+			<include refid="audittaskColumns"/>
+		FROM qms_audittask a
+		<include refid="audittaskJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_audittask(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			sn,
+			auditt_id,
+			auditt_name,
+			audit_gl_code,
+			audit_gl_name,
+			audit_date,
+			audit_goal,
+			audit_scope,
+			audit_result
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{sn},
+			#{audittId},
+			#{audittName},
+			#{auditGrouper.id},
+			#{auditGlName},
+			#{auditDate},
+			#{auditGoal},
+			#{auditScope},
+			#{auditResult}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_audittask SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			sn = #{sn},
+			auditt_id = #{audittId},
+			auditt_name = #{audittName},
+			audit_gl_code = #{auditGrouper.id},
+			audit_gl_name = #{auditGlName},
+			audit_date = #{auditDate},
+			audit_goal = #{auditGoal},
+			audit_scope = #{auditScope},
+			audit_result = #{auditResult}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_audittask
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_audittask SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Audittask" statementType="STATEMENT">
+		select * FROM qms_audittask  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

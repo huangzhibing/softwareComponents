@@ -1,0 +1,266 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.materialorder.mapper.SfcMaterialOrderDetailMapper">
+    
+	<sql id="sfcMaterialOrderDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.materialorder AS "materialOrder.id",
+		a.sequenceid AS "sequenceId",
+		a.materialid AS "materialId",
+		a.materialname AS "materialName",
+		a.numunit AS "numUnit",
+		a.materialspec AS "materialSpec",
+		a.requirenum AS "requireNum",
+		a.receivenum AS "receiveNum",
+		a.receivednum AS "receivedNum",
+		a.unitprice AS "unitPrice",
+		a.sumprice AS "sumPrice",
+		a.realprice AS "realPrice",
+		a.realsum AS "realSum",
+		a.mpsid AS "mpsId",
+		a.projid AS "projId",
+		a.orderid AS "orderId",
+		a.taskid AS "taskId",
+		a.batchid AS "batchId",
+		a.itemcode AS "itemCode",
+		a.itemname AS "itemName",
+		a.ordernum AS "orderNum",
+		a.sizeperitem AS "sizePerItem",
+		a.operno AS "operNo",
+		a.opercode AS "operCode",
+		a.itembatch AS "itemBatch",
+		a.binid AS "binId",
+		a.binname AS "binName",
+		a.locid AS "locId",
+		a.locname AS "locName",
+		a.materialorderdetail as "materialOrderDetail",
+		a.islack AS "isLack",
+		a.lackQty AS "lackQty"
+	</sql>
+	
+	<sql id="sfcMaterialOrderDetailJoins">
+		
+			LEFT JOIN sfc_materialorder b ON b.id = a.materialorder
+	</sql>
+	
+    
+	<select id="get" resultType="SfcMaterialOrderDetail" >
+		SELECT 
+			<include refid="sfcMaterialOrderDetailColumns"/>
+		FROM sfc_materialorderdetail a
+		<include refid="sfcMaterialOrderDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SfcMaterialOrderDetail" >
+		SELECT 
+			<include refid="sfcMaterialOrderDetailColumns"/>
+		FROM sfc_materialorderdetail a
+		<include refid="sfcMaterialOrderDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="materialOrder != null and materialOrder != ''">
+				AND a.materialorder = #{materialOrder.id}
+			</if>
+			<if test="isLack != null and isLack != ''">
+				AND a.islack = #{isLack}
+			</if>
+			<if test="lackQty != null and lackQty != ''">
+				AND a.lackqty = #{lackQty}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.sequenceid ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SfcMaterialOrderDetail" >
+		SELECT 
+			<include refid="sfcMaterialOrderDetailColumns"/>
+		FROM sfc_materialorderdetail a
+		<include refid="sfcMaterialOrderDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_materialorderdetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			materialorder,
+			sequenceid,
+			materialid,
+			materialname,
+			numunit,
+			materialspec,
+			requirenum,
+			receivenum,
+			receivednum,
+			unitprice,
+			sumprice,
+			realprice,
+			realsum,
+			mpsid,
+			projid,
+			orderid,
+			taskid,
+			batchid,
+			itemcode,
+			itemname,
+			ordernum,
+			sizeperitem,
+			operno,
+			opercode,
+			itembatch,
+			binid,
+			binname,
+			locid,
+			locname,
+			materialorderdetail,
+			islack,
+			lackqty
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{materialOrder.id},
+			#{sequenceId},
+			#{materialId},
+			#{materialName},
+			#{numUnit},
+			#{materialSpec},
+			#{requireNum},
+			#{receiveNum},
+			#{receivedNum},
+			#{unitPrice},
+			#{sumPrice},
+			#{realPrice},
+			#{realSum},
+			#{mpsId},
+			#{projId},
+			#{orderId},
+			#{taskId},
+			#{batchId},
+			#{itemCode},
+			#{itemName},
+			#{orderNum},
+			#{sizePerItem},
+			#{operNo},
+			#{operCode},
+			#{itemBatch},
+			#{binId},
+			#{binName},
+			#{locId},
+			#{locName},
+			#{materialOrderDetail},
+			#{isLack},
+			#{lackQty}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_materialorderdetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			materialorder = #{materialOrder.id},
+			sequenceid = #{sequenceId},
+			materialid = #{materialId},
+			materialname = #{materialName},
+			numunit = #{numUnit},
+			materialspec = #{materialSpec},
+			requirenum = #{requireNum},
+			receivenum = #{receiveNum},
+			receivednum = #{receivedNum},
+			unitprice = #{unitPrice},
+			sumprice = #{sumPrice},
+			realprice = #{realPrice},
+			realsum = #{realSum},
+			mpsid = #{mpsId},
+			projid = #{projId},
+			orderid = #{orderId},
+			taskid = #{taskId},
+			batchid = #{batchId},
+			itemcode = #{itemCode},
+			itemname = #{itemName},
+			ordernum = #{orderNum},
+			sizeperitem = #{sizePerItem},
+			operno = #{operNo},
+			opercode = #{operCode},
+			itembatch = #{itemBatch},
+			binid = #{binId},
+			binname = #{binName},
+			locid = #{locId},
+			locname = #{locName},
+			materialorderdetail=#{materialOrderDetail},
+			islack = #{isLack},
+			lackQty = #{lackQty}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_materialorderdetail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE materialorder = #{materialOrder.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_materialorderdetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE materialorder = #{materialOrder.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SfcMaterialOrderDetail" statementType="STATEMENT">
+		select * FROM sfc_materialorderdetail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,134 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.adtbilltype.mapper.AdtBillTypeMapper">
+    
+	<sql id="adtBillTypeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_type_code AS "billTypeCode",
+		a.bill_type_name AS "billTypeName"
+	</sql>
+	
+	<sql id="adtBillTypeJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="AdtBillType" >
+		SELECT 
+			<include refid="adtBillTypeColumns"/>
+		FROM adt_billtype a
+		<include refid="adtBillTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="AdtBillType" >
+		SELECT 
+			<include refid="adtBillTypeColumns"/>
+		FROM adt_billtype a
+		<include refid="adtBillTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billTypeCode != null and billTypeCode != ''">
+				AND a.bill_type_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billTypeCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billTypeCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billTypeCode},'%')</if>
+			</if>
+			<if test="billTypeName != null and billTypeName != ''">
+				AND a.bill_type_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billTypeName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billTypeName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billTypeName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="AdtBillType" >
+		SELECT 
+			<include refid="adtBillTypeColumns"/>
+		FROM adt_billtype a
+		<include refid="adtBillTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO adt_billtype(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_type_code,
+			bill_type_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billTypeCode},
+			#{billTypeName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE adt_billtype SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_type_code = #{billTypeCode},
+			bill_type_name = #{billTypeName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM adt_billtype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE adt_billtype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="AdtBillType" statementType="STATEMENT">
+		select * FROM adt_billtype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,174 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.cosprodobject.mapper.CosProdObjectMapper">
+    
+	<sql id="cosProdObjectColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.prod_id AS "prodId",
+		a.prod_name AS "prodName",
+		a.prod_catalog AS "prodCatalog",
+		a.prod_num AS "prodNum",
+		a.prod_finish AS "prodFinish",
+		a.father_id AS "fatherId.id",
+		b.name AS "fatherId.name",
+		m.unit AS "unit",
+		m.spec_model AS "specModel"
+	</sql>
+	
+	<sql id="cosProdObjectJoins">
+			LEFT JOIN cos_prodobject_left b ON b.id = a.father_id
+			LEFT JOIN mdm_item m ON m.code = a.prod_id
+	</sql>
+	
+    
+	<select id="get" resultType="CosProdObject" >
+		SELECT 
+			<include refid="cosProdObjectColumns"/>
+		FROM cos_prodobject a
+		<include refid="cosProdObjectJoins"/>
+		WHERE a.id = #{id} OR a.prod_id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CosProdObject" >
+		SELECT 
+			<include refid="cosProdObjectColumns"/>
+		FROM cos_prodobject a
+		<include refid="cosProdObjectJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="prodId != null and prodId != ''">
+				AND a.prod_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodId},'%')</if>
+			</if>
+			<if test="prodName != null and prodName != ''">
+				AND a.prod_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prodName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodName},'%')</if>
+			</if>
+                    <if test="fatherId != null  and fatherId.id != null and fatherId.id != ''">
+                        AND (b.id = #{fatherId.id} OR b.parent_ids LIKE
+                        <if test="dbName == 'oracle'">'%,'||#{fatherId.id}||',%')</if>
+                        <if test="dbName == 'mysql'">CONCAT('%,', #{fatherId.id}, ',%'))</if>
+                        <if test="dbName == 'mssql'">'%'+#{fatherId.id}+'%')</if>
+                    </if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CosProdObject" >
+		SELECT 
+			<include refid="cosProdObjectColumns"/>
+		FROM cos_prodobject a
+		<include refid="cosProdObjectJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cos_prodobject(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			prod_id,
+			prod_name,
+			prod_catalog,
+			prod_num,
+			prod_finish,
+			father_id
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{prodId},
+			#{prodName},
+			#{prodCatalog},
+			#{prodNum},
+			#{prodFinish},
+			#{fatherId.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cos_prodobject SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			prod_id = #{prodId},
+			prod_name = #{prodName},
+			prod_catalog = #{prodCatalog},
+			prod_num = #{prodNum},
+			prod_finish = #{prodFinish},
+			father_id = #{fatherId.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM cos_prodobject
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE father_id = #{fatherId.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE cos_prodobject SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE father_id = #{fatherId.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CosProdObject" statementType="STATEMENT">
+		select * FROM cos_prodobject  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

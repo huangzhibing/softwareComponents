@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.purreportnew.mapper.PurReportNewMapper">
+    
+	<sql id="purReportNewColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.report_id AS "reportId",
+		a.inv_id AS "inv.id",
+		a.item_code AS "obf.id",
+		a.item_name AS "itemName",
+		a.sup_name AS "filesala.id",
+		a.item_count AS "itemCount",
+		a.inspection_num AS "inspectionNum",
+		a.item_arrive_date AS "itemArriveDate",
+		a.check_date AS "checkDate",
+		a.check_persion AS "user.id",
+		a.rnd_ful AS "rndFul",
+		a.aql AS "aql",
+		a.cr_ac AS "crAc",
+		a.maj_ac AS "majAc",
+		a.min_ac AS "minAc",
+		a.cr_re AS "crRe",
+		a.maj_re AS "majRe",
+		a.min_re AS "minRe",
+		a.check_result AS "checkResult",
+		a.item_specmodel AS "itemSpecmodel",
+		a.sup_id AS "supId",
+		a.icode AS "icode",
+		a.supname1 AS "supname1",		
+				
+				
+				
+				
+				
+				
+				
+		inv.billnum AS "inv.billnum",
+				
+		obf.obj_code AS "obf.objCode",
+				
+				
+		filesala.account_name AS "filesala.accountName",
+				
+		a.handle_result AS "handleResult",
+		a.back_bill_num AS "backBillNum",
+		a.back_date AS "backDate",
+		a.back_qty AS "backQty",
+		a.unit_code AS "unitCode",
+		a.real_price_taxed AS "realPriceTaxed",
+		a.real_sum_taxed AS "realSumTaxed",
+		a.back_reason AS "backReason",		
+				
+				
+				
+		user.name AS "user.name"
+	</sql>
+	
+	<sql id="purReportNewJoins">
+		
+		LEFT JOIN pur_invcheckmain inv ON inv.id = a.inv_id
+		LEFT JOIN qms_objectdef obf ON obf.id = a.item_code
+		LEFT JOIN mdm_account filesala ON filesala.id = a.sup_name
+		LEFT JOIN sys_user user ON user.id = a.check_persion
+	</sql>
+	
+    
+	<select id="get" resultType="PurReportNew" >
+		SELECT 
+			<include refid="purReportNewColumns"/>
+		FROM qms_purreportnew a
+		<include refid="purReportNewJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurReportNew" >
+		SELECT 
+			<include refid="purReportNewColumns"/>
+		FROM qms_purreportnew a
+		<include refid="purReportNewJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="reportId != null and reportId != ''">
+				AND a.report_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{reportId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{reportId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{reportId},'%')</if>
+			</if>
+			<if test="inv != null and inv.id != null and inv.id != ''">
+				AND a.inv_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{inv.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{inv.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{inv.id},'%')</if>
+			</if>
+			<if test="obf != null and obf.id != null and obf.id != ''">
+				AND a.item_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{obf.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{obf.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{obf.id},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="filesala != null and filesala.id != null and filesala.id != ''">
+				AND a.sup_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{filesala.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{filesala.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{filesala.id},'%')</if>
+			</if>
+			<if test="itemCount != null and itemCount != ''">
+				AND a.item_count = #{itemCount}
+			</if>
+			<if test="inspectionNum != null and inspectionNum != ''">
+				AND a.inspection_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{inspectionNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{inspectionNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{inspectionNum},'%')</if>
+			</if>
+			<if test="beginItemArriveDate != null and endItemArriveDate != null and beginItemArriveDate != '' and endItemArriveDate != ''">
+				AND a.item_arrive_date BETWEEN #{beginItemArriveDate} AND #{endItemArriveDate}
+			</if>
+			<if test="beginCheckDate != null and endCheckDate != null and beginCheckDate != '' and endCheckDate != ''">
+				AND a.check_date BETWEEN #{beginCheckDate} AND #{endCheckDate}
+			</if>
+			<if test="user != null and user.id != null and user.id != ''">
+				AND a.check_persion LIKE 
+					<if test="dbName == 'oracle'">'%'||#{user.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{user.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{user.id},'%')</if>
+			</if>
+			<if test="rndFul != null and rndFul != ''">
+				AND a.rnd_ful = #{rndFul}
+			</if>
+			<if test="aql != null and aql != ''">
+				AND a.aql = #{aql}
+			</if>
+			<if test="checkResult != null and checkResult != ''">
+				AND a.check_result = #{checkResult}
+			</if>
+			<if test="handleResult != null and handleResult != ''">
+				AND a.handle_result LIKE
+				<if test="dbName == 'oracle'">'%'||#{handleResult}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{handleResult}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{handleResult},'%')</if>
+			</if>
+			<if test="backBillNum != null and backBillNum != ''">
+				AND a.back_bill_num = #{backBillNum}
+			</if>
+			<if test="backDate != null and backDate != ''">
+				AND a.back_date = #{backDate}
+			</if>
+			<if test="backQty != null and backQty != ''">
+				AND a.back_qty = #{backQty}
+			</if>
+			<if test="unitCode != null and unitCode != ''">
+				AND a.unit_code = #{unitCode}
+			</if>
+			<if test="realPriceTaxed != null and realPriceTaxed != ''">
+				AND a.real_price_taxed = #{realPriceTaxed}
+			</if>
+			<if test="realSumTaxed != null and realSumTaxed != ''">
+				AND a.real_sum_taxed = #{realSumTaxed}
+			</if>
+			<if test="itemSpecmodel != null and itemSpecmodel != ''">
+				AND a.item_specmodel = #{itemSpecmodel}
+			</if>
+			<if test="supId != null and supId != ''">
+				AND a.sup_id = #{supId}
+			</if>
+			<if test="icode != null and icode != ''">
+				AND a.icode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{icode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{icode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{icode},'%')</if>
+			</if>
+			<if test="supname1 != null and supname1 != ''">
+				AND a.supname1 LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supname1}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supname1}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supname1},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurReportNew" >
+		SELECT 
+			<include refid="purReportNewColumns"/>
+		FROM qms_purreportnew a
+		<include refid="purReportNewJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_purreportnew(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			report_id,
+			inv_id,
+			item_code,
+			item_name,
+			sup_name,
+			item_count,
+			inspection_num,
+			item_arrive_date,
+			check_date,
+			check_persion,
+			rnd_ful,
+			aql,
+			cr_ac,
+			maj_ac,
+			min_ac,
+			cr_re,
+			maj_re,
+			min_re,
+			check_result,
+			handle_result,
+			back_bill_num,
+			back_date,
+			back_qty,
+			unit_code,
+			real_price_taxed,
+			real_sum_taxed,
+			back_reason,
+			item_specmodel,
+			sup_id,
+			icode,
+			supname1
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{reportId},
+			#{inv.id},
+			#{obf.id},
+			#{itemName},
+			#{filesala.id},
+			#{itemCount},
+			#{inspectionNum},
+			#{itemArriveDate},
+			#{checkDate},
+			#{user.id},
+			#{rndFul},
+			#{aql},
+			#{crAc},
+			#{majAc},
+			#{minAc},
+			#{crRe},
+			#{majRe},
+			#{minRe},
+			#{checkResult},
+			#{handleResult},
+			#{backBillNum},
+			#{backDate},
+			#{backQty},
+			#{unitCode},
+			#{realPriceTaxed},
+			#{realSumTaxed},
+			#{backReason},
+			#{itemSpecmodel},
+			#{supId},
+			#{icode},
+			#{supname1}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_purreportnew SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			report_id = #{reportId},
+			inv_id = #{inv.id},
+			item_code = #{obf.id},
+			item_name = #{itemName},
+			sup_name = #{filesala.id},
+			item_count = #{itemCount},
+			inspection_num = #{inspectionNum},
+			item_arrive_date = #{itemArriveDate},
+			check_date = #{checkDate},
+			check_persion = #{user.id},
+			rnd_ful = #{rndFul},
+			aql = #{aql},
+			cr_ac = #{crAc},
+			maj_ac = #{majAc},
+			min_ac = #{minAc},
+			cr_re = #{crRe},
+			maj_re = #{majRe},
+			min_re = #{minRe},
+			check_result = #{checkResult},
+			handle_result = #{handleResult},
+			back_bill_num = #{backBillNum},
+			back_date = #{backDate},
+			back_qty = #{backQty},
+			unit_code = #{unitCode},
+			real_price_taxed = #{realPriceTaxed},
+			real_sum_taxed = #{realSumTaxed},
+			back_reason = #{backReason},
+			item_specmodel = #{itemSpecmodel},
+			sup_id = #{supId},
+			icode = #{icode},
+			supname1 = #{supname1}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_purreportnew
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_purreportnew SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurReportNew" statementType="STATEMENT">
+		select * FROM qms_purreportnew  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

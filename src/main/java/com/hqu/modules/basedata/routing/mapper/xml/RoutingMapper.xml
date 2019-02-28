@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.routing.mapper.RoutingMapper">
+    
+	<sql id="routingColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.routing_code AS "routingCode",
+		a.routing_name AS "routingName",
+		a.routing_desc AS "routingDesc",
+		a.routing_seq_no AS "routingSeqNo",
+		a.product_name AS "productName",
+		a.item_code AS "item.code",
+		a.item_name AS "itemName",
+		a.dept_code AS "office.code",
+		a.dept_name AS "deptName",
+		a.unit_wage AS "unitWage",
+		assembleflag,
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		product.item_name AS "product.itemName",
+		product.item_code AS "product.item.code",
+		product.item_code AS "product.itemCode",
+				
+		item.name AS "item.name",
+				
+				
+		office.name AS "office.name"
+	</sql>
+	
+	<sql id="routingJoins">
+		
+		LEFT JOIN mdm_product product ON product.item_code = a.product_code
+		LEFT JOIN mdm_item item ON item.code = a.item_code
+		LEFT JOIN sys_office office ON office.code = a.dept_code
+	</sql>
+	
+    
+	<select id="get" resultType="Routing" >
+		SELECT 
+			<include refid="routingColumns"/>
+		FROM mdm_routing a
+		<include refid="routingJoins"/>
+		WHERE (a.id = #{id} OR a.routing_code = #{id})
+	</select>
+	
+	<select id="getMaxRoutingCode" resultType="String">
+		SELECT MAX(routing_code)
+		FROM mdm_routing
+	</select>
+
+	<select id="findList" resultType="Routing" >
+		SELECT 
+			<include refid="routingColumns"/>
+		FROM mdm_routing a
+		<include refid="routingJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="routingCode != null and routingCode != ''">
+				AND a.routing_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routingCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routingCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routingCode},'%')</if>
+			</if>
+			<if test="routingName != null and routingName != ''">
+				AND a.routing_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routingName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routingName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routingName},'%')</if>
+			</if>
+			<if test="routingDesc != null and routingDesc != ''">
+				AND a.routing_desc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routingDesc}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routingDesc}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routingDesc},'%')</if>
+			</if>
+			<if test="product != null and product.item !=null and product.item.code != null and product.item.code != ''">
+				AND a.product_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{product.item.code}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{product.item.code}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{product.item.code},'%')</if>
+			</if>
+			<if test="productName != null and productName != ''">
+				AND a.product_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{productName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{productName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{productName},'%')</if>
+			</if>
+			<if test="routingSeqNo != null and routingSeqNo != ''">
+				AND a.routing_seq_no LIKE
+					<if test="dbName == 'oracle'">'%'||#{routingSeqNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routingSeqNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routingSeqNo},'%')</if>
+			</if>
+			<if test="office != null and office.code != null and office.code != ''">
+				AND a.dept_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{office.code}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{office.code}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{office.code},'%')</if>
+			</if>
+			<if test="deptName != null and deptName != ''">
+				AND a.dept_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{deptName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{deptName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{deptName},'%')</if>
+			</if>
+			<if test="unitWage != null and unitWage != ''">
+				AND a.unit_wage LIKE
+				<if test="dbName == 'oracle'">'%'||#{unitWage}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{unitWage}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{unitWage},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findListByCode" resultType="Routing" >
+		SELECT
+		<include refid="routingColumns"/>
+		FROM mdm_routing a
+		<include refid="routingJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="routingCode != null and routingCode != ''">
+				AND a.routing_code = #{routingCode}
+			</if>
+			<if test="product != null and product.item !=null and product.item.code != null and product.item.code != ''">
+				AND a.product_code = #{product.item.code}
+			</if>
+		</where>
+	</select>
+	
+	<select id="findAllList" resultType="Routing" >
+		SELECT 
+			<include refid="routingColumns"/>
+		FROM mdm_routing a
+		<include refid="routingJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_routing(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			routing_code,
+			routing_name,
+			routing_desc,
+			routing_seq_no,
+			product_code,
+			product_name,
+			item_code,
+			item_name,
+			dept_code,
+			dept_name,
+			unit_wage,
+			assembleflag
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{routingCode},
+			#{routingName},
+			#{routingDesc},
+			#{routingSeqNo},
+			#{product.item.code},
+			#{productName},
+			#{item.code},
+			#{itemName},
+			#{office.code},
+			#{deptName},
+			#{unitWage},
+			#{assembleflag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_routing SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			routing_code = #{routingCode},
+			routing_name = #{routingName},
+			routing_desc = #{routingDesc},
+			routing_seq_no = #{routingSeqNo},
+			product_code = #{product.item.code},
+			product_name = #{productName},
+			item_code = #{item.code},
+			item_name = #{itemName},
+			dept_code = #{office.code},
+			dept_name = #{deptName},
+			unit_wage = #{unitWage},
+			assembleflag = #{assembleflag}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_routing
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_routing SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Routing" statementType="STATEMENT">
+		select * FROM mdm_routing  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

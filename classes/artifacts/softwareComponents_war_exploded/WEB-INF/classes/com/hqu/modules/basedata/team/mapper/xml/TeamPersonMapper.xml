@@ -1,0 +1,152 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.team.mapper.TeamPersonMapper">
+    
+	<sql id="teamPersonColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.team_code AS "teamCode.teamCode",
+		a.person_code AS "personCode",
+		a.person_name AS "personName",
+		a.work_type_code AS "workTypeCode",
+		a.work_type_name AS "workTypeName"
+	</sql>
+	
+	<sql id="teamPersonJoins">
+		
+			LEFT JOIN mdm_team b ON b.id = a.team_code
+	</sql>
+	
+    
+	<select id="get" resultType="TeamPerson" >
+		SELECT 
+			<include refid="teamPersonColumns"/>
+		FROM mdm_teamperson a
+		<include refid="teamPersonJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="TeamPerson" >
+		SELECT 
+			<include refid="teamPersonColumns"/>
+		FROM mdm_teamperson a
+		<include refid="teamPersonJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="teamCode != null and teamCode.teamCode != null and teamCode.teamCode != ''">
+				AND a.team_code = #{teamCode.teamCode}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="TeamPerson" >
+		SELECT 
+			<include refid="teamPersonColumns"/>
+		FROM mdm_teamperson a
+		<include refid="teamPersonJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_teamperson(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			team_code,
+			person_code,
+			person_name,
+			work_type_code,
+			work_type_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{teamCode.teamCode},
+			#{personCode},
+			#{personName},
+			#{workTypeCode},
+			#{workTypeName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_teamperson SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			team_code = #{teamCode.teamCode},
+			person_code = #{personCode},
+			person_name = #{personName},
+			work_type_code = #{workTypeCode},
+			work_type_name = #{workTypeName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_teamperson
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE team_code = #{teamCode.teamCode}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_teamperson SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE team_code = #{teamCode.teamCode}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="TeamPerson" statementType="STATEMENT">
+		select * FROM mdm_teamperson  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

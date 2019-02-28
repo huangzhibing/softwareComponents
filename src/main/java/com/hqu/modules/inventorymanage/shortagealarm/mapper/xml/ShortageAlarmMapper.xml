@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.shortagealarm.mapper.ShortageAlarmMapper">
+    
+	<sql id="invAccountColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.ware_id AS "ware.id",
+		a.item_code AS "item.id",
+		a.year AS "year",
+		a.period AS "period",
+		a.begin_qty AS "beginQty",
+		a.begin_num AS "beginSum",
+		a.curr_in_qty AS "currInQty",
+		a.curr_in_sum AS "currInSum",
+		a.curr_out_qty AS "currOutQty",
+		a.curr_out_sum AS "currOutSum",
+		a.now_qty AS "nowQty",
+		a.now_sum AS "nowSum",
+		a.cost_price AS "costPrice",
+		a.cost_tax AS "costTax",
+		a.begin_sub AS "beginSub",
+		a.curr_in_sub AS "currInSub",
+		a.curr_out_sub AS "currOutSub",
+		a.now_sub AS "nowSub",
+		a.min_cost AS "minCost",
+		a.max_cost AS "maxCost",
+		a.company_code AS "companyCode",
+		a.tin_sum AS "tinSum",
+		a.tout_sum AS "toutSum",
+		a.din_qty AS "dinQty",
+		a.din_sum AS "dinSum",
+		a.dout_qty AS "doutQty",
+		a.dout_sum AS "doutSum",
+		a.pin_qty AS "pinQty",
+		a.pin_sum AS "pinSum",
+		a.pout_qty AS "poutQty",
+		a.pout_sum AS "poutSum",
+		a.qin_qty AS "qinQty",
+		a.qin_sum AS "qinSum",
+		a.qout_qty AS "qoutQty",
+		a.qout_sum AS "qoutSum",
+		a.check_flag AS "checkFlag",
+		a.tool_flag AS "toolFlag",
+		a.bin_id AS "bin.id",
+		a.loc_id AS "loc.id",
+		a.item_batch AS "itemBatch",
+		a.cor_id AS "corId",
+		a.dept_id AS "deptId",
+		a.apply_code AS "applyCode",
+		a.order_code AS "orderCode",
+		a.oper_no AS "operNo",
+		a.source_flag AS "sourceFlag",
+		a.sal_qty AS "salQty",
+		a.pur_qty AS "purQty",
+		a.din_tran_qty AS "dinTranQty",
+		a.dout_tran_qty AS "doutTranQty",
+		a.sfc_qty AS "sfcQty",
+		a.qms_qty AS "qmsQty",
+		a.real_qty AS "realQty",
+				
+				
+				
+				
+				
+				
+				
+		ware.ware_id AS "ware.wareID",
+		ware.ware_name AS "ware.wareName",
+		item.code AS "item.code",
+		item.name AS "item.name",		
+		item.spec_model AS "item.specModel",
+		item.plan_price AS 	"item.planPrice",
+		item.max_storage AS "item.maxStorage",
+		item.min_storage AS "item.minStorage",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		bin.bin_id AS "bin.binId",
+		bin.bin_desc AS "bin.binDesc",		
+		loc.loc_id AS "loc.locId",
+		loc.loc_desc AS "loc.locDesc",
+		unit.unit_name AS "item.unitCode.unitName"
+	</sql>
+	
+	<sql id="invAccountJoins">
+		
+		LEFT JOIN inv_warehouse ware ON ware.id = a.ware_id
+		LEFT JOIN mdm_item item ON item.id = a.item_code
+		LEFT JOIN inv_bin bin ON bin.id = a.bin_id
+		LEFT JOIN inv_location loc ON loc.id = a.loc_id
+		LEFT JOIN mdm_unit unit ON unit.id = item.unit_code
+	</sql>
+	
+    
+
+	<select id="findList" resultType="InvAccount" >
+		SELECT 
+			<include refid="invAccountColumns"/>
+		FROM inv_account a
+		<include refid="invAccountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="ware != null and ware.id != null and ware.id != ''">
+				AND a.ware_id = #{ware.id}
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code = #{item.id}
+			</if>
+			<if test="year != null and year != ''">
+				AND a.year = #{year}
+			</if>
+			<if test="period != null and period != ''">
+				AND a.period = #{period}
+			</if>
+			<if test="bin != null and bin.id != null and bin.id != ''">
+				AND a.bin_id = #{bin.id}
+			</if>
+			<if test="loc != null and loc.id != null and loc.id != ''">
+				AND a.loc_id = #{loc.id}
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND item.id = #{item.id}
+			</if>
+			<if test="item.name != null and item.name != ''">
+				AND item.name LIKE concat("%",#{item.name},"%")
+			</if>
+			<if test="item.specModel != null and item.specModel != ''">
+				AND item.spec_model LIKE concat("%",#{item.specModel},"%")
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+</mapper>

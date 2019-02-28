@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.invaccountcode.mapper.InvAccountCodeMapper">
+    
+	<sql id="invAccountCodeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.ware_id AS "ware.wareID",
+		a.item_code AS "item.code",
+		a.year AS "year",
+		a.period AS "period",
+		a.bin_id AS "bin.binId",
+		a.loc_id AS "loc.locId",
+		a.item_batch AS "itemBatch",
+		a.item_barcode AS "itemBarcode",
+		a.sup_barcode AS "supBarcode",
+		a.o_flag AS "oflag",
+		a.machine_barcode AS "machineBarcode",
+		a.activation_barcode AS "activationBarcode"
+				
+
+	</sql>
+	
+	<sql id="invAccountCodeJoins">
+		
+		LEFT JOIN inv_warehouse ware ON ware.ware_id = a.ware_id
+		LEFT JOIN mdm_item item ON item.code = a.item_code
+		LEFT JOIN inv_bin bin ON bin.bin_id = a.bin_id
+		LEFT JOIN inv_location loc ON loc.loc_id = a.loc_id
+	</sql>
+	
+
+	<select id="get" resultType="InvAccountCode" >
+		SELECT 
+			<include refid="invAccountCodeColumns"/>
+		FROM inv_account_code a
+		<include refid="invAccountCodeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="InvAccountCode" >
+		SELECT 
+			<include refid="invAccountCodeColumns"/>
+		FROM inv_account_code a
+		<include refid="invAccountCodeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="ware != null and ware.id != null and ware.id != ''">
+				AND a.ware_id = #{ware.wareID}
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code = #{item.code}
+			</if>
+			<if test="year != null and year != ''">
+				AND a.year LIKE 
+					<if test="dbName == 'oracle'">'%'||#{year}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{year}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{year},'%')</if>
+			</if>
+			<if test="period != null and period != ''">
+				AND a.period LIKE 
+					<if test="dbName == 'oracle'">'%'||#{period}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{period}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{period},'%')</if>
+			</if>
+			<if test="bin != null and bin.id != null and bin.id != ''">
+				AND a.bin_id = #{bin.binId}
+			</if>
+			<if test="loc != null and loc.id != null and loc.id != ''">
+				AND a.loc_id = #{loc.locId}
+			</if>
+			<if test="itemBatch != null and itemBatch != ''">
+				AND a.item_batch LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemBatch}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemBatch}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemBatch},'%')</if>
+			</if>
+			<if test="itemBarcode != null and itemBarcode != ''">
+				AND a.item_barcode = #{itemBarcode}
+			</if>
+			<if test="oflag != null and oflag != ''">
+				AND a.o_flag = #{oflag}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="InvAccountCode" >
+		SELECT 
+			<include refid="invAccountCodeColumns"/>
+		FROM inv_account_code a
+		<include refid="invAccountCodeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_account_code(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			ware_id,
+			item_code,
+			year,
+			period,
+			bin_id,
+			loc_id,
+			item_batch,
+			item_barcode,
+			sup_barcode
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{ware.wareID},
+			#{item.code},
+			#{year},
+			#{period},
+			#{bin.binId},
+			#{loc.locId},
+			#{itemBatch},
+			#{itemBarcode},
+			#{supBarcode}
+		)
+	</insert>
+
+	<insert id="insertByProduct">
+		INSERT INTO inv_account_code(
+		id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag,
+		item_barcode,
+		o_flag,
+		machine_barcode,
+		activation_barcode
+		) VALUES (
+		#{id},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag},
+		#{itemBarcode},
+		0,
+		#{machineBarcode},
+		#{activationBarcode}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_account_code SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			ware_id = #{ware.wareID},
+			item_code = #{item.code},
+			year = #{year},
+			period = #{period},
+			bin_id = #{bin.binId},
+			loc_id = #{loc.locId},
+			item_batch = #{itemBatch},
+			item_barcode = #{itemBarcode},
+			sup_barcode = #{supBarcode},
+			o_flag = #{oflag}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_account_code
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_account_code SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="InvAccountCode" statementType="STATEMENT">
+		select * FROM inv_account_code  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

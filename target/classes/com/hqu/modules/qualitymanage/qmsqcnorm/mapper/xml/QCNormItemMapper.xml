@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.qmsqcnorm.mapper.QCNormItemMapper">
+    
+	<sql id="qCNormItemColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.qms_qcnorm_id AS "QCNorm.id",
+		a.sn AS "sn",
+		a.qcnorm_id AS "qcnormId",
+		a.qcnorm_name AS "qcnormName",
+		a.obj_code AS "objCode",
+		a.obj_name AS "objName",
+		a.item_code AS "itemCode",
+		a.item_name AS "itemName",
+		a.item_unit AS "itemUnit",
+		a.data_type AS "dataType",
+		a.data_limit AS "dataLimit",
+		a.check_method AS "checkMethod",
+		a.check_appa AS "checkAppa",
+		a.appa_limit AS "appaLimit",
+		a.appa_unit AS "appaUnit",
+		a.min_unit AS "minUnit",
+		a.norm_value1 AS "normValue1",
+		a.norm_value2 AS "normValue2",
+		a.max_value AS "maxValue",
+		a.formula AS "formula",
+		a.s_oper AS "sOper",
+		a.l_oper AS "lOper"
+	</sql>
+	
+	<sql id="qCNormItemJoins">
+		
+			LEFT JOIN qms_qcnorm b ON b.id = a.qms_qcnorm_id
+	</sql>
+	
+    
+	<select id="get" resultType="QCNormItem" >
+		SELECT 
+			<include refid="qCNormItemColumns"/>
+		FROM qms_qcnorm_item a
+		<include refid="qCNormItemJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="QCNormItem" >
+		SELECT 
+			<include refid="qCNormItemColumns"/>
+		FROM qms_qcnorm_item a
+		<include refid="qCNormItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="QCNorm != null and QCNorm.id != null and QCNorm.id != ''">
+				AND a.qms_qcnorm_id = #{QCNorm.id}
+			</if>
+			<if test="qcnormId != null and qcnormId != ''">
+				AND a.qcnorm_id = #{qcnormId}
+			</if>
+			<if test="qcnormName != null and qcnormName != ''">
+				AND a.qcnorm_name = #{qcnormName}
+			</if>
+			<if test="objCode != null and objCode != ''">
+				AND a.obj_code = #{objCode}
+			</if>
+			<if test="objName != null and objName != ''">
+				AND a.obj_name = #{objName}
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND a.item_code = #{itemCode}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name = #{itemName}
+			</if>
+			<if test="itemUnit != null and itemUnit != ''">
+				AND a.item_unit = #{itemUnit}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="QCNormItem" >
+		SELECT 
+			<include refid="qCNormItemColumns"/>
+		FROM qms_qcnorm_item a
+		<include refid="qCNormItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_qcnorm_item(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			qms_qcnorm_id,
+			sn,
+			qcnorm_id,
+			qcnorm_name,
+			obj_code,
+			obj_name,
+			item_code,
+			item_name,
+			item_unit,
+			data_type,
+			data_limit,
+			check_method,
+			check_appa,
+			appa_limit,
+			appa_unit,
+			min_unit,
+			norm_value1,
+			norm_value2,
+			max_value,
+			formula,
+			s_oper,
+			l_oper
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{QCNorm.id},
+			#{sn},
+			#{qcnormId},
+			#{qcnormName},
+			#{objCode},
+			#{objName},
+			#{itemCode},
+			#{itemName},
+			#{itemUnit},
+			#{dataType},
+			#{dataLimit},
+			#{checkMethod},
+			#{checkAppa},
+			#{appaLimit},
+			#{appaUnit},
+			#{minUnit},
+			#{normValue1},
+			#{normValue2},
+			#{maxValue},
+			#{formula},
+			#{sOper},
+			#{lOper}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_qcnorm_item SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			qms_qcnorm_id = #{QCNorm.id},
+			sn = #{sn},
+			qcnorm_id = #{qcnormId},
+			qcnorm_name = #{qcnormName},
+			obj_code = #{objCode},
+			obj_name = #{objName},
+			item_code = #{itemCode},
+			item_name = #{itemName},
+			item_unit = #{itemUnit},
+			data_type = #{dataType},
+			data_limit = #{dataLimit},
+			check_method = #{checkMethod},
+			check_appa = #{checkAppa},
+			appa_limit = #{appaLimit},
+			appa_unit = #{appaUnit},
+			min_unit = #{minUnit},
+			norm_value1 = #{normValue1},
+			norm_value2 = #{normValue2},
+			max_value = #{maxValue},
+			formula = #{formula},
+			s_oper = #{sOper},
+			l_oper = #{lOper}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_qcnorm_item
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE qms_qcnorm_id = #{QCNorm.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_qcnorm_item SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE qms_qcnorm_id = #{QCNorm.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="QCNormItem" statementType="STATEMENT">
+		select * FROM qms_qcnorm_item  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

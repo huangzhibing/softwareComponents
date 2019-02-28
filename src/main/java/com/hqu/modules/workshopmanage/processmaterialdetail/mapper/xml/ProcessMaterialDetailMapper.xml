@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.processmaterialdetail.mapper.ProcessMaterialDetailMapper">
+    
+	<sql id="processMaterialDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.routinebillno AS "routineBillNo",
+		a.seqno AS "seqNo",
+		a.routingcode AS "routingCode",
+		a.routingname AS "routingName",
+		a.itemcode AS "itemCode",
+		a.itemname AS "itemName",
+		a.itemsn AS "itemSN",
+		a.centercode AS "centerCode",
+		a.remarks AS "remarks",
+		a.assembleqty AS "assembleQty",
+		a.finishedqty AS "finishedQty",
+		a.assembletime As "assembleTime",
+		a.hasqualitypro As "hasQualityPro",
+		a.qualityproblem AS "qualityProblem",
+		a.assemblePersonID AS "assemblePersonID",
+		a.assemblePersonName AS "assemblePersonName"
+	</sql>
+	
+	<sql id="processMaterialDetailJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="ProcessMaterialDetail" >
+		SELECT 
+			<include refid="processMaterialDetailColumns"/>
+		FROM sfc_processmaterialdetail a
+		<include refid="processMaterialDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ProcessMaterialDetail" >
+		SELECT 
+			<include refid="processMaterialDetailColumns"/>
+		FROM sfc_processmaterialdetail a
+		<include refid="processMaterialDetailJoins"/>
+		<where>
+			${dataScope}
+			<if test="routineBillNo != null and routineBillNo != ''">
+				AND a.routinebillno = #{routineBillNo}
+			</if>
+			<if test="seqNo != null and seqNo != ''">
+				AND a.seqno = #{seqNo}
+			</if>
+			<if test="routingCode != null and routingCode != ''">
+				AND a.routingcode = #{routingCode}
+			</if>
+			<if test="routingName != null and routingName != ''">
+				AND a.routingname = #{routingName}
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND a.itemcode = #{itemCode}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.itemname = #{itemName}
+			</if>
+			<if test="itemSN != null and itemSN != ''">
+				AND a.itemsn = #{itemSN}
+			</if>
+			<if test="centerCode != null and centerCode != ''">
+				AND a.centercode = #{centerCode}
+			</if>
+			<if test="qualityProblem != null and qualityProblem != ''">
+				AND a.qualityproblem LIKE
+					<if test="dbName == 'oracle'">'%'||#{qualityProblem}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qualityProblem}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qualityProblem},'%')</if>
+			</if>
+			<if test="hasQualityPro != null and hasQualityPro != ''">
+				AND a.hasqualitypro = #{hasQualityPro}
+			</if>
+			<if test="assembleTimeBegin != null and assembleTimeEnd != null and assembleTimeBegin != '' and assembleTimeEnd != ''">
+				AND a.assembletime BETWEEN #{assembleTimeBegin} AND #{assembleTimeEnd}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ProcessMaterialDetail" >
+		SELECT 
+			<include refid="processMaterialDetailColumns"/>
+		FROM sfc_processmaterialdetail a
+		<include refid="processMaterialDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_processmaterialdetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			routinebillno,
+			seqno,
+			routingcode,
+			routingname,
+			itemcode,
+			itemname,
+			itemsn,
+			centercode,
+			remarks,
+			finishedqty,
+			assembleqty,
+			hasqualitypro,
+			qualityproblem,
+			assembletime,
+			assemblePersonID,
+			assemblePersonName
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{routineBillNo},
+			#{seqNo},
+			#{routingCode},
+			#{routingName},
+			#{itemCode},
+			#{itemName},
+			#{itemSN},
+			#{centerCode},
+			#{remarks},
+			#{finishedQty},
+			#{assembleQty},
+			#{hasQualityPro},
+			#{qualityProblem},
+			#{assembleTime},
+			#{assemblePersonID},
+			#{assemblePersonName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_processmaterialdetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			routinebillno = #{routineBillNo},
+			seqno = #{seqNo},
+			routingcode = #{routingCode},
+			routingname = #{routingName},
+			itemcode = #{itemCode},
+			itemname = #{itemName},
+			itemsn = #{itemSN},
+			centercode = #{centerCode},
+			remarks = #{remarks},
+			finishedqty = #{finishedQty},
+			assembleqty = #{assembleQty},
+			qualityproblem = #{qualityProblem},
+			hasqualitypro = #{hasQualityPro},
+			assembletime = #{assembleTime},
+			assemblePersonID = #{assemblePersonID},
+			assemblePersonName = #{assemblePersonName}
+
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_processmaterialdetail
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_processmaterialdetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ProcessMaterialDetail" statementType="STATEMENT">
+		select * FROM sfc_processmaterialdetail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

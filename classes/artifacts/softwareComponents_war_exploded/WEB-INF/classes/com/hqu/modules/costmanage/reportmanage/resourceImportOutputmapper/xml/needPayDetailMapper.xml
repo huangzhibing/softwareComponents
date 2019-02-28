@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.reportmanage.resourceImportOutputmapper.NeedPayDetailMapper">
+<select id="findList" resultType="ResourceImport">
+	
+
+select 
+	inv_billmain.bill_date as "billDate",
+	inv_billmain.account_name as "corName",
+	purro.bill_num as "billNum",
+	inv_billdetail.item_name as "itemName",
+	inv_billdetail.item_qty as "itemQty",
+	inv_billdetail.item_price as "itemPrice",
+	inv_billdetail.item_sum as "itemSum"
+	from 
+	inv_billmain,pur_relations a, inv_billdetail
+	,pur_rollplannew purro
+	<where> 
+	inv_billmain.cor_bill_num = a.after_num
+	and inv_billmain.id=inv_billdetail.bill_num
+	and purro.plan_num
+	in  
+	(select b.front_num from pur_relations b where b.after_num = a.front_num)
+	
+
+		<if test = "corName != null and corName != '' ">
+			AND inv_billmain.account_name like 
+				<if test="dbName == 'oracle'">'%'||#{corName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{corName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{corName},'%')</if>
+		</if>
+		<if test="beginBillDate != null and endBillDate != null and beginBillDate != '' and endBillDate != ''">
+				AND inv_billmain.bill_date BETWEEN #{beginBillDate} AND #{endBillDate}
+		</if>
+		<if test = "billNum != null and billNum != '' ">
+			AND purro.bill_num like 
+				<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+		</if>
+		
+		<if test = "itemName != null and itemName != '' ">
+			AND inv_billdetail.item_name like 
+				<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+		</if>
+		
+	</where>
+</select>
+</mapper>

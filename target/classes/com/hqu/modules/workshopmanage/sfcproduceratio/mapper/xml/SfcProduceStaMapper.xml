@@ -1,0 +1,196 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.sfcproduceratio.mapper.SfcProduceStaMapper">
+    
+	<sql id="sfcProduceStaColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.center_name AS "no",
+		a.plan_num AS "planNum",
+		a.actual_num AS "actualNum",
+		a.acc_ratio AS "accRatio",
+		a.fail_num AS "failNum",
+		a.fail_pro AS "failPro"
+	</sql>
+	
+	<sql id="sfcProduceStaJoins">
+		LEFT JOIN (SELECT centercode,planedate,obj_sn FROM sfc_processroutinedetail WHERE billstate='O')routine ON routine.centercode = a.center_code
+
+	</sql>
+	
+    
+	<!--<select id="get" resultType="SfcProduceSta" >
+		SELECT 
+			<include refid="sfcProduceStaColumns"/>
+		FROM sfc_produce_sta a
+		<include refid="sfcProduceStaJoins"/>
+		WHERE a.id = #{id}
+	</select>-->
+	
+	<!--<select id="findList" resultType="SfcProduceSta" >
+		SELECT 
+			<include refid="sfcProduceStaColumns"/>
+		FROM mdm_workcenter a
+		<include refid="sfcProduceStaJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="beginCreateDate != null and endCreateDate != null and beginCreateDate != '' and endCreateDate != ''">
+				AND a.create_date BETWEEN #{beginCreateDate} AND #{endCreateDate}
+			</if>
+			<if test="no != null and no != ''">
+				AND a.no LIKE 
+					<if test="dbName == 'oracle'">'%'||#{no}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{no}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{no},'%')</if>
+			</if>
+			<if test="failPro != null and failPro != ''">
+				AND a.fail_pro LIKE 
+					<if test="dbName == 'oracle'">'%'||#{failPro}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{failPro}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{failPro},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>-->
+
+	<select id="findFailList" resultType="SfcProduceSta">
+		SELECT wc.center_name AS "no",GROUP_CONCAT(r.matter_name) AS "failPro",COUNT(*) AS "failNum" FROM
+		(SELECT DISTINCT qm.obj_sn,qm.matter_name,md.centercode FROM
+		(SELECT matter_name,obj_sn FROM qms_qmreportrsn WHERE obj_sn is NOT NULL AND obj_sn!=''
+		<if test="beginCreateDate != null and endCreateDate != null and beginCreateDate != '' and endCreateDate != ''">
+            AND update_date BETWEEN #{beginCreateDate} AND #{endCreateDate}
+		</if>
+		)qm
+		LEFT JOIN sfc_processmaterialdetail md ON qm.obj_sn=md.itemsn
+		LEFT JOIN ppc_mserialno mno ON mno.routinebillno=md.routinebillno AND mno.seqno=md.seqno
+		WHERE md.centercode IS NOT NULL AND md.centercode!='')r
+		LEFT JOIN mdm_workcenter wc ON wc.center_code=r.centercode
+		GROUP BY r.centercode
+
+
+	</select>
+
+	<select id="findList" resultType="SfcProduceSta" >
+		SELECT a.center_name AS "no",
+		a.center_rate AS "planNum",
+		IFNULL(b.num,0) AS "actualNum",
+		IFNULL(b.num,0)/center_rate AS "accRatio"
+		FROM mdm_workcenter a LEFT JOIN
+		(SELECT centercode,count(DISTINCT centercode,obj_sn)num FROM sfc_processroutinedetail WHERE obj_sn in (SELECT obj_sn from sfc_invcheckdetail WHERE obj_sn is not null AND obj_sn!=''
+		<if test="beginCreateDate != null and endCreateDate != null and beginCreateDate != '' and endCreateDate != ''">
+			AND create_date BETWEEN #{beginCreateDate} AND #{endCreateDate}
+		</if>
+		)
+		GROUP BY centercode)b ON b.centercode=a.center_code
+		<where>
+			1=1
+			<if test="no != null and no != ''">
+				AND a.center_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{no}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{no}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{no},'%')</if>
+			</if>
+		</where>
+		ORDER BY a.center_code ASC
+	</select>
+
+	
+	<select id="findAllList" resultType="SfcProduceSta" >
+		SELECT 
+			<include refid="sfcProduceStaColumns"/>
+		FROM sfc_produce_sta a
+		<include refid="sfcProduceStaJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_produce_sta(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			no,
+			plan_num,
+			actual_num,
+			acc_ratio,
+			fail_num,
+			fail_pro
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{no},
+			#{planNum},
+			#{actualNum},
+			#{accRatio},
+			#{failNum},
+			#{failPro}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_produce_sta SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			no = #{no},
+			plan_num = #{planNum},
+			actual_num = #{actualNum},
+			acc_ratio = #{accRatio},
+			fail_num = #{failNum},
+			fail_pro = #{failPro}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_produce_sta
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_produce_sta SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SfcProduceSta" statementType="STATEMENT">
+		select * FROM sfc_produce_sta  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

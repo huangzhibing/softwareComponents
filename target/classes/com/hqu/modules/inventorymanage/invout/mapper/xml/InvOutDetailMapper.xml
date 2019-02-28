@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.invout.mapper.InvOutDetailMapper">
+    
+	<sql id="invOutDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum.id",
+		a.serial_num AS "serialNum",
+		a.item_code AS "itemCode",
+		a.item_spec AS "itemSpec",
+		a.item_name AS "itemName",
+		a.meas_unit AS "measUnit",
+		a.item_qty AS "itemQty"
+	</sql>
+	
+	<sql id="invOutDetailJoins">
+		
+			LEFT JOIN inv_out_main b ON b.id = a.bill_num
+	</sql>
+	
+    
+	<select id="get" resultType="InvOutDetail" >
+		SELECT 
+			<include refid="invOutDetailColumns"/>
+		FROM inv_out_detail a
+		<include refid="invOutDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="InvOutDetail" >
+		SELECT 
+			<include refid="invOutDetailColumns"/>
+		FROM inv_out_detail a
+		<include refid="invOutDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum.id != null and billNum.id != ''">
+				AND a.bill_num = #{billNum.id}
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND a.item_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemCode},'%')</if>
+			</if>
+			<if test="itemSpec != null and itemSpec != ''">
+				AND a.item_spec LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemSpec}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemSpec}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemSpec},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="InvOutDetail" >
+		SELECT 
+			<include refid="invOutDetailColumns"/>
+		FROM inv_out_detail a
+		<include refid="invOutDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_out_detail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			serial_num,
+			item_code,
+			item_spec,
+			item_name,
+			meas_unit,
+			item_qty
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum.id},
+			#{serialNum},
+			#{itemCode},
+			#{itemSpec},
+			#{itemName},
+			#{measUnit},
+			#{itemQty}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_out_detail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum.id},
+			serial_num = #{serialNum},
+			item_code = #{itemCode},
+			item_spec = #{itemSpec},
+			item_name = #{itemName},
+			meas_unit = #{measUnit},
+			item_qty = #{itemQty}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_out_detail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNum.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_out_detail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNum.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="InvOutDetail" statementType="STATEMENT">
+		select * FROM inv_out_detail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

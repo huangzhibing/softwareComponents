@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.outsourcingoutput.mapper.OutsourcingOutputMapper">
+	<select id="findPeriodByTime" parameterType="java.util.Map" resultType="com.hqu.modules.basedata.period.entity.Period">
+		select * from mdm_period where #{today} &lt;= period_end and #{today} &gt;= period_begin
+	</select>
+	<update id="changeRealQty">
+		update inv_account set real_qty=real_qty+${num} where id=#{id}
+	</update>
+	<update id="changeBillFlagById" parameterType="java.util.Map">
+		update inv_billmain set bill_flag = #{billFlag} where bill_num = #{billNum}
+	</update>
+	<select id="findCodeByBillNum" parameterType="String" resultType="com.hqu.modules.inventorymanage.billmain.entity.BillDetailCode">
+		select
+		inv_billdetailcode.id as "id",
+		inv_billdetailcode.serial_num   as 'serialNum',
+		inv_billdetailcode.bill_num     as 'billNum.billNum',
+		inv_billdetailcode.item_barcode as 'itemBarcode',
+		inv_billdetailcode.bin_id       as 'bin.binId',
+		inv_billdetailcode.loc_id       as 'loc.locId',
+		inv_bin.bin_desc                as 'bin.binDesc',
+		inv_location.loc_desc               as 'loc.locDesc'
+		 from inv_billdetailcode
+			left join inv_bin on inv_billdetailcode.bin_id = inv_bin.bin_id
+			left join inv_location on inv_billdetailcode.loc_id = inv_location.loc_id
+		 where inv_billdetailcode.bill_num = #{billNum} and inv_billdetailcode.del_flag = '0'
+	</select>
+	
+	
+	
+	<update id="updateOflagByBarcode" parameterType="java.util.Map">
+		update inv_account_code set o_flag=#{Oflag} where item_barcode=#{itemBarcode}
+	</update>
+	<select id="findDeptCode" parameterType="String" resultType="String">
+    	select code from sys_office where id = #{id}
+    </select>
+</mapper>

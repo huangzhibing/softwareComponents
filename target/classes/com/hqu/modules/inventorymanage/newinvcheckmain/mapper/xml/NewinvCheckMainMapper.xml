@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.newinvcheckmain.mapper.NewinvCheckMainMapper">
+
+	<select id="getWare" parameterType="String" resultType="String">
+		select ware_id from inv_warehouse where id=#{wareId} limit 1
+	</select>
+
+	<sql id="newinvCheckMainColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.period_id AS "periodId",
+		a.make_date AS "makeDate",
+		a.make_emp_id AS "makeEmpid.no",
+		a.make_emp_name AS "makeEmpName",
+		a.bill_flag AS "billFlag",
+		a.ware_id AS "wareId.wareID",
+		a.ware_name AS "wareName",
+		a.ware_emp_id AS "wareEmpId.user.no",
+		a.ware_emp_name AS "wareEmpName",
+		a.check_emp_id AS "checkEmpId.no",
+		a.check_emp_name AS "checkEmpName",
+		a.qms_flag AS "qmsFlag",
+
+
+
+
+
+
+
+
+
+
+		wareEmpId.emp_id AS "wareEmpId.empID"
+	</sql>
+
+	<sql id="newinvCheckMainJoins">
+		LEFT JOIN sys_user makeEmpid ON makeEmpid.no = a.make_emp_id
+		LEFT JOIN inv_warehouse wareId ON wareId.ware_id = a.ware_id
+		LEFT JOIN inv_employee wareEmpId ON wareEmpId.emp_id = a.ware_emp_id
+		LEFT JOIN sys_user checkEmpId ON checkEmpId.no = a.check_emp_id
+	</sql>
+
+
+	<select id="get" resultType="NewinvCheckMain" >
+		SELECT
+		<include refid="newinvCheckMainColumns"/>
+		FROM reinv_checkmain a
+		<include refid="newinvCheckMainJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="NewinvCheckMain" >
+		SELECT
+		<include refid="newinvCheckMainColumns"/>
+		FROM reinv_checkmain a
+		<include refid="newinvCheckMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="periodId != null and periodId != ''">
+				AND a.period_id = #{periodId}
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.make_date BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="makeEmpid != null and makeEmpid.no != null and makeEmpid.no != ''">
+				AND a.make_emp_id = #{makeEmpid.no}
+			</if>
+			<if test="makeEmpName != null and makeEmpName != ''">
+				AND a.make_emp_name = #{makeEmpName}
+			</if>
+			<if test="billFlag != null and billFlag != ''">
+				AND a.bill_flag = #{billFlag}
+			</if>
+			<if test="wareId != null and wareId.wareID != null and wareId.wareID != ''">
+				AND a.ware_id = #{wareId.wareID}
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="wareEmpId != null and wareEmpId.user != null and wareEmpId.user.no != null and wareEmpId.user.no != ''">
+				AND a.ware_emp_id = #{wareEmpId.user.no}
+			</if>
+			<if test="wareEmpName != null and wareEmpName != ''">
+				AND a.ware_emp_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{wareEmpName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareEmpName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareEmpName},'%')</if>
+			</if>
+			<if test="checkEmpId != null and checkEmpId.no != null and checkEmpId.no != ''">
+				AND a.check_emp_id = #{checkEmpId.no}
+			</if>
+			<if test="checkEmpName != null and checkEmpName != ''">
+				AND a.check_emp_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{checkEmpName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{checkEmpName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{checkEmpName},'%')</if>
+			</if>
+			<if test="qmsFlag != null and qmsFlag != ''">
+				AND a.qms_flag = #{qmsFlag}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="NewinvCheckMain" >
+		SELECT
+		<include refid="newinvCheckMainColumns"/>
+		FROM reinv_checkmain a
+		<include refid="newinvCheckMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO reinv_checkmain(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			bill_num,
+			period_id,
+			make_date,
+			make_emp_id,
+			make_emp_name,
+			bill_flag,
+			ware_id,
+			ware_name,
+			ware_emp_id,
+			ware_emp_name,
+			check_emp_id,
+			check_emp_name,
+			qms_flag
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{billNum},
+			#{periodId},
+			#{makeDate},
+			#{makeEmpid.no},
+			#{makeEmpName},
+			#{billFlag},
+			#{wareId.wareID},
+			#{wareName},
+			#{wareEmpId.user.no},
+			#{wareEmpName},
+			#{checkEmpId.no},
+			#{checkEmpName},
+			#{qmsFlag}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE reinv_checkmain SET
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			bill_num = #{billNum},
+			period_id = #{periodId},
+			make_date = #{makeDate},
+			make_emp_id = #{makeEmpid.no},
+			make_emp_name = #{makeEmpName},
+			bill_flag = #{billFlag},
+			ware_id = #{wareId.wareID},
+			ware_name = #{wareName},
+			ware_emp_id = #{wareEmpId.user.no},
+			ware_emp_name = #{wareEmpName},
+			check_emp_id = #{checkEmpId.no},
+			check_emp_name = #{checkEmpName},
+			qms_flag = #{qmsFlag}
+		WHERE id = #{id}
+	</update>
+
+
+
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM reinv_checkmain
+		WHERE id = #{id}
+	</update>
+
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE reinv_checkmain SET
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="NewinvCheckMain" statementType="STATEMENT">
+		select * FROM reinv_checkmain  where ${propertyName} = '${value}'
+	</select>
+
+	<select id="getMaxIdByBillnum" resultType="String">
+        SELECT MAX(bill_num) FROM reinv_checkmain WHERE bill_num LIKE concat(concat(#{_parameter}),"%")
+    </select>
+
+	<select id="getMaxHGBillnum" resultType="String">
+		SELECT MAX(bill_num) FROM inv_billmain WHERE bill_num LIKE concat(concat(#{_parameter}),"%")
+	</select>
+
+	<select id="getMaxBFBillnum" resultType="String">
+		SELECT MAX(bill_num) FROM inv_billmain WHERE bill_num LIKE concat(concat(#{_parameter}),"%")
+	</select>
+
+	<select id="getAutoFlag" parameterType="String" resultType="String">
+		select auto_flag from inv_warehouse where ware_id=#{wareId} limit 1
+	</select>
+
+	<select id="getBillDetailCodes" parameterType="String" resultType="BillDetailCodes">
+		select * from inv_billdetailcode where bill_num=#{billNum}
+	</select>
+
+	<select id="getnownum" resultType="Double">
+		select now_qty from inv_account where item_code=#{0} and ware_id=#{1}
+		order by period limit 1
+	</select>
+
+	<select id="getrealnum" resultType="Double">
+		select real_qty from inv_account where item_code=#{0} and ware_id=#{1}
+		order by period limit 1
+	</select>
+
+	<select id="getid" resultType="String">
+		select id from inv_account where item_code=#{0} and ware_id=#{1}
+		order by period limit 1
+	</select>
+	<update id="updatenownum">
+		update inv_account set now_qty=#{0} where id=#{1}
+	</update>
+
+	<update id="updaterealnum">
+		update inv_account set real_qty=#{0} where id=#{1}
+	</update>
+
+	<update id="updateoflag" parameterType="String">
+		update inv_account_code set o_flag='1' where item_barcode=#{itembarcode} and o_flag='0'
+	</update>
+</mapper>

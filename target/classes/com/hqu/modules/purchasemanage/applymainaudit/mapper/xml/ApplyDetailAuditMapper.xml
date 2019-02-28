@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.applymainaudit.mapper.ApplyDetailAuditMapper">
+    
+	<sql id="applyDetailAuditColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "applyMainQuery.id",
+		a.serial_num AS "serialNum",
+		a.item_code AS "item.id",
+		a.item_name AS "itemName",
+		a.item_specmodel AS "itemSpecmodel",
+		a.request_date AS "requestDate",
+		a.apply_qty AS "applyQty",
+		a.now_sum AS "nowSum",
+		a.unit_name AS "unitName",
+		a.cost_price AS "costPrice",
+		a.apply_sum AS "applySum",
+		a.log AS "log",
+		a.item_texture AS "itemTexture",
+		a.notes AS "notes",
+		a.plan_arrivedate AS "planArrivedate",
+		a.apply_price AS "applyPrice",
+		a.plan_price AS "planPrice",
+		a.plan_sum AS "planSum",
+		a.item_pdn AS "itemPdn",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		item.code AS "item.code"
+	</sql>
+	
+	<sql id="applyDetailAuditJoins">
+		
+			LEFT JOIN pur_applymain b ON b.id = a.bill_num
+		LEFT JOIN mdm_item item ON item.id = a.item_code
+	</sql>
+	
+    
+	<select id="get" resultType="ApplyDetailAudit" >
+		SELECT 
+			<include refid="applyDetailAuditColumns"/>
+		FROM pur_applydetail a
+		<include refid="applyDetailAuditJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ApplyDetailAudit" >
+		SELECT 
+			<include refid="applyDetailAuditColumns"/>
+		FROM pur_applydetail a
+		<include refid="applyDetailAuditJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="applyMainQuery != null and applyMainQuery.id != null and applyMainQuery.id != ''">
+				AND a.bill_num = #{applyMainQuery.id}
+			</if>
+			<if test="serialNum != null and serialNum != ''">
+				AND a.serial_num = #{serialNum}
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{item.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{item.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{item.id},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="itemSpecmodel != null and itemSpecmodel != ''">
+				AND a.item_specmodel LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemSpecmodel}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemSpecmodel}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemSpecmodel},'%')</if>
+			</if>
+			<if test="requestDate != null and requestDate != ''">
+				AND a.request_date = #{requestDate}
+			</if>
+			<if test="applyQty != null and applyQty != ''">
+				AND a.apply_qty = #{applyQty}
+			</if>
+			<if test="nowSum != null and nowSum != ''">
+				AND a.now_sum = #{nowSum}
+			</if>
+			<if test="unitName != null and unitName != ''">
+				AND a.unit_name = #{unitName}
+			</if>
+			<if test="costPrice != null and costPrice != ''">
+				AND a.cost_price = #{costPrice}
+			</if>
+			<if test="applySum != null and applySum != ''">
+				AND a.apply_sum = #{applySum}
+			</if>
+			<if test="log != null and log != ''">
+				AND a.log = #{log}
+			</if>
+			<if test="itemTexture != null and itemTexture != ''">
+				AND a.item_texture = #{itemTexture}
+			</if>
+			<if test="notes != null and notes != ''">
+				AND a.notes = #{notes}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ApplyDetailAudit" >
+		SELECT 
+			<include refid="applyDetailAuditColumns"/>
+		FROM pur_applydetail a
+		<include refid="applyDetailAuditJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_applydetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			serial_num,
+			item_code,
+			item_name,
+			item_specmodel,
+			request_date,
+			apply_qty,
+			now_sum,
+			unit_name,
+			cost_price,
+			apply_sum,
+			log,
+			item_texture,
+			notes,
+			plan_arrivedate,
+			apply_price,
+			plan_price,
+			plan_sum,
+			item_pdn
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{applyMainQuery.id},
+			#{serialNum},
+			#{item.id},
+			#{itemName},
+			#{itemSpecmodel},
+			#{requestDate},
+			#{applyQty},
+			#{nowSum},
+			#{unitName},
+			#{costPrice},
+			#{applySum},
+			#{log},
+			#{itemTexture},
+			#{notes},
+			#{planArrivedate},
+			#{applyPrice},
+			#{planPrice},
+			#{planSum},
+			#{itemPdn}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_applydetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{applyMainQuery.id},
+			serial_num = #{serialNum},
+			item_code = #{item.id},
+			item_name = #{itemName},
+			item_specmodel = #{itemSpecmodel},
+			request_date = #{requestDate},
+			apply_qty = #{applyQty},
+			now_sum = #{nowSum},
+			unit_name = #{unitName},
+			cost_price = #{costPrice},
+			apply_sum = #{applySum},
+			log = #{log},
+			item_texture = #{itemTexture},
+			notes = #{notes},
+			plan_arrivedate = #{planArrivedate},
+			apply_price = #{applyPrice},
+			plan_price = #{planPrice},
+			plan_sum = #{planSum},
+			item_pdn = #{itemPdn}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_applydetail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{applyMainQuery.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_applydetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{applyMainQuery.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ApplyDetailAudit" statementType="STATEMENT">
+		select * FROM pur_applydetail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

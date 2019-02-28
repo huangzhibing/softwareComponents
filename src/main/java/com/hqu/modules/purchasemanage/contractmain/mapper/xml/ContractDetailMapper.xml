@@ -1,0 +1,308 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.contractmain.mapper.ContractDetailMapper">
+    
+	<sql id="contractDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "contractMain.billNum",
+		a.serial_num AS "serialNum",
+		a.item_code AS "item.id",
+		a.item_name AS "itemName",
+		a.plan_qty AS "planQty",
+		a.item_qty AS "itemQty",
+		a.item_price AS "itemPrice",
+		a.item_sum AS "itemSum",
+		a.item_price_taxed AS "itemPriceTaxed",
+		a.item_sum_taxed AS "itemSumTaxed",
+		a.mass_require AS "massRequire",
+		a.notes AS "notes",
+		a.item_model AS "itemModel",
+		a.item_texture AS "itemTexture",
+		a.meas_unit AS "measUnit",
+		a.cost_price AS "costPrice",
+		a.check_qty AS "checkQty",
+		a.trans_price AS "transPrice",
+		a.trans_sum AS "transSum",
+		a.item_pdn AS "itemPdn",
+		a.user_dept_code AS "userDeptCode",	
+		a.arrive_date AS "arriveDate",	
+		item.code AS "item.code"
+	</sql>
+	
+	<sql id="contractDetailJoins">
+		
+		LEFT JOIN pur_contractmain b ON b.bill_num = a.bill_num
+		LEFT JOIN mdm_item item ON item.id = a.item_code
+	</sql>
+	
+    
+	<select id="get" resultType="ContractDetail" >
+		SELECT 
+			<include refid="contractDetailColumns"/>
+		FROM pur_contractdetail a
+		<include refid="contractDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getContractDetail" resultType="ContractDetail" >
+		SELECT 
+			<include refid="contractDetailColumns"/>
+		FROM pur_contractdetail a
+		<include refid="contractDetailJoins"/>
+		WHERE 1=1
+		<if test="contractMain != null and contractMain.billNum != null and contractMain.billNum != ''">
+				AND a.bill_num = #{contractMain.billNum}
+		</if>
+		<if test="serialNum != null">
+				AND a.serial_num = #{serialNum}
+		</if>
+		<if test="id != null and id != ''">
+				AND a.id = #{id}
+		</if>
+	</select>
+	
+	
+	
+	
+	<select id="findList" resultType="ContractDetail" >
+		SELECT 
+			<include refid="contractDetailColumns"/>
+		FROM pur_contractdetail a
+		<include refid="contractDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="contractMain != null and contractMain.billNum != null and contractMain.billNum != ''">
+				AND a.bill_num = #{contractMain.billNum}
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{item.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{item.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{item.id},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="itemModel != null and itemModel != ''">
+				AND a.item_model LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemModel}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemModel}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemModel},'%')</if>
+			</if>
+			<if test="planQty != null and planQty != ''">
+				AND a.plan_qty = #{planQty}
+			</if>
+			<if test="itemQty != null and itemQty != ''">
+				AND a.item_qty = #{itemQty}
+			</if>
+			<if test="itemPrice != null and itemPrice != ''">
+				AND a.item_price = #{itemPrice}
+			</if>
+			<if test="serialNum != null and serialNum != ''">
+				AND a.serial_num = #{serialNum}
+			</if>
+			<if test="itemSum != null and itemSum != ''">
+				AND a.item_sum = #{itemSum}
+			</if>
+			<if test="itemPriceTaxed != null and itemPriceTaxed != ''">
+				AND a.item_price_taxed = #{itemPriceTaxed}
+			</if>
+			<if test="itemSumTaxed != null and itemSumTaxed != ''">
+				AND a.item_sum_taxed = #{itemSumTaxed}
+			</if>
+			<if test="massRequire != null and massRequire != ''">
+				AND a.mass_require = #{massRequire}
+			</if>
+			<if test="notes != null and notes != ''">
+				AND a.notes = #{notes}
+			</if>
+			<if test="itemTexture != null and itemTexture != ''">
+				AND a.item_texture = #{itemTexture}
+			</if>
+			<if test="measUnit != null and measUnit != ''">
+				AND a.meas_unit = #{measUnit}
+			</if>
+			<if test="costPrice != null and costPrice != ''">
+				AND a.cost_price = #{costPrice}
+			</if>
+			<if test="checkQty != null and checkQty != ''">
+				AND a.check_qty = #{checkQty}
+			</if>
+			<if test="transPrice != null and transPrice != ''">
+				AND a.trans_price = #{transPrice}
+			</if>			
+			<if test="itemPdn != null and itemPdn != ''">
+				AND a.item_pdn = #{itemPdn}
+			</if>
+			<if test="userDeptCode != null and userDeptCode != ''">
+				AND a.user_dept_code = #{userDeptCode}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.serial_num ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ContractDetail" >
+		SELECT 
+			<include refid="contractDetailColumns"/>
+		FROM pur_contractdetail a
+		<include refid="contractDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_contractdetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			serial_num,
+			item_code,
+			item_name,
+			plan_qty,
+			item_qty,
+			item_price,
+			item_sum,
+			item_price_taxed,
+			item_sum_taxed,
+			mass_require,
+			notes,
+			item_model,
+			item_texture,
+			meas_unit,
+			cost_price,
+			check_qty,
+			trans_price,
+			trans_sum,
+			item_pdn,
+			user_dept_code,
+			arrive_date	
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{contractMain.billNum},
+			#{serialNum},
+			#{item.id},
+			#{itemName},
+			#{planQty},
+			#{itemQty},
+			#{itemPrice},
+			#{itemSum},
+			#{itemPriceTaxed},
+			#{itemSumTaxed},
+			#{massRequire},
+			#{notes},
+			#{itemModel},
+			#{itemTexture},
+			#{measUnit},
+			#{costPrice},
+			#{checkQty},
+			#{transPrice},
+			#{transSum},
+			#{itemPdn},
+			#{userDeptCode},
+			#{arriveDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_contractdetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{contractMain.billNum},
+			serial_num = #{serialNum},
+			item_code = #{item.id},
+			item_name = #{itemName},
+			plan_qty = #{planQty},
+			item_qty = #{itemQty},
+			item_price = #{itemPrice},
+			item_sum = #{itemSum},
+			item_price_taxed = #{itemPriceTaxed},
+			item_sum_taxed = #{itemSumTaxed},
+			mass_require = #{massRequire},
+			notes = #{notes},
+			item_model = #{itemModel},
+			item_texture = #{itemTexture},
+			meas_unit = #{measUnit},
+			cost_price = #{costPrice},
+			check_qty = #{checkQty},
+			trans_price = #{transPrice},
+			trans_sum = #{transSum},
+			item_pdn = #{itemPdn},
+			user_dept_code = #{userDeptCode},
+			arrive_date =#{arriveDate}	
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_contractdetail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{contractMain.billNum}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_contractdetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{contractMain.billNum}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ContractDetail" statementType="STATEMENT">
+		select * FROM pur_contractdetail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

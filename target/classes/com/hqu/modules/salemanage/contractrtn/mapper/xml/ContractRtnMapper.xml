@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.contractrtn.mapper.ContractRtnMapper">
+    
+	<sql id="contractRtnColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.rtn_bill_code AS "rtnBillCode",
+		a.contract_code AS "contractCode",
+		a.rtn_sum AS "rtnSum",
+		a.account_code AS "account.id",
+		a.account_name AS "accountName",
+		a.input_date AS "inputDate",
+		a.remarks AS "remarks"
+	</sql>
+	
+	<sql id="contractRtnJoins">
+				LEFT JOIN mdm_account account ON account.account_code=a.account_code
+	</sql>
+	
+    
+	<select id="get" resultType="ContractRtn" >
+		SELECT 
+			<include refid="contractRtnColumns"/>
+		FROM sal_contractrtn a
+		<include refid="contractRtnJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ContractRtn" >
+		SELECT 
+			<include refid="contractRtnColumns"/>
+		FROM sal_contractrtn a
+		<include refid="contractRtnJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="rtnBillCode != null and rtnBillCode != ''">
+				AND a.rtn_bill_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{rtnBillCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{rtnBillCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{rtnBillCode},'%')</if>
+			</if>
+			<if test="contractCode != null and contractCode != ''">
+				AND a.contract_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{contractCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{contractCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{contractCode},'%')</if>
+			</if>
+			<if test="account != null and account.id != null and account.id != ''">
+				AND a.account_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{account.accountCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{account.accountCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{account.accountCode},'%')</if>
+			</if>
+			<if test="accountName != null and accountName != ''">
+				AND a.account_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{accountName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{accountName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{accountName},'%')</if>
+			</if>
+			<if test="beginInputDate != null and endInputDate != null and beginInputDate != '' and endInputDate != ''">
+				AND a.input_date BETWEEN #{beginInputDate} AND #{endInputDate}
+			</if>
+
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ContractRtn" >
+		SELECT 
+			<include refid="contractRtnColumns"/>
+		FROM sal_contractrtn a
+		<include refid="contractRtnJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_contractrtn(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			rtn_bill_code,
+			contract_code,
+			rtn_sum,
+			account_code,
+			account_name,
+			input_date,
+			remarks
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{rtnBillCode},
+			#{contractCode},
+			#{rtnSum},
+			#{account.accountCode},
+			#{accountName},
+			#{inputDate},
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_contractrtn SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			rtn_bill_code = #{rtnBillCode},
+			contract_code = #{contractCode},
+			rtn_sum = #{rtnSum},
+			account_code = #{account.accountCode},
+			account_name = #{accountName},
+			input_date = #{inputDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_contractrtn
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_contractrtn SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ContractRtn" statementType="STATEMENT">
+		select * FROM sal_contractrtn  where ${propertyName} = '${value}'
+	</select>
+
+	<select id="getMaxIdByTypeAndDate" resultType="String">
+		SELECT MAX(rtn_bill_code) FROM sal_contractrtn WHERE rtn_bill_code LIKE concat(concat(#{_parameter}),"%")
+	</select>
+</mapper>

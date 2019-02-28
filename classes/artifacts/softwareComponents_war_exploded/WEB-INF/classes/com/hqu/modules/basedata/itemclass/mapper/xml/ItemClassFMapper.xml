@@ -1,0 +1,237 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.itemclass.mapper.ItemClassFMapper">
+
+	<sql id="itemClassFColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS
+		"createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS
+		"updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.class_code AS "classCode",
+		a.class_name AS "className",
+		a.father_class_code AS "fatherClassCode.id",
+		a.father_class_name AS
+		"fatherCLassName",
+		a.isleaf AS "isLeaf",
+		a.system_sign AS "systemSign",
+		b.name AS "fatherClassCode.name",
+		b.class_id AS "fatherClassCode.classId",
+		b.id As "fatherId"
+	</sql>
+	<sql id="itemClassFColumn">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS
+		"createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS
+		"updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.class_code AS "classCode",
+		a.class_name AS "className",
+		a.father_class_code AS "fatherClassCode.id",
+		a.father_class_name AS
+		"fatherCLassName",
+		a.isleaf AS "isLeaf",
+		a.system_sign AS "systemSign"
+		
+	</sql>
+
+	<sql id="itemClassFJoins">
+		LEFT JOIN mdm_itemclass b ON b.id = a.father_class_code
+	</sql>
+
+
+	<select id="get" resultType="ItemClassF">
+		SELECT
+		<include refid="itemClassFColumns" />
+		FROM mdm_itemclass_f a
+		<include refid="itemClassFJoins" />
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="ItemClassF">
+		SELECT
+		<include refid="itemClassFColumns" />
+		FROM mdm_itemclass_f a
+		<include refid="itemClassFJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="className != null and className != ''">
+				AND a.class_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{className}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{className}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{className},'%')</if>
+			</if>
+			<if test="classCode != null and classCode != ''">
+				AND a.class_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{classCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{classCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{classCode},'%')</if>
+			</if>
+			<if
+				test="fatherClassCode != null  and fatherClassCode.id != null and fatherClassCode.id != ''">
+				AND #{fatherClassCode.id}=b.id OR (b.id = #{fatherClassCode.id} OR b.parent_ids LIKE
+				<if test="dbName == 'oracle'">'%,'||#{fatherClassCode.id}||',%')</if>
+				<if test="dbName == 'mysql'">CONCAT('%,', #{fatherClassCode.id}, ',%'))</if>
+				<if test="dbName == 'mssql'">'%'+#{fatherClassCode.id}+'%')</if>
+			</if>
+			<if test="systemSign != null and systemSign != ''">
+				AND a.system_sign LIKE 
+					<if test="dbName == 'oracle'">'%'||#{systemSign}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{systemSign}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{systemSign},'%')</if>
+			</if>
+		</where>
+		<!-- <choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose> -->
+		order by class_code
+	</select>
+
+	<select id="findAllList" resultType="ItemClassF">
+		SELECT
+		<include refid="itemClassFColumns" />
+		FROM mdm_itemclass_f a
+		<include refid="itemClassFJoins" />
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<!-- <choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose> -->
+		order by class_code
+	</select>
+
+	<insert id="insert">
+		INSERT INTO mdm_itemclass_f(
+		id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		remarks,
+		del_flag,
+		class_code,
+		class_name,
+		father_class_code,
+		father_class_name,
+		isleaf,
+		system_sign
+		) VALUES (
+		#{id},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{remarks},
+		#{delFlag},
+		#{classCode},
+		#{className},
+		#{fatherClassCode.id},
+		#{fatherCLassName},
+		#{isLeaf},
+		#{systemSign}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE mdm_itemclass_f SET
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks},
+		class_code =
+		#{classCode},
+		class_name = #{className},
+		father_class_code =
+		#{fatherClassCode.id},
+		father_class_name = #{fatherCLassName},
+		isleaf =
+		#{isLeaf},
+		system_sign = #{systemSign}
+		WHERE id = #{id}
+	</update>
+
+
+	<!--物理删除 -->
+	<update id="delete">
+		DELETE FROM mdm_itemclass_f
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE father_class_code = #{fatherClassCode.id}
+			</otherwise>
+		</choose>
+	</update>
+
+	<!--逻辑删除 -->
+	<update id="deleteByLogic">
+		UPDATE mdm_itemclass_f SET
+		del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE father_class_code = #{fatherClassCode.id}
+			</otherwise>
+		</choose>
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ItemClassF"
+		statementType="STATEMENT">
+		select * FROM mdm_itemclass_f where ${propertyName} =
+		'${value}'
+	</select>
+
+	<select id="findByCodeLength" parameterType="java.util.Map"
+		resultType="ItemClassF">
+		select
+		<include refid="itemClassFColumn" />
+		from mdm_itemclass_f a
+		<where>
+			<if test="length!='' and length!=null">
+				length(a.class_code) = #{length}
+			</if>
+			<if test="code!='' and code!=null">
+				and substr(a.class_code,1,#{length}-2)=#{code}
+			</if>
+		</where>
+	</select>
+
+	<select id="findByCode" parameterType="String" resultType="ItemClassF">
+		select
+		<include refid="itemClassFColumns" />
+		from mdm_itemclass_f a 
+		<include refid="itemClassFJoins" />
+		 where a.class_code = #{code}
+	</select>
+	<select id="findCodeById" parameterType="String" resultType="String">
+		select class_code from mdm_itemclass_f where id=#{id}
+	</select>
+	<select id="findMaxCode" resultType="String">
+		select max(class_code) from mdm_itemclass_f where length(class_code)=2
+	</select>
+</mapper>

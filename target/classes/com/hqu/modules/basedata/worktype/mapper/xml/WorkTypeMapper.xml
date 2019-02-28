@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.worktype.mapper.WorkTypeMapper">
+
+	<sql id="workTypeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.work_type_code AS "workTypeCode",
+		a.work_type_name AS "workTypeName",
+		a.work_type_desc AS "workTypeDesc"
+	</sql>
+
+	<sql id="workTypeJoins">
+
+	</sql>
+
+
+	<select id="get" resultType="WorkType" >
+		SELECT
+			<include refid="workTypeColumns"/>
+		FROM mdm_work_type a
+		<include refid="workTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="WorkType" >
+		SELECT
+			<include refid="workTypeColumns"/>
+		FROM mdm_work_type a
+		<include refid="workTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="workTypeCode != null and workTypeCode != ''">
+				AND a.work_type_code LIKE
+					<if test="dbName == 'oracle'">'%'||#{workTypeCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{workTypeCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{workTypeCode},'%')</if>
+			</if>
+			<if test="workTypeName != null and workTypeName != ''">
+				AND a.work_type_name LIKE
+					<if test="dbName == 'oracle'">'%'||#{workTypeName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{workTypeName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{workTypeName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.work_type_code
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="WorkType" >
+		SELECT
+			<include refid="workTypeColumns"/>
+		FROM mdm_work_type a
+		<include refid="workTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.work_type_code
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO mdm_work_type(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			work_type_code,
+			work_type_name,
+			work_type_desc
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{workTypeCode},
+			#{workTypeName},
+			#{workTypeDesc}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE mdm_work_type SET
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			work_type_code = #{workTypeCode},
+			work_type_name = #{workTypeName},
+			work_type_desc = #{workTypeDesc}
+		WHERE id = #{id}
+	</update>
+
+
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_work_type
+		WHERE id = #{id}
+	</update>
+
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_work_type SET
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="WorkType" statementType="STATEMENT">
+		select * FROM mdm_work_type  where ${propertyName} = '${value}'
+	</select>
+
+	<select id="getCodeNum" resultType="Integer">
+        SELECT count(*)
+        FROM mdm_work_type
+        WHERE work_type_code = #{workTypeCode}
+    </select>
+</mapper>

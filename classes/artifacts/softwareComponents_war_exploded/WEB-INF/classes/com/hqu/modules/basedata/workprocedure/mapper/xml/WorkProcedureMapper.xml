@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.workprocedure.mapper.WorkProcedureMapper">
+    
+	<sql id="workProcedureColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.work_procedure_id AS "workProcedureId",
+		a.work_procedure_name AS "workProcedureName",
+		a.work_procedure_desc AS "workProcedureDesc",
+		a.dept_code AS "deptCode.code",
+		a.dept_name AS "deptName",
+		a.user_code AS "user.no",
+		a.user_name AS "userNameRu",
+		a.machine_type_code AS "machineTypeCode.machineTypeCode",
+		a.machine_type_name AS "machineTypeName",
+		a.work_time AS "workTime",
+		a.is_convey AS "isConvey",
+				
+				
+
+				
+
+		deptCode.name AS "deptCode.name",
+
+		user.name AS "user.name",
+
+
+		machineTypeCode.machine_type_name AS "machineTypeCode.machineTypeName"
+	</sql>
+	
+	<sql id="workProcedureJoins">
+		
+		LEFT JOIN sys_office deptCode ON deptCode.code = a.dept_code
+		LEFT JOIN sys_user user ON user.no = a.user_code
+		LEFT JOIN mdm_machinetype machineTypeCode ON machineTypeCode.machine_type_code = a.machine_type_code
+	</sql>
+	
+    
+	<select id="get" resultType="WorkProcedure" >
+		SELECT 
+			<include refid="workProcedureColumns"/>
+		FROM mdm_workprocedure a
+		<include refid="workProcedureJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="WorkProcedure" >
+		SELECT 
+			<include refid="workProcedureColumns"/>
+		FROM mdm_workprocedure a
+		<include refid="workProcedureJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="workProcedureId != null and workProcedureId != ''">
+				AND a.work_procedure_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{workProcedureId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{workProcedureId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{workProcedureId},'%')</if>
+			</if>
+			<if test="workProcedureName != null and workProcedureName != ''">
+				AND a.work_procedure_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{workProcedureName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{workProcedureName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{workProcedureName},'%')</if>
+			</if>
+			<if test="deptCode != null and deptCode.id != null and deptCode.id != ''">
+				AND a.dept_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{deptCode.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{deptCode.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{deptCode.id},'%')</if>
+			</if>
+			<if test="deptName != null and deptName != ''">
+				AND a.dept_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{deptName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{deptName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{deptName},'%')</if>
+			</if>
+			<if test="user != null and user.id != null and user.id != ''">
+				AND a.user_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{user.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{user.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{user.id},'%')</if>
+			</if>
+			<if test="userNameRu != null and userNameRu != ''">
+				AND a.user_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{userNameRu}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{userNameRu}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{userNameRu},'%')</if>
+			</if>
+			<if test="machineTypeCode != null and machineTypeCode.id != null and machineTypeCode.id != ''">
+				AND a.machine_type_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{machineTypeCode.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{machineTypeCode.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{machineTypeCode.id},'%')</if>
+			</if>
+			<if test="machineTypeName != null and machineTypeName != ''">
+				AND a.machine_type_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{machineTypeName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{machineTypeName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{machineTypeName},'%')</if>
+			</if>
+			<if test="isConvey != null and isConvey != ''">
+				AND a.is_convey = #{isConvey}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.work_procedure_id ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="WorkProcedure" >
+		SELECT 
+			<include refid="workProcedureColumns"/>
+		FROM mdm_workprocedure a
+		<include refid="workProcedureJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.work_procedure_id ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_workprocedure(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			work_procedure_id,
+			work_procedure_name,
+			work_procedure_desc,
+			dept_code,
+			dept_name,
+			user_code,
+			user_name,
+			machine_type_code,
+			machine_type_name,
+			work_time,
+			is_convey
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{workProcedureId},
+			#{workProcedureName},
+			#{workProcedureDesc},
+			#{deptCode.code},
+			#{deptName},
+			#{user.no},
+			#{userNameRu},
+			#{machineTypeCode.machineTypeCode},
+			#{machineTypeName},
+			#{workTime},
+			#{isConvey}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_workprocedure SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			work_procedure_id = #{workProcedureId},
+			work_procedure_name = #{workProcedureName},
+			work_procedure_desc = #{workProcedureDesc},
+			dept_code = #{deptCode.code},
+			dept_name = #{deptName},
+			user_code = #{user.no},
+			user_name = #{userNameRu},
+			machine_type_code = #{machineTypeCode.machineTypeCode},
+			machine_type_name = #{machineTypeName},
+			work_time = #{workTime},
+			is_convey = #{isConvey}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_workprocedure
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_workprocedure SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="WorkProcedure" statementType="STATEMENT">
+		select * FROM mdm_workprocedure  where ${propertyName} = '${value}'
+	</select>
+
+	<select id="getMaxWorkProcedureId" resultType="String">
+		select max(work_procedure_id) from mdm_workprocedure
+	</select>
+	
+</mapper>

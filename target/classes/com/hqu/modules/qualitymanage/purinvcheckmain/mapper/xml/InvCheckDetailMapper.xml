@@ -1,0 +1,359 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.purinvcheckmain.mapper.InvCheckDetailMapper">
+    
+	<sql id="invCheckDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.billnum AS "InvCheckMain.billnum",
+		a.serialnum AS "serialnum",
+		a.item_code AS "item.id",
+		a.item_name AS "itemName",
+		a.mass_require AS "massRequire",
+		a.check_qty AS "checkQty",
+		a.real_qty AS "realQty",
+		a.realprice AS "realPrice",
+		a.real_sum AS "realSum",
+		a.real_price_taxed AS "realPriceTaxed",
+		a.real_sum_taxed AS "realSumTaxed",
+		a.tax_sum AS "taxSum",
+		a.trans_sum AS "transSum",
+		a.trans_sum_taxed AS "transSumTaxed",
+		a.check_state AS "checkState",
+		a.notes AS "notes",
+		a.tax_ratio AS "taxRatio",
+		a.trans_ratio AS "transRatio",
+		a.balance_flag AS "balanceFlag",
+		a.balance_notes AS "balanceNotes",
+		a.sup_eval_flag AS "supEvalFlag",
+		a.sup_eval_notes AS "supEvalNotes",
+		a.qt_sum AS "qtSum",
+		a.xf_sum AS "xfSum",
+		a.yc_real_qty AS "ycRealqty",
+		a.cor_billnum AS "corBillnum",
+		a.cor_serialnum AS "corSerialnum",
+		a.old_qty AS "oldQty",
+		a.old_price AS "oldPrice",
+		a.old_sum AS "oldSum",
+		a.old_price_taxed AS "oldPriceTaxed",
+		a.old_sum_taxed AS "oldSumTaxed",
+		a.old_trans_sum AS "oldTransSum",
+		a.old_trans_sum_taxed AS "oldTransSumTaxed",
+		a.back_flag AS "backFlag",
+		a.item_specmodel AS "itemSpecmodel",
+		a.unit_code AS "unitCode",
+		a.item_pdn AS "itemPdn",
+		a.item_notes AS "itemNotes",
+		a.is_print AS "isPrint",
+		a.qms_flag AS "qmsFlag",
+				
+				
+				
+				
+				
+				
+		
+				
+			
+		item.code AS "item.code",
+		item.id AS "itemId",
+		item.code AS "itemCode",
+		a.front_billnum AS "frontBillNum",
+		a.front_serialnum AS "frontSerialNum",
+		a.front_qty AS "frontQty"
+		
+	</sql>
+	
+	<sql id="invCheckDetailJoins">
+		
+		LEFT JOIN pur_invcheckmain b ON b.id = a.billnum
+		LEFT JOIN mdm_item item ON item.id = a.item_code
+	</sql>
+	
+    
+	<select id="get" resultType="InvCheckDetail" >
+		SELECT 
+			<include refid="invCheckDetailColumns"/>
+		FROM pur_invcheckdetail a
+		<include refid="invCheckDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="InvCheckDetail" >
+		SELECT 
+			<include refid="invCheckDetailColumns"/>
+		FROM pur_invcheckdetail a
+		<include refid="invCheckDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="InvCheckMain != null and InvCheckMain.billnum != null and InvCheckMain.billnum != ''">
+				AND a.billnum = #{InvCheckMain.billnum}
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code = #{item.id}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name = #{itemName}
+			</if>
+			<if test="InvCheckMain != null and InvCheckMain.billnum != null and InvCheckMain.billnum != ''">
+				AND a.billnum = #{InvCheckMain.billnum}
+			</if>
+			<if test="backFlag != null and backFlag != ''">
+				AND a.back_flag = #{backFlag}
+			</if>
+			<if test="serialnum != null">
+				AND a.serialnum = #{serialnum}
+			</if>			
+			
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findListbyBillNum" resultType="InvCheckDetail" >
+		SELECT 
+			<include refid="invCheckDetailColumns"/>
+		FROM pur_invcheckdetail a
+		<include refid="invCheckDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			AND a.billnum = #{InvCheckMain.billnum}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="InvCheckDetail" >
+		SELECT 
+			<include refid="invCheckDetailColumns"/>
+		FROM pur_invcheckdetail a
+		<include refid="invCheckDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<insert id="insert">
+		INSERT INTO pur_invcheckdetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			billnum,
+			serialnum,
+			item_code,
+			item_name,
+			mass_require,
+			check_qty,
+			real_qty,
+			realprice,
+			real_sum,
+			real_price_taxed,
+			real_sum_taxed,
+			tax_sum,
+			trans_sum,
+			trans_sum_taxed,
+			check_state,
+			notes,
+			tax_ratio,
+			trans_ratio,
+			balance_flag,
+			balance_notes,
+			sup_eval_flag,
+			sup_eval_notes,
+			qt_sum,
+			xf_sum,
+			yc_real_qty,
+			cor_billnum,
+			cor_serialnum,
+			old_qty,
+			old_price,
+			old_sum,
+			old_price_taxed,
+			old_sum_taxed,
+			old_trans_sum,
+			old_trans_sum_taxed,
+			back_flag,
+			item_specmodel,
+			unit_code,
+			item_pdn,
+			item_notes,
+			front_billnum,
+			front_serialnum,
+			front_qty,
+			is_print,
+			qms_flag
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{InvCheckMain.billnum},
+			#{serialnum},
+			#{item.id},
+			#{itemName},
+			#{massRequire},
+			#{checkQty},
+			#{realQty},
+			#{realPrice},
+			#{realSum},
+			#{realPriceTaxed},
+			#{realSumTaxed},
+			#{taxSum},
+			#{transSum},
+			#{transSumTaxed},
+			#{checkState},
+			#{notes},
+			#{taxRatio},
+			#{transRatio},
+			#{balanceFlag},
+			#{balanceNotes},
+			#{supEvalFlag},
+			#{supEvalNotes},
+			#{qtSum},
+			#{xfSum},
+			#{ycRealqty},
+			#{corBillnum},
+			#{corSerialnum},
+			#{oldQty},
+			#{oldPrice},
+			#{oldSum},
+			#{oldPriceTaxed},
+			#{oldSumTaxed},
+			#{oldTransSum},
+			#{oldTransSumTaxed},
+			#{backFlag},
+			#{itemSpecmodel},
+			#{unitCode},
+			#{itemPdn},
+			#{itemNotes},
+			#{frontBillNum},
+			#{frontSerialNum},
+			#{frontQty},
+			#{isPrint},
+			#{qmsFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_invcheckdetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			billnum = #{InvCheckMain.billnum},
+			serialnum = #{serialnum},
+			item_code = #{item.id},
+			item_name = #{itemName},
+			mass_require = #{massRequire},
+			check_qty = #{checkQty},
+			real_qty = #{realQty},
+			realprice = #{realPrice},
+			real_sum = #{realSum},
+			real_price_taxed = #{realPriceTaxed},
+			real_sum_taxed = #{realSumTaxed},
+			tax_sum = #{taxSum},
+			trans_sum = #{transSum},
+			trans_sum_taxed = #{transSumTaxed},
+			check_state = #{checkState},
+			notes = #{notes},
+			tax_ratio = #{taxRatio},
+			trans_ratio = #{transRatio},
+			balance_flag = #{balanceFlag},
+			balance_notes = #{balanceNotes},
+			sup_eval_flag = #{supEvalFlag},
+			sup_eval_notes = #{supEvalNotes},
+			qt_sum = #{qtSum},
+			xf_sum = #{xfSum},
+			yc_real_qty = #{ycRealqty},
+			cor_billnum = #{corBillnum},
+			cor_serialnum = #{corSerialnum},
+			old_qty = #{oldQty},
+			old_price = #{oldPrice},
+			old_sum = #{oldSum},
+			old_price_taxed = #{oldPriceTaxed},
+			old_sum_taxed = #{oldSumTaxed},
+			old_trans_sum = #{oldTransSum},
+			old_trans_sum_taxed = #{oldTransSumTaxed},
+			back_flag = #{backFlag},
+			item_specmodel = #{itemSpecmodel},
+			unit_code = #{unitCode},
+			item_pdn = #{itemPdn},
+			item_notes = #{itemNotes},
+			front_billnum = #{frontBillNum},
+			front_serialnum = #{frontSerialNum},
+			front_qty = #{frontQty},
+			is_print = #{isPrint},
+			qms_flag = #{qmsFlag}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_invcheckdetail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE billnum = #{InvCheckMain.billnum}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_invcheckdetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE billnum = #{InvCheckMain.billnum}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="InvCheckDetail" statementType="STATEMENT">
+		select * FROM pur_invcheckdetail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

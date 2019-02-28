@@ -1,0 +1,281 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.newinvcheckmain.mapper.NewinvCheckDetailMapper">
+
+	<sql id="newinvCheckDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum.id",
+		a.serial_num AS "serialNum",
+		a.item_code AS "itemCode.code",
+		a.item_spec AS "itemSpec",
+		a.item_name AS "itemName",
+		a.meas_unit AS "measUnit",
+		a.item_qty AS "itemQty",
+		a.item_price AS "itemPrice",
+		a.item_sum AS "itemSum",
+		a.item_batch AS "itemBatch",
+		a.bin_id AS "binId",
+		a.bin_name AS "binName",
+		a.loc_id AS "locId",
+		a.loc_name AS "locName",
+		a.hg_qty AS "hgQty"
+				
+				
+				
+				
+
+	</sql>
+
+	<sql id="newinvCheckDetailJoins">
+
+			LEFT JOIN reinv_checkmain b ON b.id = a.bill_num
+		LEFT JOIN mdm_item itemCode ON itemCode.code = a.item_code
+	</sql>
+
+
+	<select id="get" resultType="NewinvCheckDetail" >
+		SELECT
+		<include refid="newinvCheckDetailColumns"/>
+		FROM reinv_checkdetali a
+		<include refid="newinvCheckDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="NewinvCheckDetail" >
+		SELECT
+		<include refid="newinvCheckDetailColumns"/>
+		FROM reinv_checkdetali a
+		<include refid="newinvCheckDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum.id != null and billNum.id != ''">
+				AND a.bill_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{billNum.id}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum.id}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum.id},'%')</if>
+			</if>
+			<if test="serialNum != null and serialNum != ''">
+				AND a.serial_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{serialNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{serialNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{serialNum},'%')</if>
+			</if>
+			<if test="itemCode != null and itemCode.id != null and itemCode.id != ''">
+				AND a.item_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemCode.code}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemCode.code}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemCode.code},'%')</if>
+			</if>
+			<if test="itemSpec != null and itemSpec != ''">
+				AND a.item_spec LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemSpec}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemSpec}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemSpec},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="measUnit != null and measUnit != ''">
+				AND a.meas_unit LIKE
+				<if test="dbName == 'oracle'">'%'||#{measUnit}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{measUnit}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{measUnit},'%')</if>
+			</if>
+			<if test="itemQty != null and itemQty != ''">
+				AND a.item_qty LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemQty}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemQty}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemQty},'%')</if>
+			</if>
+			<if test="itemPrice != null and itemPrice != ''">
+				AND a.item_price LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemPrice}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemPrice}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemPrice},'%')</if>
+			</if>
+			<if test="itemSum != null and itemSum != ''">
+				AND a.item_sum LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemSum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemSum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemSum},'%')</if>
+			</if>
+			<if test="itemBatch != null and itemBatch != ''">
+				AND a.item_batch LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemBatch}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemBatch}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemBatch},'%')</if>
+			</if>
+			<if test="binId != null and binId != ''">
+				AND a.bin_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{binId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{binId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{binId},'%')</if>
+			</if>
+			<if test="binName != null and binName != ''">
+				AND a.bin_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{binName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{binName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{binName},'%')</if>
+			</if>
+			<if test="locId != null and locId != ''">
+				AND a.loc_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{locId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{locId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{locId},'%')</if>
+			</if>
+			<if test="locName != null and locName != ''">
+				AND a.loc_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{locName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{locName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{locName},'%')</if>
+			</if>
+			<if test="hgQty != null and hgQty != ''">
+				AND a.hg_qty LIKE
+				<if test="dbName == 'oracle'">'%'||#{hgQty}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{hgQty}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{hgQty},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="NewinvCheckDetail" >
+		SELECT
+		<include refid="newinvCheckDetailColumns"/>
+		FROM reinv_checkdetali a
+		<include refid="newinvCheckDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO reinv_checkdetali(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			bill_num,
+			serial_num,
+			item_code,
+			item_spec,
+			item_name,
+			meas_unit,
+			item_qty,
+			item_price,
+			item_sum,
+			item_batch,
+			bin_id,
+			bin_name,
+			loc_id,
+			loc_name,
+			hg_qty
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{billNum.id},
+			#{serialNum},
+			#{itemCode.code},
+			#{itemSpec},
+			#{itemName},
+			#{measUnit},
+			#{itemQty},
+			#{itemPrice},
+			#{itemSum},
+			#{itemBatch},
+			#{binId},
+			#{binName},
+			#{locId},
+			#{locName},
+			#{hgQty}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE reinv_checkdetali SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			bill_num = #{billNum.id},
+			serial_num = #{serialNum},
+			item_code = #{itemCode.code},
+			item_spec = #{itemSpec},
+			item_name = #{itemName},
+			meas_unit = #{measUnit},
+			item_qty = #{itemQty},
+			item_price = #{itemPrice},
+			item_sum = #{itemSum},
+			item_batch = #{itemBatch},
+			bin_id = #{binId},
+			bin_name = #{binName},
+			loc_id = #{locId},
+			loc_name = #{locName},
+			hg_qty = #{hgQty}
+		WHERE id = #{id}
+	</update>
+
+
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM reinv_checkdetali
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNum.id}
+			</otherwise>
+		</choose>
+	</update>
+
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE reinv_checkdetali SET
+		del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNum.id}
+			</otherwise>
+		</choose>
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="NewinvCheckDetail" statementType="STATEMENT">
+		select * FROM reinv_checkdetali  where ${propertyName} = '${value}'
+	</select>
+
+</mapper>

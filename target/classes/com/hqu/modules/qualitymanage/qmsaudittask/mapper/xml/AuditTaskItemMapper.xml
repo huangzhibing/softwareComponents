@@ -1,0 +1,312 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.qmsaudittask.mapper.AuditTaskItemMapper">
+    
+	<sql id="auditTaskItemColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.sn AS "sn",
+		a.auditt_id AS "audittask.id",
+		a.auditt_name AS "audittName",
+		a.auditp_code AS "auditstd.id",
+		a.auditp_name AS "auditpName",
+		a.audit_item_code AS "auditItemCode",
+		a.audit_item_name AS "auditItemName",
+		a.audit_dept_code AS "auditDeptCode",
+		a.audit_dept_name AS "auditDeptName",
+		a.audit_gm_code AS "auditer.id",
+		a.audit_gm_name AS "auditGmName",
+		a.audit_date AS "auditDate",
+		a.is_meet AS "isMeet",
+		a.remark AS "remark",
+		a.trackp_code AS "tracker.id",
+		a.trackp_name AS "trackpName",
+		a.is_correct AS "isCorrect",
+				
+				
+				
+				
+				
+				
+				
+				
+		b.auditt_id AS "audittask.audittId",
+				
+				
+		auditstd.auditp_code AS "auditstd.auditpCode",
+				
+				
+				
+				
+				
+				
+		auditer.no AS "auditer.no",
+				
+				
+				
+				
+				
+		tracker.no AS "tracker.no"
+	</sql>
+	
+	<sql id="auditTaskItemJoins">
+		
+			LEFT JOIN qms_audittask b ON b.id = a.auditt_id
+		LEFT JOIN qms_auditstd auditstd ON auditstd.id = a.auditp_code
+		LEFT JOIN sys_user auditer ON auditer.id = a.audit_gm_code
+		LEFT JOIN sys_user tracker ON tracker.id = a.trackp_code
+	</sql>
+	
+    
+	<select id="get" resultType="AuditTaskItem" >
+		SELECT 
+			<include refid="auditTaskItemColumns"/>
+		FROM qms_audittaskitem a
+		<include refid="auditTaskItemJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="AuditTaskItem" >
+		SELECT 
+			<include refid="auditTaskItemColumns"/>
+		FROM qms_audittaskitem a
+		<include refid="auditTaskItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="sn != null and sn != ''">
+				AND a.sn LIKE 
+					<if test="dbName == 'oracle'">'%'||#{sn}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{sn}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{sn},'%')</if>
+			</if>
+			<if test="audittask != null and audittask.id != null and audittask.id != ''">
+				AND a.auditt_id = #{audittask.id}
+			</if>
+			<if test="audittName != null and audittName != ''">
+				AND a.auditt_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{audittName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{audittName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{audittName},'%')</if>
+			</if>
+			<if test="auditstd != null and auditstd.id != null and auditstd.id != ''">
+				AND a.auditp_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditstd.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditstd.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditstd.id},'%')</if>
+			</if>
+			<if test="auditpName != null and auditpName != ''">
+				AND a.auditp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditpName},'%')</if>
+			</if>
+			<if test="auditItemCode != null and auditItemCode != ''">
+				AND a.audit_item_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditItemCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditItemCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditItemCode},'%')</if>
+			</if>
+			<if test="auditItemName != null and auditItemName != ''">
+				AND a.audit_item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditItemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditItemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditItemName},'%')</if>
+			</if>
+			<if test="auditDeptCode != null and auditDeptCode != ''">
+				AND a.audit_dept_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditDeptCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditDeptCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditDeptCode},'%')</if>
+			</if>
+			<if test="auditDeptName != null and auditDeptName != ''">
+				AND a.audit_dept_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditDeptName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditDeptName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditDeptName},'%')</if>
+			</if>
+			<if test="auditer != null and auditer.id != null and auditer.id != ''">
+				AND a.audit_gm_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditer.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditer.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditer.id},'%')</if>
+			</if>
+			<if test="auditGmName != null and auditGmName != ''">
+				AND a.audit_gm_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditGmName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditGmName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditGmName},'%')</if>
+			</if>
+			<if test="beginAuditDate != null and endAuditDate != null and beginAuditDate != '' and endAuditDate != ''">
+				AND a.audit_date BETWEEN #{beginAuditDate} AND #{endAuditDate}
+			</if>
+			<if test="isMeet != null and isMeet != ''">
+				AND a.is_meet = #{isMeet}
+			</if>
+			<if test="remark != null and remark != ''">
+				AND a.remark = #{remark}
+			</if>
+			<if test="tracker != null and tracker.id != null and tracker.id != ''">
+				AND a.trackp_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{tracker.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{tracker.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{tracker.id},'%')</if>
+			</if>
+			<if test="trackpName != null and trackpName != ''">
+				AND a.trackp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{trackpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{trackpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{trackpName},'%')</if>
+			</if>
+			<if test="isCorrect != null and isCorrect != ''">
+				AND a.is_correct = #{isCorrect}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="AuditTaskItem" >
+		SELECT 
+			<include refid="auditTaskItemColumns"/>
+		FROM qms_audittaskitem a
+		<include refid="auditTaskItemJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_audittaskitem(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			sn,
+			auditt_id,
+			auditt_name,
+			auditp_code,
+			auditp_name,
+			audit_item_code,
+			audit_item_name,
+			audit_dept_code,
+			audit_dept_name,
+			audit_gm_code,
+			audit_gm_name,
+			audit_date,
+			is_meet,
+			remark,
+			trackp_code,
+			trackp_name,
+			is_correct
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{sn},
+			#{audittask.id},
+			#{audittName},
+			#{auditstd.id},
+			#{auditpName},
+			#{auditItemCode},
+			#{auditItemName},
+			#{auditDeptCode},
+			#{auditDeptName},
+			#{auditer.id},
+			#{auditGmName},
+			#{auditDate},
+			#{isMeet},
+			#{remark},
+			#{tracker.id},
+			#{trackpName},
+			#{isCorrect}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_audittaskitem SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			sn = #{sn},
+			auditt_id = #{audittask.id},
+			auditt_name = #{audittName},
+			auditp_code = #{auditstd.id},
+			auditp_name = #{auditpName},
+			audit_item_code = #{auditItemCode},
+			audit_item_name = #{auditItemName},
+			audit_dept_code = #{auditDeptCode},
+			audit_dept_name = #{auditDeptName},
+			audit_gm_code = #{auditer.id},
+			audit_gm_name = #{auditGmName},
+			audit_date = #{auditDate},
+			is_meet = #{isMeet},
+			remark = #{remark},
+			trackp_code = #{tracker.id},
+			trackp_name = #{trackpName},
+			is_correct = #{isCorrect}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_audittaskitem
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE auditt_id = #{audittask.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_audittaskitem SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE auditt_id = #{audittask.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="AuditTaskItem" statementType="STATEMENT">
+		select * FROM qms_audittaskitem  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.verifyrule.mapper.VerifyRuleMapper">
+    
+	<sql id="verifyRuleColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.rule_id AS "ruleId",
+		a.checkprj AS "checkprj",
+		a.qcnorm_id AS "qcnorm.id",
+		a.qcnorm_name AS "qcnormName",
+		
+		<!--a.role_code AS "roleCode",
+		a.role_name AS "roleName",-->
+		a.role_code As "role.id",
+		a.role_name AS "roleName",
+		role.name As "role.name",
+		
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		qcnorm.qcnorm_id AS "qcnorm.qcnormId",
+		qcnorm.qcnorm_name AS "qcnorm.qcnormName"
+	</sql>
+	
+	<sql id="verifyRuleJoins">
+		
+		LEFT JOIN qms_qcnorm qcnorm ON qcnorm.id = a.qcnorm_id
+		LEFT JOIN sys_role role ON role.id = a.role_code
+	</sql>
+	
+    
+	<select id="get" resultType="VerifyRule" >
+		SELECT 
+			<include refid="verifyRuleColumns"/>
+		FROM qms_verifyrule a
+		<include refid="verifyRuleJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="VerifyRule" >
+		SELECT 
+			<include refid="verifyRuleColumns"/>
+		FROM qms_verifyrule a
+		<include refid="verifyRuleJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="ruleId != null and ruleId != ''">
+				AND a.rule_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ruleId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ruleId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ruleId},'%')</if>
+			</if>
+			<if test="checkprj != null and checkprj != ''">
+				AND a.checkprj LIKE 
+					<if test="dbName == 'oracle'">'%'||#{checkprj}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{checkprj}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{checkprj},'%')</if>
+			</if>
+			<if test="qcnorm != null and qcnorm.id != null and qcnorm.id != ''">
+				AND a.qcnorm_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qcnorm.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qcnorm.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qcnorm.id},'%')</if>
+			</if>
+			<if test="qcnormName != null and qcnormName != ''">
+				AND a.qcnorm_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qcnormName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qcnormName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qcnormName},'%')</if>
+			</if>
+			
+			<if test="role != null and role.id != null and role.id != ''">
+				AND a.role_name = #{role.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="VerifyRule" >
+		SELECT 
+			<include refid="verifyRuleColumns"/>
+		FROM qms_verifyrule a
+		<include refid="verifyRuleJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_verifyrule(
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			rule_id,
+			checkprj,
+			qcnorm_id,
+			qcnorm_name,
+			<!--role_code,
+			role_name-->
+			role_code,
+			role_name
+		) VALUES (
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{ruleId},
+			#{checkprj},
+			#{qcnorm.id},
+			#{qcnormName},
+			<!--#{roleCode},
+			#{roleName}-->
+			#{role.id},
+			#{roleName}
+			
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_verifyrule SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			rule_id = #{ruleId},
+			checkprj = #{checkprj},
+			qcnorm_id = #{qcnorm.id},
+			qcnorm_name = #{qcnormName},
+			<!--role_code = #{roleCode},
+			role_name = #{roleName}-->
+			role_code= #{role.id},
+			role_name= #{roleName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_verifyrule
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_verifyrule SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="VerifyRule" statementType="STATEMENT">
+		select * FROM qms_verifyrule  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

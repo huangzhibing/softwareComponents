@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.incomedetail.mapper.IncomeDetailMapper">
+    <select id="findList" resultType="IncomeDetail">
+      SELECT
+      inv_billdetail.item_code as "itemCode",
+	  inv_billdetail.item_name as "itemName",
+	  inv_billdetail.item_spec as "itemSpec",
+	  inv_billdetail.meas_unit as "measUnit",
+	  inv_billmain.ware_name as "wareName",
+      inv_billmain.ware_id as "wareId",
+	  inv_billdetail.item_price as "itemPrice",
+      inv_billmain.period_id as "period",
+	  inv_billmain.bill_date as "billDate",
+	  inv_billmain.io_type as "ioDesc",
+	  inv_billdetail.item_qty as "itemQty",
+	  inv_billdetail.item_sum as "itemSum",
+      c.begin_qty as "beginQty"
+	  FROM
+      inv_billdetail
+	  INNER JOIN inv_billmain ON inv_billdetail.bill_num = inv_billmain.id
+      INNER JOIN inv_account c ON inv_billmain.period_id = concat(c.year,c.period) AND inv_billdetail.item_code = c.item_code AND inv_billmain.ware_id =c.ware_id
+        <where>
+            inv_billmain.bill_flag = "T"
+            <if test = "period != null and period != '' ">
+                AND inv_billmain.period_id like
+                <if test="dbName == 'oracle'">'%'||#{period}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{period}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{period},'%')</if>
+            </if>
+            <if test="beginBillDate != null and endBillDate != null and beginBillDate != '' and endBillDate != ''">
+                AND inv_billmain.bill_date BETWEEN #{beginBillDate} AND #{endBillDate}
+            </if>
+            <if test = "ioDesc != null and ioDesc != '' and ioDesc != '12'">
+                AND inv_billmain.io_type like
+                <if test="dbName == 'oracle'">'%'||#{ioDesc}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{ioDesc}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{ioDesc},'%')</if>
+            </if>
+            <if test="ioDesc == null or ioDesc == ''">
+                AND (inv_billmain.io_type = 'WO01' OR inv_billmain.io_type = 'CO01' )
+            </if>
+            <if test="ioDesc != null and ioDesc == '12'">
+                AND (inv_billmain.io_type = 'WI01' OR inv_billmain.io_type = 'WT01' OR inv_billmain.io_type = 'CI01' )
+            </if>
+            <if test = "wareName != null and wareName != '' ">
+                AND inv_billmain.ware_name like
+                <if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+            </if>
+            <if test = "itemName != null and itemName != '' ">
+                AND inv_billdetail.item_name like
+                <if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+            </if>
+            <if test = "itemSpec != null and itemSpec != '' ">
+                AND inv_billmain.item_spec like
+                <if test="dbName == 'oracle'">'%'||#{itemSpec}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{itemSpec}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{itemSpec},'%')</if>
+            </if>
+            <if test = 'flag != null and flag == "1" '>
+                AND inv_billdetail.item_qty &gt; 0
+            </if>
+            <if test = 'flag != null and flag == "2" '>
+                AND inv_billdetail.item_qty &lt; 0
+            </if>
+        </where>
+	  </select>
+</mapper>

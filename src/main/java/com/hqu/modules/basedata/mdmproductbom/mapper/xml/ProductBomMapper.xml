@@ -1,0 +1,303 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.mdmproductbom.mapper.ProductBomMapper">
+    
+	<sql id="productBomColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.product_item_code AS "product.item.code",
+		a.product_item_name AS "productItemName",
+		a.item_code AS "item.code",
+		a.item_name AS "itemName",
+		a.item_pdn AS "itemPdn",
+		a.item_spec AS "itemSpec",
+		a.item_measure AS "itemMeasure",
+		a.lead_time_assemble AS "leadTimeAssemble",
+		a.num_in_father AS "numInFather",
+		a.father_item_code AS "fatherItem.code",
+		a.father_item_name AS "fatherItemName",
+		a.father_item_pdn AS "fatherItemPdn",
+		a.father_item_spec AS "fatherItemSpec",
+		a.is_leaf AS "isLeaf",
+				
+				
+				
+				
+				
+				
+		product.item_name AS "product.itemName",
+
+				
+				
+		item.name AS "item.name",
+				
+				
+				
+				
+				
+				
+				
+		fatherItem.name AS "fatherItem.name"
+	</sql>
+	
+	<sql id="productBomJoins">
+		
+		LEFT JOIN mdm_product product ON product.item_code = a.product_item_code
+		LEFT JOIN mdm_item item ON item.code = a.item_code
+		LEFT JOIN mdm_item fatherItem ON fatherItem.code = a.father_item_code
+	</sql>
+	
+    
+	<select id="get" resultType="ProductBom" >
+		SELECT 
+			<include refid="productBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="productBomJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	<select id="getByFatherId" resultType="ProductBom" >
+		SELECT
+			<include refid="productBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="productBomJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findProductNode" resultType="ProductBom" >
+		SELECT
+		<include refid="productBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="productBomJoins"/>
+		<where>
+			a.product_item_code != ''
+			and
+			a.father_item_code = ''
+			and
+			a.item_code = ''
+		</where>
+	</select>
+
+	<select id="findItemNode" resultType="ProductBom"  parameterType="java.util.Map">
+
+		SELECT
+		<include refid="productBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="productBomJoins"/>
+		<where>
+			1 = 1
+			<if test="productItemCode != null and productItemCode != ''">
+				AND  a.product_item_code = #{productItemCode}
+			</if>
+			<if test="fatherItemCode != null and fatherItemCode != ''">
+				AND  a.father_item_code = #{fatherItemCode}
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND  a.item_code = #{itemCode}
+			</if>
+		</where>
+	</select>
+
+
+	<select id="findList" resultType="ProductBom" >
+		SELECT 
+			<include refid="productBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="productBomJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="product != null and product.id != null and product.id != ''">
+				AND a.product_item_code = #{product.id}
+			</if>
+			<if test="productItemName != null and productItemName != ''">
+				AND a.product_item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{productItemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{productItemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{productItemName},'%')</if>
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code = #{item.code}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="itemPdn != null and itemPdn != ''">
+				AND a.item_pdn LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemPdn}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemPdn}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemPdn},'%')</if>
+			</if>
+			<if test="itemSpec != null and itemSpec != ''">
+				AND a.item_spec LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemSpec}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemSpec}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemSpec},'%')</if>
+			</if>
+			<if test="numInFather != null and numInFather != ''">
+				AND a.num_in_father = #{numInFather}
+			</if>
+			<if test="fatherItem != null and fatherItem.id != null and fatherItem.id != ''">
+				AND a.father_item_code = #{fatherItem.code}
+			</if>
+			<if test="fatherItemName != null and fatherItemName != ''">
+				AND a.father_item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{fatherItemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{fatherItemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{fatherItemName},'%')</if>
+			</if>
+			<if test="fatherItemPdn != null and fatherItemPdn != ''">
+				AND a.father_item_pdn LIKE 
+					<if test="dbName == 'oracle'">'%'||#{fatherItemPdn}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{fatherItemPdn}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{fatherItemPdn},'%')</if>
+			</if>
+			<if test="fatherItemSpec != null and fatherItemSpec != ''">
+				AND a.father_item_spec LIKE 
+					<if test="dbName == 'oracle'">'%'||#{fatherItemSpec}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{fatherItemSpec}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{fatherItemSpec},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ProductBom" >
+		SELECT 
+			<include refid="productBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="productBomJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_productbom(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			product_item_code,
+			product_item_name,
+			item_code,
+			item_name,
+			item_pdn,
+			item_spec,
+			item_measure,
+			lead_time_assemble,
+			num_in_father,
+			father_item_code,
+			father_item_name,
+			father_item_pdn,
+			father_item_spec,
+			is_leaf
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{product.item.code},
+			#{productItemName},
+			#{item.code},
+			#{itemName},
+			#{itemPdn},
+			#{itemSpec},
+			#{itemMeasure},
+			#{leadTimeAssemble},
+			#{numInFather},
+			#{fatherItem.code},
+			#{fatherItemName},
+			#{fatherItemPdn},
+			#{fatherItemSpec},
+			#{isLeaf}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_productbom SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			product_item_code = #{product.item.code},
+			product_item_name = #{productItemName},
+			item_code = #{item.code},
+			item_name = #{itemName},
+			item_pdn = #{itemPdn},
+			item_spec = #{itemSpec},
+			item_measure = #{itemMeasure},
+			lead_time_assemble = #{leadTimeAssemble},
+			num_in_father = #{numInFather},
+			father_item_code = #{fatherItem.code},
+			father_item_name = #{fatherItemName},
+			father_item_pdn = #{fatherItemPdn},
+			father_item_spec = #{fatherItemSpec},
+			is_leaf = #{isLeaf}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_productbom
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_productbom SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ProductBom" statementType="STATEMENT">
+		select * FROM mdm_productbom  where ${propertyName} = '${value}'
+	</select>
+
+	<select id="findNodeWithoutFatherItem" resultType="ProductBom" >
+		SELECT
+		<include refid="productBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="productBomJoins"/>
+		<where>
+			a.product_item_code = #{productItemCode} AND a.item_code IS NOT NULL AND a.father_item_code = ''
+		</where>
+	</select>
+
+	<select id="findNodeWithFatherItem" resultType="ProductBom" >
+		SELECT
+		<include refid="productBomColumns"/>
+		FROM mdm_productbom a
+		<include refid="productBomJoins"/>
+		<where>
+			a.father_item_code = #{itemCode} AND a.item_code IS NOT NULL
+		</where>
+	</select>
+</mapper>

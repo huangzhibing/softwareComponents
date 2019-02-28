@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.contracttype.mapper.ContractTypeMapper">
+    
+	<sql id="contractTypeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.contype_id AS "contypeid",
+		a.contype_name AS "contypename",
+		a.contype_notes AS "contypenotes",
+		a.user_dept_code AS "userDeptCode"
+	</sql>
+	
+	<sql id="contractTypeJoins">
+		
+	</sql>
+
+
+	<select id="getMaxContractTypeID" resultType="String">
+
+		SELECT  max(contype_id)
+		FROM pur_contracttype
+	</select>
+
+
+
+    
+	<select id="get" resultType="ContractType" >
+		SELECT 
+			<include refid="contractTypeColumns"/>
+		FROM pur_contracttype a
+		<include refid="contractTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ContractType" >
+		SELECT 
+			<include refid="contractTypeColumns"/>
+		FROM pur_contracttype a
+		<include refid="contractTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="contypeid != null and contypeid != ''">
+				AND a.contype_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{contypeid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{contypeid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{contypeid},'%')</if>
+			</if>
+			<if test="contypename != null and contypename != ''">
+				AND a.contype_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{contypename}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{contypename}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{contypename},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ContractType" >
+		SELECT 
+			<include refid="contractTypeColumns"/>
+		FROM pur_contracttype a
+		<include refid="contractTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_contracttype(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			contype_id,
+			contype_name,
+			contype_notes,
+			user_dept_code
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{contypeid},
+			#{contypename},
+			#{contypenotes},
+			#{userDeptCode}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_contracttype SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			contype_id = #{contypeid},
+			contype_name = #{contypename},
+			contype_notes = #{contypenotes},
+			user_dept_code = #{userDeptCode}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_contracttype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_contracttype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ContractType" statementType="STATEMENT">
+		select * FROM pur_contracttype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

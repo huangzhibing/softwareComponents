@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.materialorder.mapper.SfcMaterialOrderMapper">
+    
+	<sql id="sfcMaterialOrderColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.materialorder AS "materialOrder",
+		a.receivetype AS "receiveType",
+		a.qualityflag AS "qualityFlag",
+		a.iotype AS "ioType",
+		a.billtype AS "billType",
+		a.outflag AS "outFlag",
+		a.materialtype AS "materialType",
+		a.wareid AS "wareId",
+		a.warename AS "wareName",
+		a.periodid AS "periodId",
+		a.itemtype AS "itemType",
+		a.shopid AS "shopId",
+		a.shopname AS "shopName",
+		a.responser AS "responser",
+		a.respname AS "respName",
+		a.editor AS "editor",
+		a.editdate AS "editDate",
+		a.useid AS "useId",
+		a.usedesc AS "useDesc",
+		a.editorid AS "editorId",
+		a.billstateflag AS "billStateFlag",
+		a.operdate AS "operDate",
+		a.wareempid AS "wareEmpid",
+		a.wareempname AS "wareEmpname",
+		a.opercode AS "operCode",
+		a.opername AS "operName",
+		a.routineBillNo AS "routineBillNo",
+		a.routingCode AS "routingCode",
+		a.InvBillNo As "InvBillNo",
+		a.materialOrderInReturn As "materialOrderInReturn"
+	</sql>
+	
+	<sql id="sfcMaterialOrderJoins">
+		LEFT JOIN sfc_materialorderdetail detail ON a.id = detail.materialorder
+	</sql>
+	
+    
+	<select id="get" resultType="SfcMaterialOrder" >
+		SELECT 
+			<include refid="sfcMaterialOrderColumns"/>
+		FROM sfc_materialorder a
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SfcMaterialOrder" >
+		SELECT 
+			<include refid="sfcMaterialOrderColumns"/>
+		FROM sfc_materialorder a
+		<include refid="sfcMaterialOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="materialOrder != null and materialOrder != ''">
+				AND a.materialorder LIKE 
+					<if test="dbName == 'oracle'">'%'||#{materialOrder}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{materialOrder}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{materialOrder},'%')</if>
+			</if>
+			<if test="wareId != null and wareId != ''">
+				AND a.wareid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareId},'%')</if>
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.warename LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="periodId != null and periodId != ''">
+				AND a.periodid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{periodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{periodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{periodId},'%')</if>
+			</if>
+			<if test="shopId != null and shopId != ''">
+				AND a.shopid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{shopId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{shopId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{shopId},'%')</if>
+			</if>
+			<if test="shopName != null and shopName != ''">
+				AND a.shopname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{shopName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{shopName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{shopName},'%')</if>
+			</if>
+			<if test="responser != null and responser != ''">
+				AND a.responser LIKE 
+					<if test="dbName == 'oracle'">'%'||#{responser}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{responser}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{responser},'%')</if>
+			</if>
+			<if test="respName != null and respName != ''">
+				AND a.respname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{respName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{respName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{respName},'%')</if>
+			</if>
+			<if test="editDate != null and editDate != ''">
+				AND a.editdate = #{editDate}
+			</if>
+			<if test="receiveType != null and receiveType != ''">
+				AND a.receivetype = #{receiveType}
+			</if>
+			<if test="qualityFlag != null and qualityFlag != ''">
+				AND a.qualityflag = #{qualityFlag}
+			</if>
+			<if test="billType != null and billType != ''">
+				AND a.billtype = #{billType}
+			</if>
+			<if test="isLack != null and isLack != ''">
+				AND detail.islack = #{isLack}
+			</if>
+			<if test="billStateFlag != null and billStateFlag != ''">
+				AND a.billstateflag = #{billStateFlag}
+			</if>
+			<choose>
+				<when test="isLack == null || isLack == ''">
+				</when>
+				<when test='isLack == "Y"'>
+					AND (detail.islack = 'Y' and a.billtype = 'G')
+				</when>
+				<otherwise>
+					AND detail.islack = #{isLack}
+				</otherwise>
+			</choose>
+			<if test="useId != null and useId != ''">
+				AND a.useid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{useId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{useId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{useId},'%')</if>
+			</if>
+			<if test="useDesc != null and useDesc != ''">
+				AND a.usedesc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{useDesc}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{useDesc}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{useDesc},'%')</if>
+			</if>
+			<if test="endOperDate != null and endOperDate != '' and beginOperDate != null and beginOperDate != ''">
+				AND a.operdate BETWEEN #{beginOperDate} and #{endOperDate}
+			</if>
+			<if test="operDate != null and operDate != ''">
+				AND a.operdate = #{operDate}
+			</if>
+			<if test="wareEmpid != null and wareEmpid != ''">
+				AND a.wareempid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareEmpid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareEmpid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareEmpid},'%')</if>
+			</if>
+			<if test="wareEmpname != null and wareEmpname != ''">
+				AND a.wareempname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareEmpname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareEmpname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareEmpname},'%')</if>
+			</if>
+			<if test="operCode != null and operCode != ''">
+				AND a.opercode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{operCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{operCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{operCode},'%')</if>
+			</if>
+			<if test="operName != null and operName != ''">
+				AND a.opername LIKE 
+					<if test="dbName == 'oracle'">'%'||#{operName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{operName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{operName},'%')</if>
+			</if>
+		</where>
+		GROUP BY a.id
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SfcMaterialOrder" >
+		SELECT 
+			<include refid="sfcMaterialOrderColumns"/>
+		FROM sfc_materialorder a
+		<include refid="sfcMaterialOrderJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_materialorder(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			materialorder,
+			receivetype,
+			qualityflag,
+			iotype,
+			billtype,
+			outflag,
+			materialtype,
+			wareid,
+			warename,
+			periodid,
+			itemtype,
+			shopid,
+			shopname,
+			responser,
+			respname,
+			editor,
+			editdate,
+			useid,
+			usedesc,
+			editorid,
+			billstateflag,
+			operdate,
+			wareempid,
+			wareempname,
+			opercode,
+			opername,
+			routineBillNo,
+			routingCode,
+			InvBillNo,
+			materialOrderInReturn
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{materialOrder},
+			#{receiveType},
+			#{qualityFlag},
+			#{ioType},
+			#{billType},
+			#{outFlag},
+			#{materialType},
+			#{wareId},
+			#{wareName},
+			#{periodId},
+			#{itemType},
+			#{shopId},
+			#{shopName},
+			#{responser},
+			#{respName},
+			#{editor},
+			#{editDate},
+			#{useId},
+			#{useDesc},
+			#{editorId},
+			#{billStateFlag},
+			#{operDate},
+			#{wareEmpid},
+			#{wareEmpname},
+			#{operCode},
+			#{operName},
+			#{routineBillNo},
+			#{routingCode},
+			#{InvBillNo},
+			#{materialOrderInReturn}
+			
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_materialorder SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			materialorder = #{materialOrder},
+			receivetype = #{receiveType},
+			qualityflag = #{qualityFlag},
+			iotype = #{ioType},
+			billtype = #{billType},
+			outflag = #{outFlag},
+			materialtype = #{materialType},
+			wareid = #{wareId},
+			warename = #{wareName},
+			periodid = #{periodId},
+			itemtype = #{itemType},
+			shopid = #{shopId},
+			shopname = #{shopName},
+			responser = #{responser},
+			respname = #{respName},
+			editor = #{editor},
+			editdate = #{editDate},
+			useid = #{useId},
+			usedesc = #{useDesc},
+			editorid = #{editorId},
+			billstateflag = #{billStateFlag},
+			operdate = #{operDate},
+			wareempid = #{wareEmpid},
+			wareempname = #{wareEmpname},
+			opercode = #{operCode},
+			opername = #{operName},
+			routineBillNo = #{routineBillNo},
+			routingCode = #{routingCode},
+			InvBillNo = #{InvBillNo},
+			materialOrderInReturn =  #{materialOrderInReturn}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_materialorder
+		WHERE id = #{id}
+	</update>
+
+	<!--物理删除,删除指定领料日期系统生成的领料单(同时还要删除子表以及副本的主子表)-->
+	<update id="deleteNoPassMaterialOrderWithDateTime">
+
+		DELETE a,b FROM sfc_materialorder a LEFT JOIN sfc_materialorderdetail b ON a.id = b.materialorder
+		WHERE a.operdate = #{operDate};
+
+
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_materialorder SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SfcMaterialOrder" statementType="STATEMENT">
+		select * FROM sfc_materialorder  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

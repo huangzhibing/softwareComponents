@@ -1,0 +1,1087 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.billmain.mapper.BillMainMapper">
+
+	<sql id="billMainColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.bill_date AS "billDate",
+		a.dept_id AS "dept.code",
+		a.dept_name AS "deptName",
+		a.io_type AS "io.ioType",
+		a.io_desc AS "ioDesc",
+		a.io_flag AS "ioFlag",
+		a.ware_id AS "ware.wareID",
+		a.ware_name AS "wareName",
+		a.bill_person AS "billPerson.no",
+		a.ware_empid AS "wareEmp.user.no",
+		a.ware_empname AS "wareEmpname",
+		a.cor_bill_num AS "corBillNum",
+		a.cor_id AS "corId",
+		a.cor_name AS "corName",
+		a.use_id AS "invuse.useId",
+		a.use_name AS "useName",
+		a.bill_flag AS "billFlag",
+		a.estimate_flag AS "estimateFlag",
+		a.period_id AS "period.periodId",
+		a.bill_desc AS "billDesc",
+		a.rec_empid AS "recEmp.no",
+		a.rec_empname AS "recEmpname",
+		a.rec_date AS "recDate",
+		a.bill_empid AS "billEmp.no",
+		a.bill_empname AS "billEmpname",
+		a.note AS "note",
+		a.order_code AS "orderCode",
+		a.tax_ratio AS "taxRatio",
+		a.ino_id AS "inoId",
+		a.class_id AS "classId",
+		a.class_desc AS "classDesc",
+		a.cflag AS "cflag",
+		a.fnumber AS "fnumber",
+		a.finvoice_id AS "finvoiceID",
+		a.bill_type AS "billType",
+		a.red_flag AS "redFlag",
+		a.cg_flag AS "cgFlag",
+		a.total_sum AS "totalSum",
+		a.oper_date AS "operDate",
+		a.bill_source AS "billSource",
+		a.cg_num AS "cgNum",
+		a.work_poscode AS "workPoscode",
+		a.work_posname AS "wordPosname",
+		a.rcv_addr AS "rcvAddr",
+		a.trans_account AS "transAccount",
+		a.car_num AS "carNum",
+		a.account_code AS "account.accountCode",
+		a.account_name AS "accountName",
+
+		a.mps_plan_id AS "mpsPlanId",
+		a.order_id AS "orderId",
+
+		cosbill.cos_billnum_status AS "cosBillStatus",
+
+
+
+
+
+		io.io_desc AS "io.ioDesc",
+
+
+		billEmp.name AS "billEmp.name",
+
+		billPerson.login_name AS "billPerson.loginName",
+
+		ware.id AS "ware.id",
+
+		period.id AS "period.id",
+
+		account.id AS "account.id"
+	</sql>
+
+	<sql id="billMainJoins">
+		LEFT JOIN sys_office dept ON dept.code = a.dept_id
+		LEFT JOIN inv_bill_type io ON io.io_type = a.io_type
+		LEFT JOIN inv_warehouse ware ON ware.ware_id = a.ware_id
+		LEFT JOIN sys_user billPerson ON billPerson.no = a.bill_person
+		LEFT JOIN inv_employee wareEmp ON wareEmp.emp_id = a.ware_empid
+		LEFT JOIN inv_use invuse ON invuse.use_id = a.use_id
+		LEFT JOIN sys_user recEmp ON recEmp.no = a.rec_empid
+		LEFT JOIN sys_user billEmp ON billEmp.no = a.bill_empid
+		LEFT JOIN mdm_period period ON period.period_id = a.period_id
+		LEFT JOIN mdm_account account ON account.account_code=a.account_code
+
+		LEFT JOIN cos_billrecord cosbill ON cosbill.cor_billnum = a.bill_num
+	</sql>
+	<select id="findCodeList" resultType="BillDetailCode">
+		select id,item_barcode  AS itemBarcode , machine_barcode AS machineBarcode , activation_barcode AS activationBarcode from inv_billdetailcode a
+		where  a.bill_num = #{billNum}
+	</select>
+	<insert id="saveBillCode">
+		INSERT INTO inv_billdetailcode(
+		id,
+		create_by,
+		create_date,
+		update_by,
+		update_date,
+		del_flag,
+		bill_num,
+		item_code,
+		item_barcode,
+		machine_barcode,
+		activation_barcode,
+		bin_id,
+		loc_id,
+		serial_num
+		) VALUES (
+		#{id},
+		#{createBy.id},
+		#{createDate},
+		#{updateBy.id},
+		#{updateDate},
+		#{delFlag},
+		#{billNum.billNum},
+		#{item.code},
+		#{itemBarcode},
+		#{machineBarcode},
+		#{activationBarcode},
+		#{bin.binId},
+		#{loc.locId},
+		#{serialNum}
+		)
+	</insert>
+	<update id="updateBillCode">
+		UPDATE inv_billdetailcode SET
+		create_by = #{createBy.id},
+		create_date = #{createDate},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		del_flag = #{delFlag},
+		bill_num = #{billNum.billNum},
+		item_code = #{item.code},
+		item_barcode = #{itemBarcode},
+		machine_barcode = #{machineBarcode},
+		activation_barcode = #{activationBarcode},
+		bin_id = #{bin.binId},
+		loc_id = #{loc.locId},
+		serial_num = #{serialNum}
+		WHERE id = #{id}
+	</update>
+
+	<update id="deleteBillCode">
+		DELETE FROM inv_billdetailcode
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNum.billNum}
+			</otherwise>
+		</choose>
+	</update>
+
+	<select id="get" resultType="BillMain" >
+		SELECT
+		<include refid="billMainColumns"/>
+		FROM inv_billmain a
+		<include refid="billMainJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findList" resultType="BillMain" >
+		SELECT
+		<include refid="billMainColumns"/>
+		FROM inv_billmain a
+		<include refid="billMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="mpsPlanId != null and mpsPlanId != ''">
+				AND a.mps_plan_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{mpsPlanId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{mpsPlanId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{mpsPlanId},'%')</if>
+			</if>
+			<if test="orderId != null and orderId != ''">
+				AND a.order_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{orderId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{orderId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{orderId},'%')</if>
+			</if>
+			<if test="beginBillDate != null and endBillDate != null and beginBillDate != '' and endBillDate != ''">
+				AND a.bill_date BETWEEN #{beginBillDate} AND #{endBillDate}
+			</if>
+			<if test="dept != null and dept.code != null and dept.code != ''">
+				AND a.dept_id = #{dept.code}
+			</if>
+			<if test="deptName != null and deptName != ''">
+				AND a.dept_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{deptName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{deptName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{deptName},'%')</if>
+			</if>
+			<if test="io != null and io.ioType != null and io.ioType != ''">
+				AND a.io_type = #{io.ioType}
+			</if>
+			<if test="ioDesc != null and ioDesc != ''">
+				AND a.io_desc LIKE
+				<if test="dbName == 'oracle'">'%'||#{ioDesc}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{ioDesc}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{ioDesc},'%')</if>
+			</if>
+			<if test="ware != null and ware.wareID != null and ware.wareID != ''">
+				AND a.ware_id = #{ware.wareID}
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="billPerson != null and billPerson.no != null and billPerson.no != ''">
+				AND a.bill_person = #{billPerson.no}
+			</if>
+			<if test="wareEmp != null and  wareEmp.user!=null and wareEmp.user.no != null and wareEmp.user.no != ''">
+				AND a.ware_empid = #{wareEmp.user.no}
+			</if>
+			<if test="wareEmpname != null and wareEmpname != ''">
+				AND a.ware_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{wareEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareEmpname},'%')</if>
+			</if>
+			<if test="invuse != null and invuse.id != null and invuse.id != ''">
+				AND a.use_id = #{invuse.id}
+			</if>
+			<if test="useName != null and useName != ''">
+				AND a.use_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{useName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{useName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{useName},'%')</if>
+			</if>
+			<if test="billFlag != null and billFlag != ''and billFlag != 'AN'">
+				AND a.bill_flag = #{billFlag}
+			</if>
+			<if test="billFlag != null and billFlag == 'AN'">
+				AND (a.bill_flag = 'A' OR a.bill_flag = 'N')
+			</if>
+			<if test="recEmp != null and recEmp.no != null and recEmp.no != ''">
+				AND a.rec_empid = #{recEmp.no}
+			</if>
+			<if test="recEmpname != null and recEmpname != ''">
+				AND a.rec_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{recEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{recEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{recEmpname},'%')</if>
+			</if>
+			<if test="beginRecDate != null and endRecDate != null and beginRecDate != '' and endRecDate != ''">
+				AND a.rec_date BETWEEN #{beginRecDate} AND #{endRecDate}
+			</if>
+			<if test="billEmp != null and billEmp.no != null and billEmp.no != ''">
+				AND a.bill_empid = #{billEmp.no}
+			</if>
+			<if test="billEmpname != null and billEmpname != ''">
+				AND a.bill_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{billEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billEmpname},'%')</if>
+			</if>
+			<if test="rcvAddr != null and rcvAddr != ''">
+				AND a.rcv_addr LIKE
+				<if test="dbName == 'oracle'">'%'||#{rcvAddr}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{rcvAddr}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{rcvAddr},'%')</if>
+			</if>
+			<if test="transAccount != null and transAccount != ''">
+				AND a.trans_account LIKE
+				<if test="dbName == 'oracle'">'%'||#{transAccount}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{transAccount}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{transAccount},'%')</if>
+			</if>
+			<if test="carNum != null and carNum != ''">
+				AND a.car_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{carNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{carNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{carNum},'%')</if>
+			</if>
+			<if test="period != null and period.periodId != null and period.periodId != ''">
+				AND a.period_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{period.periodId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{period.periodId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{period.periodId},'%')</if>
+			</if>
+			<if test="account != null and account.accountCode != null and account.accountCode != ''">
+				AND a.account_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{account.accountCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{account.accountCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{account.accountCode},'%')</if>
+			</if>
+			<if test="accountName != null and accountName != ''">
+				AND a.account_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{accountName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{accountName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{accountName},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND  exists (select * from inv_billdetail where bill_num = a.id and item_name = #{itemName} )
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.bill_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findListforCheck" resultType="BillMain" >
+		SELECT
+		<include refid="billMainColumns"/>
+		FROM inv_billmain a
+		<include refid="billMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			AND cosbill.cor_billnum IS NULL
+			AND a.bill_num LIKE concat('%','wgo','%')
+			AND a.bill_flag = 'T'
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="mpsPlanId != null and mpsPlanId != ''">
+				AND a.mps_plan_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{mpsPlanId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{mpsPlanId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{mpsPlanId},'%')</if>
+			</if>
+			<if test="orderId != null and orderId != ''">
+				AND a.order_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{orderId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{orderId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{orderId},'%')</if>
+			</if>
+			<if test="beginBillDate != null and endBillDate != null and beginBillDate != '' and endBillDate != ''">
+				AND a.bill_date BETWEEN #{beginBillDate} AND #{endBillDate}
+			</if>
+			<if test="dept != null and dept.code != null and dept.code != ''">
+				AND a.dept_id = #{dept.code}
+			</if>
+			<if test="deptName != null and deptName != ''">
+				AND a.dept_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{deptName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{deptName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{deptName},'%')</if>
+			</if>
+			<if test="io != null and io.ioType != null and io.ioType != ''">
+				AND a.io_type = #{io.ioType}
+			</if>
+			<if test="ioDesc != null and ioDesc != ''">
+				AND a.io_desc LIKE
+				<if test="dbName == 'oracle'">'%'||#{ioDesc}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{ioDesc}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{ioDesc},'%')</if>
+			</if>
+			<if test="ware != null and ware.wareID != null and ware.wareID != ''">
+				AND a.ware_id = #{ware.wareID}
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="billPerson != null and billPerson.no != null and billPerson.no != ''">
+				AND a.bill_person = #{billPerson.no}
+			</if>
+			<if test="wareEmp != null and  wareEmp.user!=null and wareEmp.user.no != null and wareEmp.user.no != ''">
+				AND a.ware_empid = #{wareEmp.user.no}
+			</if>
+			<if test="wareEmpname != null and wareEmpname != ''">
+				AND a.ware_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{wareEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareEmpname},'%')</if>
+			</if>
+			<if test="invuse != null and invuse.id != null and invuse.id != ''">
+				AND a.use_id = #{invuse.id}
+			</if>
+			<if test="useName != null and useName != ''">
+				AND a.use_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{useName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{useName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{useName},'%')</if>
+			</if>
+			<if test="billFlag != null and billFlag != ''">
+				AND a.bill_flag = #{billFlag}
+			</if>
+			<if test="recEmp != null and recEmp.no != null and recEmp.no != ''">
+				AND a.rec_empid = #{recEmp.no}
+			</if>
+			<if test="recEmpname != null and recEmpname != ''">
+				AND a.rec_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{recEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{recEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{recEmpname},'%')</if>
+			</if>
+			<if test="beginRecDate != null and endRecDate != null and beginRecDate != '' and endRecDate != ''">
+				AND a.rec_date BETWEEN #{beginRecDate} AND #{endRecDate}
+			</if>
+			<if test="billEmp != null and billEmp.no != null and billEmp.no != ''">
+				AND a.bill_empid = #{billEmp.no}
+			</if>
+			<if test="billEmpname != null and billEmpname != ''">
+				AND a.bill_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{billEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billEmpname},'%')</if>
+			</if>
+			<if test="rcvAddr != null and rcvAddr != ''">
+				AND a.rcv_addr LIKE
+				<if test="dbName == 'oracle'">'%'||#{rcvAddr}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{rcvAddr}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{rcvAddr},'%')</if>
+			</if>
+			<if test="transAccount != null and transAccount != ''">
+				AND a.trans_account LIKE
+				<if test="dbName == 'oracle'">'%'||#{transAccount}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{transAccount}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{transAccount},'%')</if>
+			</if>
+			<if test="carNum != null and carNum != ''">
+				AND a.car_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{carNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{carNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{carNum},'%')</if>
+			</if>
+			<if test="period != null and period.periodId != null and period.periodId != ''">
+				AND a.period_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{period.periodId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{period.periodId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{period.periodId},'%')</if>
+			</if>
+			<if test="account != null and account.accountCode != null and account.accountCode != ''">
+				AND a.account_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{account.accountCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{account.accountCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{account.accountCode},'%')</if>
+			</if>
+			<if test="accountName != null and accountName != ''">
+				AND a.account_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{accountName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{accountName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{accountName},'%')</if>
+			</if>
+			AND a.id = ANY(
+			SELECT b.bill_num
+			FROM inv_billdetail b
+			WHERE
+			1=1
+			<if test="qItemCode != null and qItemCode != ''">
+				AND b.item_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{qItemCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qItemCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qItemCode},'%')</if>
+			</if>
+			<if test="qItemName != null and qItemName != ''">
+				AND b.item_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{qItemName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qItemName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qItemName},'%')</if>
+			</if>
+			<if test="qItemSpec != null and qItemSpec != ''">
+				AND b.item_spec LIKE
+				<if test="dbName == 'oracle'">'%'||#{qItemSpec}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qItemSpec}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qItemSpec},'%')</if>
+			</if>
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.bill_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+
+	<select id="findListforCancelCheck" resultType="BillMain" >
+		SELECT
+		<include refid="billMainColumns"/>
+		FROM inv_billmain a
+		<include refid="billMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			AND a.bill_num LIKE concat('%','wgo','%')
+			AND cosbill.cos_billnum_status = 'A'
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="mpsPlanId != null and mpsPlanId != ''">
+				AND a.mps_plan_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{mpsPlanId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{mpsPlanId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{mpsPlanId},'%')</if>
+			</if>
+			<if test="orderId != null and orderId != ''">
+				AND a.order_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{orderId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{orderId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{orderId},'%')</if>
+			</if>
+			<if test="beginBillDate != null and endBillDate != null and beginBillDate != '' and endBillDate != ''">
+				AND a.bill_date BETWEEN #{beginBillDate} AND #{endBillDate}
+			</if>
+			<if test="dept != null and dept.code != null and dept.code != ''">
+				AND a.dept_id = #{dept.code}
+			</if>
+			<if test="deptName != null and deptName != ''">
+				AND a.dept_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{deptName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{deptName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{deptName},'%')</if>
+			</if>
+			<if test="io != null and io.ioType != null and io.ioType != ''">
+				AND a.io_type = #{io.ioType}
+			</if>
+			<if test="ioDesc != null and ioDesc != ''">
+				AND a.io_desc LIKE
+				<if test="dbName == 'oracle'">'%'||#{ioDesc}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{ioDesc}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{ioDesc},'%')</if>
+			</if>
+			<if test="ware != null and ware.wareID != null and ware.wareID != ''">
+				AND a.ware_id = #{ware.wareID}
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="billPerson != null and billPerson.no != null and billPerson.no != ''">
+				AND a.bill_person = #{billPerson.no}
+			</if>
+			<if test="wareEmp != null and  wareEmp.user!=null and wareEmp.user.no != null and wareEmp.user.no != ''">
+				AND a.ware_empid = #{wareEmp.user.no}
+			</if>
+			<if test="wareEmpname != null and wareEmpname != ''">
+				AND a.ware_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{wareEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareEmpname},'%')</if>
+			</if>
+			<if test="invuse != null and invuse.id != null and invuse.id != ''">
+				AND a.use_id = #{invuse.id}
+			</if>
+			<if test="useName != null and useName != ''">
+				AND a.use_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{useName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{useName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{useName},'%')</if>
+			</if>
+			<if test="billFlag != null and billFlag != ''">
+				AND a.bill_flag = #{billFlag}
+			</if>
+			<if test="recEmp != null and recEmp.no != null and recEmp.no != ''">
+				AND a.rec_empid = #{recEmp.no}
+			</if>
+			<if test="recEmpname != null and recEmpname != ''">
+				AND a.rec_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{recEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{recEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{recEmpname},'%')</if>
+			</if>
+			<if test="beginRecDate != null and endRecDate != null and beginRecDate != '' and endRecDate != ''">
+				AND a.rec_date BETWEEN #{beginRecDate} AND #{endRecDate}
+			</if>
+			<if test="billEmp != null and billEmp.no != null and billEmp.no != ''">
+				AND a.bill_empid = #{billEmp.no}
+			</if>
+			<if test="billEmpname != null and billEmpname != ''">
+				AND a.bill_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{billEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billEmpname},'%')</if>
+			</if>
+			<if test="rcvAddr != null and rcvAddr != ''">
+				AND a.rcv_addr LIKE
+				<if test="dbName == 'oracle'">'%'||#{rcvAddr}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{rcvAddr}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{rcvAddr},'%')</if>
+			</if>
+			<if test="transAccount != null and transAccount != ''">
+				AND a.trans_account LIKE
+				<if test="dbName == 'oracle'">'%'||#{transAccount}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{transAccount}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{transAccount},'%')</if>
+			</if>
+			<if test="carNum != null and carNum != ''">
+				AND a.car_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{carNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{carNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{carNum},'%')</if>
+			</if>
+			<if test="period != null and period.periodId != null and period.periodId != ''">
+				AND a.period_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{period.periodId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{period.periodId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{period.periodId},'%')</if>
+			</if>
+			<if test="account != null and account.accountCode != null and account.accountCode != ''">
+				AND a.account_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{account.accountCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{account.accountCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{account.accountCode},'%')</if>
+			</if>
+			<if test="accountName != null and accountName != ''">
+				AND a.account_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{accountName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{accountName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{accountName},'%')</if>
+			</if>
+			AND a.id = ANY(
+			SELECT b.bill_num
+			FROM inv_billdetail b
+			WHERE
+			1=1
+			<if test="qItemCode != null and qItemCode != ''">
+				AND b.item_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{qItemCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qItemCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qItemCode},'%')</if>
+			</if>
+			<if test="qItemName != null and qItemName != ''">
+				AND b.item_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{qItemName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qItemName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qItemName},'%')</if>
+			</if>
+			<if test="qItemSpec != null and qItemSpec != ''">
+				AND b.item_spec LIKE
+				<if test="dbName == 'oracle'">'%'||#{qItemSpec}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qItemSpec}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qItemSpec},'%')</if>
+			</if>
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.bill_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findListforQuery" resultType="BillMain" >
+		SELECT
+		<include refid="billMainColumns"/>
+		FROM inv_billmain a
+		<include refid="billMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			AND a.bill_num LIKE concat('%','wgo','%')
+			AND cosbill.cor_billnum IS NOT NULL
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="mpsPlanId != null and mpsPlanId != ''">
+				AND a.mps_plan_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{mpsPlanId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{mpsPlanId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{mpsPlanId},'%')</if>
+			</if>
+			<if test="orderId != null and orderId != ''">
+				AND a.order_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{orderId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{orderId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{orderId},'%')</if>
+			</if>
+			<if test="beginBillDate != null and endBillDate != null and beginBillDate != '' and endBillDate != ''">
+				AND a.bill_date BETWEEN #{beginBillDate} AND #{endBillDate}
+			</if>
+			<if test="dept != null and dept.code != null and dept.code != ''">
+				AND a.dept_id = #{dept.code}
+			</if>
+			<if test="deptName != null and deptName != ''">
+				AND a.dept_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{deptName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{deptName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{deptName},'%')</if>
+			</if>
+			<if test="io != null and io.ioType != null and io.ioType != ''">
+				AND a.io_type = #{io.ioType}
+			</if>
+			<if test="ioDesc != null and ioDesc != ''">
+				AND a.io_desc LIKE
+				<if test="dbName == 'oracle'">'%'||#{ioDesc}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{ioDesc}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{ioDesc},'%')</if>
+			</if>
+			<if test="ware != null and ware.wareID != null and ware.wareID != ''">
+				AND a.ware_id = #{ware.wareID}
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="billPerson != null and billPerson.no != null and billPerson.no != ''">
+				AND a.bill_person = #{billPerson.no}
+			</if>
+			<if test="wareEmp != null and  wareEmp.user!=null and wareEmp.user.no != null and wareEmp.user.no != ''">
+				AND a.ware_empid = #{wareEmp.user.no}
+			</if>
+			<if test="wareEmpname != null and wareEmpname != ''">
+				AND a.ware_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{wareEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{wareEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{wareEmpname},'%')</if>
+			</if>
+			<if test="invuse != null and invuse.id != null and invuse.id != ''">
+				AND a.use_id = #{invuse.id}
+			</if>
+			<if test="useName != null and useName != ''">
+				AND a.use_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{useName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{useName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{useName},'%')</if>
+			</if>
+			<if test="billFlag != null and billFlag != ''">
+				AND a.bill_flag = #{billFlag}
+			</if>
+			<if test="recEmp != null and recEmp.no != null and recEmp.no != ''">
+				AND a.rec_empid = #{recEmp.no}
+			</if>
+			<if test="recEmpname != null and recEmpname != ''">
+				AND a.rec_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{recEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{recEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{recEmpname},'%')</if>
+			</if>
+			<if test="beginRecDate != null and endRecDate != null and beginRecDate != '' and endRecDate != ''">
+				AND a.rec_date BETWEEN #{beginRecDate} AND #{endRecDate}
+			</if>
+			<if test="billEmp != null and billEmp.no != null and billEmp.no != ''">
+				AND a.bill_empid = #{billEmp.no}
+			</if>
+			<if test="billEmpname != null and billEmpname != ''">
+				AND a.bill_empname LIKE
+				<if test="dbName == 'oracle'">'%'||#{billEmpname}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billEmpname}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billEmpname},'%')</if>
+			</if>
+			<if test="rcvAddr != null and rcvAddr != ''">
+				AND a.rcv_addr LIKE
+				<if test="dbName == 'oracle'">'%'||#{rcvAddr}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{rcvAddr}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{rcvAddr},'%')</if>
+			</if>
+			<if test="transAccount != null and transAccount != ''">
+				AND a.trans_account LIKE
+				<if test="dbName == 'oracle'">'%'||#{transAccount}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{transAccount}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{transAccount},'%')</if>
+			</if>
+			<if test="carNum != null and carNum != ''">
+				AND a.car_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{carNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{carNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{carNum},'%')</if>
+			</if>
+			<if test="period != null and period.periodId != null and period.periodId != ''">
+				AND a.period_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{period.periodId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{period.periodId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{period.periodId},'%')</if>
+			</if>
+			<if test="account != null and account.accountCode != null and account.accountCode != ''">
+				AND a.account_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{account.accountCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{account.accountCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{account.accountCode},'%')</if>
+			</if>
+			<if test="accountName != null and accountName != ''">
+				AND a.account_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{accountName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{accountName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{accountName},'%')</if>
+			</if>
+			AND a.id = ANY(
+			SELECT b.bill_num
+			FROM inv_billdetail b
+			WHERE
+			1=1
+			<if test="qItemCode != null and qItemCode != ''">
+				AND b.item_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{qItemCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qItemCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qItemCode},'%')</if>
+			</if>
+			<if test="qItemName != null and qItemName != ''">
+				AND b.item_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{qItemName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qItemName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qItemName},'%')</if>
+			</if>
+			<if test="qItemSpec != null and qItemSpec != ''">
+				AND b.item_spec LIKE
+				<if test="dbName == 'oracle'">'%'||#{qItemSpec}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{qItemSpec}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{qItemSpec},'%')</if>
+			</if>
+			)
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.bill_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="findAllList" resultType="BillMain" >
+		SELECT
+		<include refid="billMainColumns"/>
+		FROM inv_billmain a
+		<include refid="billMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.bill_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<insert id="insert">
+		INSERT INTO inv_billmain(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			bill_date,
+			dept_id,
+			dept_name,
+			io_type,
+			io_desc,
+			io_flag,
+			ware_id,
+			ware_name,
+			bill_person,
+			ware_empid,
+			ware_empname,
+			cor_bill_num,
+			cor_id,
+			cor_name,
+			use_id,
+			use_name,
+			bill_flag,
+			estimate_flag,
+			period_id,
+			bill_desc,
+			rec_empid,
+			rec_empname,
+			rec_date,
+			bill_empid,
+			bill_empname,
+			note,
+			order_code,
+			tax_ratio,
+			ino_id,
+			class_id,
+			class_desc,
+			cflag,
+			fnumber,
+			finvoice_id,
+			bill_type,
+			red_flag,
+			cg_flag,
+			total_sum,
+			oper_date,
+			bill_source,
+			cg_num,
+			work_poscode,
+			work_posname,
+			rcv_addr,
+			trans_account,
+			car_num,
+			account_code,
+			account_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{billDate},
+			#{dept.code},
+			#{deptName},
+			#{io.ioType},
+			#{ioDesc},
+			#{ioFlag},
+			#{ware.wareID},
+			#{wareName},
+			#{billPerson.no},
+			#{wareEmp.user.no},
+			#{wareEmpname},
+			#{corBillNum},
+			#{corId},
+			#{corName},
+			#{invuse.useId},
+			#{useName},
+			#{billFlag},
+			#{estimateFlag},
+			#{period.periodId},
+			#{billDesc},
+			#{recEmp.no},
+			#{recEmpname},
+			#{recDate},
+			#{billEmp.no},
+			#{billEmpname},
+			#{note},
+			#{orderCode},
+			#{taxRatio},
+			#{inoId},
+			#{classId},
+			#{classDesc},
+			#{cflag},
+			#{fnumber},
+			#{finvoiceID},
+			#{billType},
+			#{redFlag},
+			#{cgFlag},
+			#{totalSum},
+			#{operDate},
+			#{billSource},
+			#{cgNum},
+			#{workPoscode},
+			#{wordPosname},
+			#{rcvAddr},
+			#{transAccount},
+			#{carNum},
+			#{account.accountCode},
+			#{accountName}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE inv_billmain SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			bill_date = #{billDate},
+			dept_id = #{dept.code},
+			dept_name = #{deptName},
+			io_type = #{io.ioType},
+			io_desc = #{ioDesc},
+			io_flag = #{ioFlag},
+			ware_id = #{ware.wareID},
+			ware_name = #{wareName},
+			bill_person = #{billPerson.no},
+			ware_empid = #{wareEmp.user.no},
+			ware_empname = #{wareEmpname},
+			cor_bill_num = #{corBillNum},
+			cor_id = #{corId},
+			cor_name = #{corName},
+			use_id = #{invuse.useId},
+			use_name = #{useName},
+			bill_flag = #{billFlag},
+			estimate_flag = #{estimateFlag},
+			period_id = #{period.periodId},
+			bill_desc = #{billDesc},
+			rec_empid = #{recEmp.no},
+			rec_empname = #{recEmpname},
+			rec_date = #{recDate},
+			bill_empid = #{billEmp.no},
+			bill_empname = #{billEmpname},
+			note = #{note},
+			order_code = #{orderCode},
+			tax_ratio = #{taxRatio},
+			ino_id = #{inoId},
+			class_id = #{classId},
+			class_desc = #{classDesc},
+			cflag = #{cflag},
+			fnumber = #{fnumber},
+			finvoice_id = #{finvoiceID},
+			bill_type = #{billType},
+			red_flag = #{redFlag},
+			cg_flag = #{cgFlag},
+			total_sum = #{totalSum},
+			oper_date = #{operDate},
+			bill_source = #{billSource},
+			cg_num = #{cgNum},
+			work_poscode = #{workPoscode},
+			work_posname = #{wordPosname},
+			rcv_addr = #{rcvAddr},
+			trans_account = #{transAccount},
+			car_num = #{carNum},
+			account_code = #{account.accountCode},
+			account_name = #{accountName}
+		WHERE id = #{id}
+	</update>
+
+
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_billmain
+		WHERE id = #{id}
+	</update>
+
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_billmain SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="BillMain" statementType="STATEMENT">
+		select * FROM inv_billmain  where ${propertyName} = '${value}'
+	</select>
+
+
+	<select id="getMaxIdByTypeAndDate" resultType="String">
+        SELECT MAX(bill_num) FROM inv_billmain WHERE bill_num LIKE concat(concat(#{_parameter}),"%")
+    </select>
+
+	<select id="findPeriodByTime" parameterType="java.util.Map" resultType="com.hqu.modules.basedata.period.entity.Period">
+        select * from mdm_period where #{today} &lt;= period_end and #{today} &gt;= period_begin
+    </select>
+
+	<!--<select id="selectMaxBillMainInfo" resultType="com.hqu.modules.inventorymanage.billmain.entity.BillMain">-->
+	<!--SELECT max(create_date)create_date,bill_num  from inv_billmain WHERE io_type = "WI01"-->
+	<!--</select>-->
+
+	<select id="selectMaxBillMainInfo" resultType="com.hqu.modules.inventorymanage.billmain.entity.BillMain">
+		SELECT bill_num from inv_billmain a where a.create_date in (SELECT Max(create_date) from inv_billmain where io_type = "WI01")
+	</select>
+
+	<select id="getNumByChk" resultType="String">
+		SELECT bill_num from inv_billmain a where a.io_type = "WI01" AND a.cor_bill_num = #{code} LIMIT 1
+	</select>
+</mapper>

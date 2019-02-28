@@ -1,0 +1,127 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.saltaxratio.mapper.SaleTaxRatioMapper">
+    
+	<sql id="saleTaxRatioColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.sal_tax_code AS "salTaxCode",
+		a.sal_tax_ratio AS "salTaxRatio",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="saleTaxRatioJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="SaleTaxRatio" >
+		SELECT 
+			<include refid="saleTaxRatioColumns"/>
+		FROM sal_taxratio a
+		<include refid="saleTaxRatioJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SaleTaxRatio" >
+		SELECT 
+			<include refid="saleTaxRatioColumns"/>
+		FROM sal_taxratio a
+		<include refid="saleTaxRatioJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="salTaxCode != null and salTaxCode != ''">
+				AND a.sal_tax_code = #{salTaxCode}
+			</if>
+			<if test="salTaxRatio != null and salTaxRatio != ''">
+				AND a.sal_tax_ratio = #{salTaxRatio}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SaleTaxRatio" >
+		SELECT 
+			<include refid="saleTaxRatioColumns"/>
+		FROM sal_taxratio a
+		<include refid="saleTaxRatioJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_taxratio(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			sal_tax_code,
+			sal_tax_ratio,
+			del_flag
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{salTaxCode},
+			#{salTaxRatio},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_taxratio SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			sal_tax_code = #{salTaxCode},
+			sal_tax_ratio = #{salTaxRatio}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_taxratio
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_taxratio SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SaleTaxRatio" statementType="STATEMENT">
+		select * FROM sal_taxratio  where ${propertyName} = '${value}'
+	</select>
+
+	<select id="getMaxSalTaxRatioID" resultType="String">
+		select max(sal_tax_code) from sal_taxratio
+	</select>
+</mapper>

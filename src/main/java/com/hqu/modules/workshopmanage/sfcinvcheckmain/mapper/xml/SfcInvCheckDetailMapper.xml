@@ -1,0 +1,256 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.sfcinvcheckmain.mapper.SfcInvCheckDetailMapper">
+    
+	<sql id="sfcInvCheckDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_no AS "sfcInvCheckMain.id",
+		a.serial_no AS "serialNo",
+		a.item_code AS "itemCode",
+		a.item_name AS "itemName",
+		a.mserialno AS "mSerialNo",
+		a.mass_require AS "massRequire",
+		a.obj_sn AS "objSn",
+		a.item_barcode AS "itemBarcode",
+		a.real_qty AS "realQty",
+		a.real_price AS "realPrice",
+		a.real_sum AS "realSum",
+		a.real_price_taxed AS "realPriceTaxed",
+		a.real_sum_taxed AS "realSumTaxed",
+		a.tax_sum AS "taxSum",
+		a.check_state AS "checkState",
+		a.notes AS "notes",
+		a.balance_notes AS "balanceNotes",
+		a.balance_flag AS "balanceFlag",
+		a.cor_billnum AS "corBillnum",
+		a.cor_serialnum AS "corSerialnum",
+		a.back_flag AS "backFlag",
+		a.item_specmodel AS "itemSpecmodel",
+		a.unit_code AS "unitCode",
+		a.item_pdn AS "itemPdn",
+		a.billNoDetail AS "billNoDetail"
+	</sql>
+	
+	<sql id="sfcInvCheckDetailJoins">
+		
+			LEFT JOIN sfc_invcheckmain b ON b.id = a.bill_no
+	</sql>
+	
+    
+	<select id="get" resultType="SfcInvCheckDetail" >
+		SELECT 
+			<include refid="sfcInvCheckDetailColumns"/>
+		FROM sfc_invcheckdetail a
+		<include refid="sfcInvCheckDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SfcInvCheckDetail" >
+		SELECT 
+			<include refid="sfcInvCheckDetailColumns"/>
+		FROM sfc_invcheckdetail a
+		<include refid="sfcInvCheckDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="sfcInvCheckMain != null and sfcInvCheckMain.id != null and sfcInvCheckMain.id != ''">
+				AND a.bill_no LIKE 
+					<if test="dbName == 'oracle'">'%'||#{sfcInvCheckMain.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{sfcInvCheckMain.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{sfcInvCheckMain.id},'%')</if>
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND a.item_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemCode},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="itemBarcode != null and itemBarcode != ''">
+				AND a.item_barcode = #{itemBarcode}
+			</if>
+			<if test="itemSpecmodel != null and itemSpecmodel != ''">
+				AND a.item_specmodel LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemSpecmodel}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemSpecmodel}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemSpecmodel},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SfcInvCheckDetail" >
+		SELECT 
+			<include refid="sfcInvCheckDetailColumns"/>
+		FROM sfc_invcheckdetail a
+		<include refid="sfcInvCheckDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_invcheckdetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_no,
+			serial_no,
+			item_code,
+			item_name,
+			mserialno,
+			mass_require,
+			obj_sn,
+			item_barcode,
+			real_qty,
+			real_price,
+			real_sum,
+			real_price_taxed,
+			real_sum_taxed,
+			tax_sum,
+			check_state,
+			notes,
+			balance_notes,
+			balance_flag,
+			cor_billnum,
+			cor_serialnum,
+			back_flag,
+			item_specmodel,
+			unit_code,
+			item_pdn,
+			billNoDetail
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{sfcInvCheckMain.id},
+			#{serialNo},
+			#{itemCode},
+			#{itemName},
+			#{mSerialNo},
+			#{massRequire},
+			#{objSn},
+			#{itemBarcode},
+			#{realQty},
+			#{realPrice},
+			#{realSum},
+			#{realPriceTaxed},
+			#{realSumTaxed},
+			#{taxSum},
+			#{checkState},
+			#{notes},
+			#{balanceNotes},
+			#{balanceFlag},
+			#{corBillnum},
+			#{corSerialnum},
+			#{backFlag},
+			#{itemSpecmodel},
+			#{unitCode},
+			#{itemPdn},
+			#{billNoDetail}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_invcheckdetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_no = #{sfcInvCheckMain.id},
+			serial_no = #{serialNo},
+			item_code = #{itemCode},
+			item_name = #{itemName},
+			mserialno= #{mSerialNo},
+			mass_require = #{massRequire},
+			obj_sn = #{objSn},
+			item_barcode = #{itemBarcode},
+			real_qty = #{realQty},
+			real_price = #{realPrice},
+			real_sum = #{realSum},
+			real_price_taxed = #{realPriceTaxed},
+			real_sum_taxed = #{realSumTaxed},
+			tax_sum = #{taxSum},
+			check_state = #{checkState},
+			notes = #{notes},
+			balance_notes = #{balanceNotes},
+			balance_flag = #{balanceFlag},
+			cor_billnum = #{corBillnum},
+			cor_serialnum = #{corSerialnum},
+			back_flag = #{backFlag},
+			item_specmodel = #{itemSpecmodel},
+			unit_code = #{unitCode},
+			item_pdn = #{itemPdn},
+			billNoDetail=#{billNoDetail}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_invcheckdetail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_no = #{sfcInvCheckMain.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_invcheckdetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_no = #{sfcInvCheckMain.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SfcInvCheckDetail" statementType="STATEMENT">
+		select * FROM sfc_invcheckdetail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

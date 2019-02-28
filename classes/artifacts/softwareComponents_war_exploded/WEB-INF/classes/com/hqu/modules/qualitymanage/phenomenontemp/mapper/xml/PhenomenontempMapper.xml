@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.phenomenontemp.mapper.PhenomenontempMapper">
+    
+	<sql id="phenomenontempColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.sn AS "sn",
+		a.phenomenon AS "phenomenon",
+		a.sum AS "sum",
+		a.y AS "y",
+		a.m AS "m"
+	</sql>
+	
+	<sql id="phenomenontempJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Phenomenontemp" >
+		SELECT 
+			<include refid="phenomenontempColumns"/>
+		FROM qms_phenomenonincoming a
+		<include refid="phenomenontempJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Phenomenontemp" >
+		SELECT 
+			<include refid="phenomenontempColumns"/>
+		FROM qms_phenomenonincoming a
+		<include refid="phenomenontempJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="y != null and y != ''">
+				AND a.y = #{y}
+			</if>
+			<if test="m != null and m != ''">
+				AND a.m = #{m}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Phenomenontemp" >
+		SELECT 
+			<include refid="phenomenontempColumns"/>
+		FROM qms_phenomenonincoming a
+		<include refid="phenomenontempJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_phenomenonincoming(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			sn,
+			phenomenon,
+			sum,
+			y,
+			m
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{sn},
+			#{phenomenon},
+			#{sum},
+			#{y},
+			#{m}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_phenomenonincoming SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			sn = #{sn},
+			phenomenon = #{phenomenon},
+			sum = #{sum},
+			y = #{y},
+			m = #{m}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_phenomenonincoming
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_phenomenonincoming SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Phenomenontemp" statementType="STATEMENT">
+		select * FROM qms_phenomenonincoming  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

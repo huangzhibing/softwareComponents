@@ -1,0 +1,149 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.contractnotesmodel.mapper.ContractNotesModelMapper">
+    
+	<sql id="contractNotesModelColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.contract_id AS "contractId",
+		a.contract_name AS "contractName",
+		a.contract_notes AS "contractNotes",
+		a.user_dept_code AS "userDeptCode"
+	</sql>
+	
+	<sql id="contractNotesModelJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="ContractNotesModel" >
+		SELECT 
+			<include refid="contractNotesModelColumns"/>
+		FROM pur_contractnotesmodel a
+		<include refid="contractNotesModelJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ContractNotesModel" >
+		SELECT 
+			<include refid="contractNotesModelColumns"/>
+		FROM pur_contractnotesmodel a
+		<include refid="contractNotesModelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="contractId != null and contractId != ''">
+				AND a.contract_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{contractId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{contractId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{contractId},'%')</if>
+			</if>
+			<if test="contractName != null and contractName != ''">
+				AND a.contract_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{contractName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{contractName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{contractName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<!-- 查找合同模板编码最大值 -->
+	<select id="getMaxContractId" resultType="String">
+		SELECT MAX(contract_id)
+		FROM pur_contractnotesmodel
+	</select>
+	
+	
+	<select id="findAllList" resultType="ContractNotesModel" >
+		SELECT 
+			<include refid="contractNotesModelColumns"/>
+		FROM pur_contractnotesmodel a
+		<include refid="contractNotesModelJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_contractnotesmodel(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			contract_id,
+			contract_name,
+			contract_notes,
+			user_dept_code
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{contractId},
+			#{contractName},
+			#{contractNotes},
+			#{userDeptCode}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_contractnotesmodel SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			contract_id = #{contractId},
+			contract_name = #{contractName},
+			contract_notes = #{contractNotes},
+			user_dept_code = #{userDeptCode}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_contractnotesmodel
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_contractnotesmodel SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ContractNotesModel" statementType="STATEMENT">
+		select * FROM pur_contractnotesmodel  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

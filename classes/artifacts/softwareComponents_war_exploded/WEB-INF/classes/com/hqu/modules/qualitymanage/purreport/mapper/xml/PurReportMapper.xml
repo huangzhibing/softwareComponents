@@ -1,0 +1,1189 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.purreport.mapper.PurReportMapper">
+    
+	<sql id="purReportColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.report_id AS "reportId",
+		a.billnum AS "invCheckMain.id",
+		a.checkt_code AS "checktCode",
+		a.checkt_name AS "checktName",
+		a.rnd_ful AS "rndFul",
+		a.quality_norm AS "qualityNorm",
+		a.cdept_code AS "cdeptCode",
+		a.cdept_name AS "office.id",
+		a.cposition_code AS "cpositionCode",
+		a.cposition_name AS "cpositionName",
+		a.check_date AS "checkDate",
+		a.check_time AS "checkTime",
+		a.cperson_code AS "cpersonCode",
+		a.check_person AS "checkPerson",
+		a.check_result AS "checkResult",
+		a.jdept_code AS "jdeptCode",
+		a.jdept_name AS "deptOffice.id",
+		a.jposition_code AS "jpositionCode",
+		a.jposition_name AS "jpositionName",
+		a.justify_date AS "justifyDate",
+		a.jperson_code AS "jpersonCode",
+		a.justify_person AS "justifyPerson",
+		a.justify_result AS "justifyResult",
+		a.memo AS "memo",
+		a.state AS "state",
+		a.percent_pass AS "percentPass",
+		a.justify_remark AS "justifyRemark",
+		invCheckMain.billnum AS "invCheckMain.billnum",
+		office.name AS "office.name",
+		a.is_qmatter AS "isQmatter",
+		a.user_dept_code AS "userDeptCode",
+		a.process_instance_id AS "processInstanceId",
+		deptOffice.name AS "deptOffice.name",
+		a.bill_no AS "sfcInvCheckMain.id",
+		a.bill_no AS "sfcInvCheckMain.billNo",
+		a.bill_num_inv AS "reinvCheckMain.id",
+		a.is_audit AS "isAudit",
+		reinvCheckMain.bill_num AS "reinvCheckMain.billNum"
+	</sql>
+	
+	<sql id="purReportJoins">
+		
+		LEFT JOIN pur_invcheckmain invCheckMain ON invCheckMain.id = a.billnum
+		LEFT JOIN sys_office office ON office.id = a.cdept_name
+		LEFT JOIN sys_office deptOffice ON deptOffice.id = a.jdept_name
+		LEFT JOIN sfc_invcheckmain sfcInvCheckMain ON sfcInvCheckMain.id = a.bill_no
+		LEFT JOIN inv_checkmain reinvCheckMain ON reinvCheckMain.id = a.billnum
+	</sql>
+	
+    
+	<select id="getByReportId" resultType="PurReport" >
+		SELECT 
+			<include refid="purReportColumns"/>
+		FROM qms_purreport a
+		<include refid="purReportJoins"/>
+		WHERE a.report_id = #{reportId}
+	</select>
+	
+	
+	<select id="get" resultType="PurReport" >
+		SELECT 
+			<include refid="purReportColumns"/>
+		FROM qms_purreport a
+		<include refid="purReportJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	
+	<select id="findListWithOutCheck"  resultType="PurReport">
+		SELECT 
+			<include refid="purReportColumns"/>
+		FROM qms_purreport a
+		<include refid="purReportJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="reportId != null and reportId != ''">
+				AND a.report_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{reportId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{reportId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{reportId},'%')</if>
+			</if>
+			<if test="invCheckMain != null and invCheckMain.id != null and invCheckMain.id != ''">
+				AND a.billnum = #{invCheckMain.id}
+			</if>
+			
+			<if test="sfcInvCheckMain != null and sfcInvCheckMain.id != null and sfcInvCheckMain.id != ''">
+				AND a.bill_no = #{sfcInvCheckMain.id}
+			</if>
+			
+			
+			<if test="checktName != null and checktName != ''">
+				AND a.checkt_name = #{checktName}
+			</if>
+			<if test="rndFul != null and rndFul != ''">
+				AND a.rnd_ful = #{rndFul}
+			</if>
+			<if test="qualityNorm != null and qualityNorm != ''">
+				AND a.quality_norm = #{qualityNorm}
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND a.cdept_name = #{office.id}
+			</if>
+			<if test="cpositionCode != null and cpositionCode != ''">
+				AND a.cposition_code = #{cpositionCode}
+			</if>
+			
+			
+			
+			<if test="checkDate != null and checkDate != ''">
+				AND a.check_date &gt;= #{checkDate}
+			</if>
+			
+			<if test="justifyDate != null and justifyDate != ''">
+				AND a.check_date &lt;= #{justifyDate}
+			</if>
+			
+			<if test="checkResult != null and checkResult != ''">
+				AND a.check_result = #{checkResult}
+			</if>
+			<if test="deptOffice != null and deptOffice.id != null and deptOffice.id != ''">
+				AND a.jdept_name = #{deptOffice.id}
+			</if>
+			<if test="jpositionName != null and jpositionName != ''">
+				AND a.jposition_name = #{jpositionName}
+			</if>
+			
+			<if test="justifyPerson != null and justifyPerson != ''">
+				AND a.justify_person = #{justifyPerson}
+			</if>
+			<if test="justifyResult != null and justifyResult != ''">
+				AND a.justify_result = #{justifyResult}
+			</if>
+			<if test="memo != null and memo != ''">
+				AND a.memo = #{memo}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="isAudit != null and isAudit != ''">
+				AND a.is_audit = #{isAudit}
+			</if>
+			<if test="reinvCheckMain != null and reinvCheckMain.id != null and reinvCheckMain.id != ''">
+				AND a.bill_num_inv = #{reinvCheckMain.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+			
+	</select>
+	
+	
+	<select id="findList" resultType="PurReport" >
+		SELECT 
+			<include refid="purReportColumns"/>
+		FROM qms_purreport a
+		<include refid="purReportJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="reportId != null and reportId != ''">
+				AND a.report_id = #{reportId}
+			</if>
+			<if test="invCheckMain != null and invCheckMain.id != null and invCheckMain.id != ''">
+				AND a.billnum = #{invCheckMain.id}
+			</if>
+			<if test="checktName != null and checktName != ''">
+				AND a.checkt_name = #{checktName}
+			</if>
+			<if test="rndFul != null and rndFul != ''">
+				AND a.rnd_ful = #{rndFul}
+			</if>
+			<if test="qualityNorm != null and qualityNorm != ''">
+				AND a.quality_norm = #{qualityNorm}
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND a.cdept_name = #{office.id}
+			</if>
+			<if test="cpositionCode != null and cpositionCode != ''">
+				AND a.cposition_code = #{cpositionCode}
+			</if>
+			<if test="checkDate != null and checkDate != ''">
+				AND a.check_date = #{checkDate}
+			</if>
+			<if test="checkResult != null and checkResult != ''">
+				AND a.check_result = #{checkResult}
+			</if>
+			<if test="deptOffice != null and deptOffice.id != null and deptOffice.id != ''">
+				AND a.jdept_name = #{deptOffice.id}
+			</if>
+			<if test="jpositionName != null and jpositionName != ''">
+				AND a.jposition_name = #{jpositionName}
+			</if>
+			<if test="justifyDate != null and justifyDate != ''">
+				AND a.justify_date = #{justifyDate}
+			</if>
+			<if test="justifyPerson != null and justifyPerson != ''">
+				AND a.justify_person = #{justifyPerson}
+			</if>
+			<if test="justifyResult != null and justifyResult != ''">
+				AND a.justify_result = #{justifyResult}
+			</if>
+			<if test="memo != null and memo != ''">
+				AND a.memo = #{memo}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+			<if test="sfcInvCheckMain != null and sfcInvCheckMain.id != null and sfcInvCheckMain.id != ''">
+				AND a.bill_no = #{sfcInvCheckMain.id}
+			</if>
+			<if test="isAudit != null and isAudit != ''">
+				AND a.is_audit = #{isAudit}
+			</if>
+			<if test="reinvCheckMain != null and reinvCheckMain.id != null and reinvCheckMain.id != ''">
+				AND a.bill_num_inv = #{reinvCheckMain.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	<select id="findInvList" resultType="InvCheckMain" >
+		SELECT 
+			*
+		FROM pur_invcheckmain a
+		
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			
+			<if test="billnum != null and billnum != ''">
+				AND a.billnum LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billnum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billnum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billnum},'%')</if>
+			</if>
+			<if test="billType != null and billType != ''">
+				AND a.bill_type LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billType}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billType}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billType},'%')</if>
+			</if>
+			<if test="periodId != null and periodId != ''">
+				AND a.period_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{periodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{periodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{periodId},'%')</if>
+			</if>
+			<if test="makeDate != null and makeDate != ''">
+				AND a.make_date = #{makeDate}
+			</if>
+			<if test="makeEmpid != null and makeEmpid != ''">
+				AND a.make_empid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makeEmpid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makeEmpid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makeEmpid},'%')</if>
+			</if>
+			<if test="makeEmpname != null and makeEmpname != ''">
+				AND a.make_empname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makeEmpname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makeEmpname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makeEmpname},'%')</if>
+			</if>
+			<if test="makeNotes != null and makeNotes != ''">
+				AND a.make_notes = #{makeNotes}
+			</if>
+			<if test="billStateFlag != null and billStateFlag != ''">
+				AND a.bill_state_flag = #{billStateFlag}
+			</if>
+			<if test="buyerId != null and buyerId != ''">
+				AND a.buyer_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{buyerId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{buyerId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{buyerId},'%')</if>
+			</if>
+			<if test="buyerName != null and buyerName != ''">
+				AND a.buyer_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{buyerName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{buyerName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{buyerName},'%')</if>
+			</if>
+			<if test="wareEmpid != null and wareEmpid != ''">
+				AND a.ware_empid = #{wareEmpid}
+			</if>
+			<if test="wareEmpname != null and wareEmpname != ''">
+				AND a.ware_empname = #{wareEmpname}
+			</if>
+			<if test="arriveDate != null and arriveDate != ''">
+				AND a.arrive_date = #{arriveDate}
+			</if>
+			<if test="supId != null and supId != ''">
+				AND a.sup_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supId},'%')</if>
+			</if>
+			<if test="supName != null and supName != ''">
+				AND a.sup_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supName},'%')</if>
+			</if>
+			<if test="supAddress != null and supAddress != ''">
+				AND a.sup_address = #{supAddress}
+			</if>
+			<if test="invoiceNum != null and invoiceNum != ''">
+				AND a.invoice_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{invoiceNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{invoiceNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{invoiceNum},'%')</if>
+			</if>
+			<if test="wareId != null and wareId != ''">
+				AND a.ware_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareId},'%')</if>
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="notes != null and notes != ''">
+				AND a.notes = #{notes}
+			</if>
+			<if test="invFlag != null and invFlag != ''">
+				AND a.inv_flag LIKE 
+					<if test="dbName == 'oracle'">'%'||#{invFlag}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{invFlag}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{invFlag},'%')</if>
+			</if>
+			<if test="thFlag != null and thFlag != ''">
+				AND a.th_flag LIKE 
+					<if test="dbName == 'oracle'">'%'||#{thFlag}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{thFlag}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{thFlag},'%')</if>
+			</if>
+			<if test="carrierId != null and carrierId != ''">
+				AND a.carrier_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{carrierId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{carrierId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{carrierId},'%')</if>
+			</if>
+			<if test="carrierName != null and carrierName != ''">
+				AND a.carrier_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{carrierName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{carrierName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{carrierName},'%')</if>
+			</if>
+			<if test="invoiceNumCar != null and invoiceNumCar != ''">
+				AND a.invoice_num_car = #{invoiceNumCar}
+			</if>
+			<if test="awayDate != null and awayDate != ''">
+				AND a.away_date = #{awayDate}
+			</if>
+			<if test="qmsFlag != null and qmsFlag != ''">
+				AND a.qms_flag LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qmsFlag}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qmsFlag}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qmsFlag},'%')</if>
+			</if>
+			<if test="ioType != null and ioType != ''">
+				AND a.io_type LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ioType}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ioType}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ioType},'%')</if>
+			</if>
+			<if test="ioDesc != null and ioDesc != ''">
+				AND a.io_desc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ioDesc}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ioDesc}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ioDesc},'%')</if>
+			</if>
+			<if test="beginBdate != null and endBdate != null and beginBdate != '' and endBdate != ''">
+				AND a.bdate BETWEEN #{beginBdate} AND #{endBdate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	
+	
+	
+	
+	<select id="findSFCList" resultType="SfcInvCheckMain" >
+		SELECT 
+			*
+		FROM sfc_invcheckmain a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="billNo != null and billNo != ''">
+				AND a.bill_no LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNo},'%')</if>
+			</if>
+			<if test="billType != null and billType != ''">
+				AND a.bill_type LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billType}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billType}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billType},'%')</if>
+			</if>
+			<if test="makeDate != null and makeDate != ''">
+				AND a.make_date = #{makeDate}
+			</if>
+			<if test="makepId != null and makepId != ''">
+				AND a.makep_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makepId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makepId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makepId},'%')</if>
+			</if>
+			<if test="makepName != null and makepName != ''">
+				AND a.makep_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makepName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makepName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makepName},'%')</if>
+			</if>
+			<if test="makeNotes != null and makeNotes != ''">
+				AND a.make_notes = #{makeNotes}
+			</if>
+			<if test="billStateFlag != null and billStateFlag != ''">
+				AND a.bill_state_flag = #{billStateFlag}
+			</if>
+			<if test="workerpId != null and workerpId != ''">
+				AND a.workerp_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{workerpId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{workerpId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{workerpId},'%')</if>
+			</if>
+			<if test="workerpName != null and workerpName != ''">
+				AND a.workerp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{workerpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{workerpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{workerpName},'%')</if>
+			</if>
+			<if test="finishDate != null and finishDate != ''">
+				AND a.finish_date = #{finishDate}
+			</if>
+			<if test="shopId != null and shopId != ''">
+				AND a.shop_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{shopId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{shopId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{shopId},'%')</if>
+			</if>
+			<if test="shopName != null and shopName != ''">
+				AND a.shop_name = #{shopName}
+			</if>
+			<if test="warepId != null and warepId != ''">
+				AND a.warep_id = #{warepId}
+			</if>
+			<if test="warepName != null and warepName != ''">
+				AND a.warep_name = #{warepName}
+			</if>
+			<if test="wareId != null and wareId != ''">
+				AND a.ware_id = #{wareId}
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name = #{wareName}
+			</if>
+			<if test="notes != null and notes != ''">
+				AND a.notes = #{notes}
+			</if>
+			<if test="invFlag != null and invFlag != ''">
+				AND a.inv_flag = #{invFlag}
+			</if>
+			<if test="qmsFlag != null and qmsFlag != ''">
+				AND a.qms_flag = #{qmsFlag}
+			</if>
+			<if test="priceSum != null and priceSum != ''">
+				AND a.price_sum = #{priceSum}
+			</if>
+			<if test="ioType != null and ioType != ''">
+				AND a.io_type = #{ioType}
+			</if>
+			<if test="ioFlag != null and ioFlag != ''">
+				AND a.io_flag = #{ioFlag}
+			</if>
+			<if test="ioDesc != null and ioDesc != ''">
+				AND a.io_desc = #{ioDesc}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	
+	<select id="findAllList" resultType="PurReport" >
+		SELECT 
+			<include refid="purReportColumns"/>
+		FROM qms_purreport a
+		<include refid="purReportJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_purreport(
+			
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			report_id,
+			billnum,
+			checkt_code,
+			checkt_name,
+			rnd_ful,
+			quality_norm,
+			cdept_code,
+			cdept_name,
+			cposition_code,
+			cposition_name,
+			check_date,
+			check_time,
+			cperson_code,
+			check_person,
+			check_result,
+			jdept_code,
+			jdept_name,
+			jposition_code,
+			jposition_name,
+			justify_date,
+			jperson_code,
+			justify_person,
+			justify_result,
+			memo,
+			state,
+			justify_remark,
+			is_qmatter,
+			bill_no,
+			user_dept_code,
+			process_instance_id,
+			percent_pass,
+			is_audit,
+			bill_num_inv
+		) VALUES (
+		
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{reportId},
+			#{invCheckMain.id},
+			#{checktCode},
+			#{checktName},
+			#{rndFul},
+			#{qualityNorm},
+			#{cdeptCode},
+			#{office.id},
+			#{cpositionCode},
+			#{cpositionName},
+			#{checkDate},
+			#{checkTime},
+			#{cpersonCode},
+			#{checkPerson},
+			#{checkResult},
+			#{jdeptCode},
+			#{deptOffice.id},
+			#{jpositionCode},
+			#{jpositionName},
+			#{justifyDate},
+			#{jpersonCode},
+			#{justifyPerson},
+			#{justifyResult},
+			#{memo},
+			#{state},
+			#{justifyRemark},
+			#{isQmatter},
+			#{sfcInvCheckMain.id},
+			#{userDeptCode},
+			#{processInstanceId},
+			#{percentPass},
+			#{isAudit},
+			#{reinvCheckMain.id}
+		)
+	</insert>
+	
+	
+	
+	
+	<insert id="myInsert">
+		INSERT INTO qms_purreport(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			report_id,
+			billnum,
+			checkt_code,
+			checkt_name,
+			rnd_ful,
+			quality_norm,
+			cdept_code,
+			cdept_name,
+			cposition_code,
+			cposition_name,
+			check_date,
+			check_time,
+			cperson_code,
+			check_person,
+			check_result,
+			jdept_code,
+			jdept_name,
+			jposition_code,
+			jposition_name,
+			justify_date,
+			jperson_code,
+			justify_person,
+			justify_result,
+			memo,
+			state,
+			justify_remark,
+			is_qmatter,
+			bill_no,
+			user_dept_code,
+			process_instance_id,
+			percent_pass,
+			is_audit,
+			bill_num_inv
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{reportId},
+			#{invCheckMain.id},
+			#{checktCode},
+			#{checktName},
+			#{rndFul},
+			#{qualityNorm},
+			#{cdeptCode},
+			#{office.id},
+			#{cpositionCode},
+			#{cpositionName},
+			#{checkDate},
+			#{checkTime},
+			#{cpersonCode},
+			#{checkPerson},
+			#{checkResult},
+			#{jdeptCode},
+			#{deptOffice.id},
+			#{jpositionCode},
+			#{jpositionName},
+			#{justifyDate},
+			#{jpersonCode},
+			#{justifyPerson},
+			#{justifyResult},
+			#{memo},
+			#{state},
+			#{justifyRemark},
+			#{isQmatter},
+			#{sfcInvCheckMain.billNo},
+			#{userDeptCode},
+			#{processInstanceId},
+			#{percentPass},
+			#{isAudit},
+			#{reinvCheckMain.id}
+		)
+	</insert>
+
+
+
+	<insert id="myInsertREINV">
+		INSERT INTO qms_purreport(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			report_id,
+			billnum,
+			checkt_code,
+			checkt_name,
+			rnd_ful,
+			quality_norm,
+			cdept_code,
+			cdept_name,
+			cposition_code,
+			cposition_name,
+			check_date,
+			check_time,
+			cperson_code,
+			check_person,
+			check_result,
+			jdept_code,
+			jdept_name,
+			jposition_code,
+			jposition_name,
+			justify_date,
+			jperson_code,
+			justify_person,
+			justify_result,
+			memo,
+			state,
+			justify_remark,
+			is_qmatter,
+			bill_no,
+			user_dept_code,
+			process_instance_id,
+			percent_pass,
+			is_audit,
+			bill_num_inv
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{reportId},
+			#{reinvCheckMain.id},
+			#{checktCode},
+			#{checktName},
+			#{rndFul},
+			#{qualityNorm},
+			#{cdeptCode},
+			#{office.id},
+			#{cpositionCode},
+			#{cpositionName},
+			#{checkDate},
+			#{checkTime},
+			#{cpersonCode},
+			#{checkPerson},
+			#{checkResult},
+			#{jdeptCode},
+			#{deptOffice.id},
+			#{jpositionCode},
+			#{jpositionName},
+			#{justifyDate},
+			#{jpersonCode},
+			#{justifyPerson},
+			#{justifyResult},
+			#{memo},
+			#{state},
+			#{justifyRemark},
+			#{isQmatter},
+			#{sfcInvCheckMain.billNo},
+			#{userDeptCode},
+			#{processInstanceId},
+			#{percentPass},
+			#{isAudit},
+			#{reinvCheckMain.id}
+		)
+	</insert>
+
+
+	<update id="myUpdataREINV">
+		UPDATE qms_purreport SET
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			report_id = #{reportId},
+			billnum = #{reinvCheckMain.id},
+			checkt_code = #{checktCode},
+			checkt_name = #{checktName},
+			rnd_ful = #{rndFul},
+			quality_norm = #{qualityNorm},
+			cdept_code = #{cdeptCode},
+			cdept_name = #{office.id},
+			cposition_code = #{cpositionCode},
+			cposition_name = #{cpositionName},
+			check_date = #{checkDate},
+			check_time = #{checkTime},
+			cperson_code = #{cpersonCode},
+			check_person = #{checkPerson},
+			check_result = #{checkResult},
+			jdept_code = #{jdeptCode},
+			jdept_name = #{deptOffice.id},
+			jposition_code = #{jpositionCode},
+			jposition_name = #{jpositionName},
+			justify_date = #{justifyDate},
+			jperson_code = #{jpersonCode},
+			justify_person = #{justifyPerson},
+			justify_result = #{justifyResult},
+			memo = #{memo},
+			state = #{state},
+			is_qmatter = #{isQmatter},
+			bill_no = #{sfcInvCheckMain.id},
+			user_dept_code = #{userDeptCode},
+			process_instance_id = #{processInstanceId},
+			percent_pass = #{percentPass},
+			is_audit = #{isAudit},
+			bill_num_inv = #{reinvCheckMain.id}
+		WHERE id = #{id}
+	</update>
+
+
+	
+	
+	<update id="update">
+		UPDATE qms_purreport SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			report_id = #{reportId},
+			billnum = #{invCheckMain.id},
+			checkt_code = #{checktCode},
+			checkt_name = #{checktName},
+			rnd_ful = #{rndFul},
+			quality_norm = #{qualityNorm},
+			cdept_code = #{cdeptCode},
+			cdept_name = #{office.id},
+			cposition_code = #{cpositionCode},
+			cposition_name = #{cpositionName},
+			check_date = #{checkDate},
+			check_time = #{checkTime},
+			cperson_code = #{cpersonCode},
+			check_person = #{checkPerson},
+			check_result = #{checkResult},
+			jdept_code = #{jdeptCode},
+			jdept_name = #{deptOffice.id},
+			jposition_code = #{jpositionCode},
+			jposition_name = #{jpositionName},
+			justify_date = #{justifyDate},
+			jperson_code = #{jpersonCode},
+			justify_person = #{justifyPerson},
+			justify_result = #{justifyResult},
+			memo = #{memo},
+			state = #{state},
+			is_qmatter = #{isQmatter},
+			bill_no = #{sfcInvCheckMain.id},
+			user_dept_code = #{userDeptCode},
+			process_instance_id = #{processInstanceId},
+			percent_pass = #{percentPass},
+			is_audit = #{isAudit},
+			bill_num_inv = #{reinvCheckMain.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	
+	
+	<update id="myUpdata">
+		UPDATE qms_purreport SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			report_id = #{reportId},
+			billnum = #{invCheckMain.id},
+			checkt_code = #{checktCode},
+			checkt_name = #{checktName},
+			rnd_ful = #{rndFul},
+			quality_norm = #{qualityNorm},
+			cdept_code = #{cdeptCode},
+			cdept_name = #{office.id},
+			cposition_code = #{cpositionCode},
+			cposition_name = #{cpositionName},
+			check_date = #{checkDate},
+			check_time = #{checkTime},
+			cperson_code = #{cpersonCode},
+			check_person = #{checkPerson},
+			check_result = #{checkResult},
+			jdept_code = #{jdeptCode},
+			jdept_name = #{deptOffice.id},
+			jposition_code = #{jpositionCode},
+			jposition_name = #{jpositionName},
+			justify_date = #{justifyDate},
+			jperson_code = #{jpersonCode},
+			justify_person = #{justifyPerson},
+			justify_result = #{justifyResult},
+			memo = #{memo},
+			state = #{state},
+			is_qmatter = #{isQmatter},
+			bill_no = #{sfcInvCheckMain.id},
+			user_dept_code = #{userDeptCode},
+			process_instance_id = #{processInstanceId},
+			percent_pass = #{percentPass},
+			is_audit = #{isAudit},
+			bill_num_inv = #{reinvCheckMain.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	
+	
+	<update id="updateByReportId">
+		UPDATE qms_purreport SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			report_id = #{reportId},
+			billnum = #{invCheckMain.id},
+			checkt_code = #{checktCode},
+			checkt_name = #{checktName},
+			rnd_ful = #{rndFul},
+			quality_norm = #{qualityNorm},
+			cdept_code = #{cdeptCode},
+			cdept_name = #{office.id},
+			cposition_code = #{cpositionCode},
+			cposition_name = #{cpositionName},
+			check_date = #{checkDate},
+			check_time = #{checkTime},
+			cperson_code = #{cpersonCode},
+			check_person = #{checkPerson},
+			check_result = #{checkResult},
+			jdept_code = #{jdeptCode},
+			jdept_name = #{deptOffice.id},
+			jposition_code = #{jpositionCode},
+			jposition_name = #{jpositionName},
+			justify_date = #{justifyDate},
+			jperson_code = #{jpersonCode},
+			justify_person = #{justifyPerson},
+			justify_result = #{justifyResult},
+			memo = #{memo},
+			state = #{state},
+			is_audit = #{isAudit},
+			bill_num_inv = #{reinvCheckMain.id}
+		WHERE report_id = #{reportId}
+	</update>
+	
+	
+	
+
+
+	<update id="updateforAudit">
+		UPDATE qms_purreport SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			report_id = #{reportId},
+			billnum = #{invCheckMain.id},
+			checkt_code = #{checktCode},
+			checkt_name = #{checktName},
+			rnd_ful = #{rndFul},
+			quality_norm = #{qualityNorm},
+			cdept_code = #{cdeptCode},
+			cdept_name = #{office.id},
+			cposition_code = #{cpositionCode},
+			cposition_name = #{cpositionName},
+			check_date = #{checkDate},
+			check_time = #{checkTime},
+			cperson_code = #{cpersonCode},
+			check_person = #{checkPerson},
+			check_result = #{checkResult},
+			jdept_code = #{jdeptCode},
+			jdept_name = #{jdeptName},
+			jposition_code = #{jpositionCode},
+			jposition_name = #{jpositionName},
+			justify_date = #{justifyDate},
+			jperson_code = #{jpersonCode},
+			justify_person = #{justifyPerson},
+			justify_result = #{justifyResult},
+			justify_remark = #{justifyRemark},
+			memo = #{memo},
+			state = #{state},
+			is_qmatter = #{isQmatter},
+			bill_no = #{sfcInvCheckMain.id},
+			user_dept_code = #{userDeptCode},
+			process_instance_id = #{processInstanceId},
+			percent_pass = #{percentPass},
+			is_audit = #{isAudit}
+		WHERE id = #{id}
+	</update>
+
+
+
+
+
+	
+	
+	<insert id="insertVerifyQCNorm">
+		INSERT INTO qms_verifyqcnorm(
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			report_id,
+			obj_sn,
+			obj_code,
+			obj_name,
+			rule_id,
+			checkprj,
+			qcnorm_id,
+			qcnorm_name,
+			isfisished
+		) VALUES (
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{reportId},
+			#{objSn},
+			#{objCode},
+			#{objName},
+			#{ruleId},
+			#{checkprj},
+			#{qcnormId},
+			#{qcnormName},
+			#{isfisished}
+		)
+	</insert>
+	
+	
+	
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_purreport
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_purreport SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurReport" statementType="STATEMENT">
+		select * FROM qms_purreport  where ${propertyName} = '${value}'
+	</select>
+	
+	
+	
+	
+	
+	<select id="findReInvList" resultType="ReinvCheckMain" >
+		SELECT 
+			*
+		FROM inv_checkmain a
+		<where>
+			<if test="beginBillNum != null and endBillNum != null and beginBillNum != '' and endBillNum != ''">
+				AND a.bill_num BETWEEN #{beginBillNum} AND #{endBillNum}
+			</if>
+			<if test="periodId != null and periodId != ''">
+				AND a.period_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{periodId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{periodId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{periodId},'%')</if>
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.make_date BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="makeEmpId != null and makeEmpId != ''">
+				AND a.make_emp_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makeEmpId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makeEmpId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makeEmpId},'%')</if>
+			</if>
+			<if test="makeEmpName != null and makeEmpName != ''">
+				AND a.make_emp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makeEmpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makeEmpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makeEmpName},'%')</if>
+			</if>
+			<if test="billFlag != null and billFlag != ''">
+				AND a.bill_flag LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billFlag}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billFlag}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billFlag},'%')</if>
+			</if>
+			<if test="wareId != null and wareId != ''">
+				AND a.ware_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareId},'%')</if>
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="wareEmpId != null and wareEmpId != ''">
+				AND a.ware_emp_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareEmpId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareEmpId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareEmpId},'%')</if>
+			</if>
+			<if test="wareEmpName != null and wareEmpName != ''">
+				AND a.ware_emp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareEmpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareEmpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareEmpName},'%')</if>
+			</if>
+			<if test="checkEmpId != null and checkEmpId != ''">
+				AND a.check_emp_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{checkEmpId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{checkEmpId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{checkEmpId},'%')</if>
+			</if>
+			<if test="checkEmpName != null and checkEmpName != ''">
+				AND a.check_emp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{checkEmpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{checkEmpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{checkEmpName},'%')</if>
+			</if>
+			<if test="qmsFlag != null and qmsFlag != ''">
+				AND a.qms_flag LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qmsFlag}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qmsFlag}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qmsFlag},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+</mapper>

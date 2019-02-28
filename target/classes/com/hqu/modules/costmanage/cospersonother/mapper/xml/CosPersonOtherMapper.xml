@@ -1,0 +1,241 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.cospersonother.mapper.CosPersonOtherMapper">
+    
+	<sql id="cosPersonOtherColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.period_id AS "periodID",
+		a.person_code AS "personCode.teamCode",
+		a.person_name AS "personName",
+		a.item_id AS "itemId.itemCode",
+		a.item_name AS "itemName",
+		a.item_sum AS "itemSum",
+		a.bill_status AS "billStatus",
+		a.bill_mode AS "billMode",
+		a.check_id AS "checkId",
+		a.check_date AS "checkDate",
+		a.check_name AS "checkName",
+		a.make_id AS "makeId",
+		a.make_date AS "makeDate",
+		a.make_name AS "makeName"
+	</sql>
+	
+	<sql id="cosPersonOtherJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="CosPersonOther" >
+		SELECT 
+			<include refid="cosPersonOtherColumns"/>
+		FROM cos_personother a
+		<include refid="cosPersonOtherJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CosPersonOther" >
+		SELECT 
+			<include refid="cosPersonOtherColumns"/>
+		FROM cos_personother a
+		<include refid="cosPersonOtherJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num = #{billNum}
+			</if>
+			<if test="periodID != null and periodID != ''">
+				AND a.period_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{periodID}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{periodID}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{periodID},'%')</if>
+			</if>
+			<if test="personName != null and personName != ''">
+				AND a.person_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{personName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{personName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{personName},'%')</if>
+			</if>
+			<if test="itemId != null and itemId.itemCode != null and itemId.itemCode != ''">
+				AND a.item_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemId.itemCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemId.itemCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemId.itemCode},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="itemSum != null and itemSum != ''">
+				AND a.item_sum LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemSum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemSum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemSum},'%')</if>
+			</if>
+			<if test="billStatus != null and billStatus != ''">
+				AND a.bill_status LIKE
+				<if test="dbName == 'oracle'">'%'||#{billStatus}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billStatus}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billStatus},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CosPersonOther" >
+		SELECT 
+			<include refid="cosPersonOtherColumns"/>
+		FROM cos_personother a
+		<include refid="cosPersonOtherJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getSum" resultType="Double">
+		SELECT sum(a.item_sum) 
+		FROM cos_personother a 
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="periodID != null and periodID != ''">
+				AND a.period_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{periodID}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{periodID}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{periodID},'%')</if>
+			</if>
+			<if test="personCode != null and personCode.teamCode != null and personCode.teamCode != ''">
+				AND a.person_code = #{personCode.teamCode}
+			</if>
+			<if test="billStatus != null and billStatus != ''">
+				AND a.bill_status LIKE
+				<if test="dbName == 'oracle'">'%'||#{billStatus}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billStatus}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billStatus},'%')</if>
+			</if>
+		</where>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO cos_personother(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			period_id,
+			person_code,
+			person_name,
+			item_id,
+			item_name,
+			item_sum,
+			bill_status,
+			bill_mode,
+			check_id,
+			check_date,
+			check_name,
+			make_id,
+			make_date,
+			make_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{periodID},
+			#{personCode.teamCode},
+			#{personName},
+			#{itemId.itemCode},
+			#{itemName},
+			#{itemSum},
+			#{billStatus},
+			#{billMode},
+			#{checkId},
+			#{checkDate},
+			#{checkName},
+			#{makeId},
+			#{makeDate},
+			#{makeName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE cos_personother SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			period_id = #{periodID},
+			person_code = #{personCode.teamCode},
+			person_name = #{personName},
+			item_id = #{itemId.itemCode},
+			item_name = #{itemName},
+			item_sum = #{itemSum},
+			bill_status = #{billStatus},
+			bill_mode = #{billMode},
+			check_id = #{checkId},
+			check_date = #{checkDate},
+			check_name = #{checkName},
+			make_id = #{makeId},
+			make_date = #{makeDate},
+			make_name = #{makeName}
+		WHERE id = #{id}
+	</update>
+
+	<update id="updataReal">
+		update cos_detail_realaccount set item_sum = #{0} where bill_num = #{1}
+	</update>
+
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM cos_personother
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE cos_personother SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CosPersonOther" statementType="STATEMENT">
+		select * FROM cos_personother  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

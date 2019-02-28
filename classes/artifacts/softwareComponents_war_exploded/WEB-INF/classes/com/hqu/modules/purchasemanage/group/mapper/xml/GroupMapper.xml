@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.group.mapper.GroupMapper">
+    
+	<sql id="groupColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.groupid AS "groupid",
+		a.groupname AS "groupname"
+	</sql>
+	
+	<sql id="groupJoins">
+		
+	</sql>
+	  
+	<select id="get" resultType="Group" >
+		SELECT 
+			<include refid="groupColumns"/>
+		FROM pur_group a
+		<include refid="groupJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Group" >
+		SELECT 
+			<include refid="groupColumns"/>
+		FROM pur_group a
+		<include refid="groupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="groupid != null and groupid != ''">
+				AND a.groupid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{groupid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{groupid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{groupid},'%')</if>
+			</if>
+			<if test="groupname != null and groupname != ''">
+				AND a.groupname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{groupname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{groupname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{groupname},'%')</if>
+			</if>
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Group" >
+		SELECT 
+			<include refid="groupColumns"/>
+		FROM pur_group a
+		<include refid="groupJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	<select id="getMaxGroupid" resultType="String">
+		SELECT MAX(groupid)
+		FROM pur_group
+	</select>
+	
+	
+	
+	<insert id="insert">
+		INSERT INTO pur_group(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			groupid,
+			groupname
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{groupid},
+			#{groupname}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_group SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			groupid = #{groupid},
+			groupname = #{groupname}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_group
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_group SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Group" statementType="STATEMENT">
+		select * FROM pur_group  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,200 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.purpircelist.mapper.PurPriceListMapper">
+    
+<!-- 	<sql id="purPriceListColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.serialnum AS "serialNum",
+		a.sup_id AS "supId",
+		a.sup_name AS "supName",
+		a.item_code AS "itemCode",
+		a.item_name AS "itemName",
+		a.unit AS "unit",
+		a.price_taxed AS "priceTaxed",
+		a.price_range AS "priceRange",
+		a.tax_ratio AS "taxRatio",
+		a.create_date_item AS "creatDateItem",
+		a.notes AS "notes"
+	</sql> -->
+	
+	<sql id="purPriceListColumns">
+		d.account_code AS "supId",
+		d.account_name AS "supName",
+		c.`code` AS "itemCode",
+		c.`name` AS "itemName",
+		c.unit AS "unit",
+		b.sup_price AS "priceTaxed",
+		CONCAT(b.min_qty,'~',b.max_qty) AS "priceRange",
+		d.tax_ratio AS "taxRatio",
+		b.create_date AS "creatDateItem",
+		b.notes AS "notes"
+	</sql>
+	
+	<sql id="purPriceListJoins">
+		LEFT JOIN pur_supprice a ON b.sup_id = a.id
+		LEFT JOIN mdm_item c ON c.id = b.item_code
+		LEFT JOIN mdm_account d ON a.sup_id = d.id
+	</sql>
+	
+    
+	<select id="get" resultType="PurPriceList" >
+		SELECT 
+			<include refid="purPriceListColumns"/>
+		FROM pur_price_list a
+		<include refid="purPriceListJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurPriceList" >
+		SELECT 
+			<include refid="purPriceListColumns"/>
+		FROM pur_supprice_detail b
+		<include refid="purPriceListJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="supId != null and supId != ''">
+				AND d.account_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supId},'%')</if>
+			</if>
+			<if test="supName != null and supName != ''">
+				AND d.account_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{supName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{supName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{supName},'%')</if>
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND c.`code` LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemCode},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND c.`name` LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="beginCreatDateItem != null and endCreatDateItem != null and beginCreatDateItem != '' and endCreatDateItem != ''">
+				AND b.create_date BETWEEN #{beginCreatDateItem} AND #{endCreatDateItem}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY c.`name`, b.min_qty ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurPriceList" >
+		SELECT 
+			<include refid="purPriceListColumns"/>
+		FROM pur_price_list a
+		<include refid="purPriceListJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_price_list(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			serialnum,
+			sup_id,
+			sup_name,
+			item_code,
+			item_name,
+			unit,
+			price_taxed,
+			price_range,
+			tax_ratio,
+			create_date_item,
+			notes
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{serialNum},
+			#{supId},
+			#{supName},
+			#{itemCode},
+			#{itemName},
+			#{unit},
+			#{priceTaxed},
+			#{priceRange},
+			#{taxRatio},
+			#{creatDateItem},
+			#{notes}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_price_list SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			serialnum = #{serialNum},
+			sup_id = #{supId},
+			sup_name = #{supName},
+			item_code = #{itemCode},
+			item_name = #{itemName},
+			unit = #{unit},
+			price_taxed = #{priceTaxed},
+			price_range = #{priceRange},
+			tax_ratio = #{taxRatio},
+			create_date_item = #{creatDateItem},
+			notes = #{notes}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_price_list
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_price_list SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurPriceList" statementType="STATEMENT">
+		select * FROM pur_price_list  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

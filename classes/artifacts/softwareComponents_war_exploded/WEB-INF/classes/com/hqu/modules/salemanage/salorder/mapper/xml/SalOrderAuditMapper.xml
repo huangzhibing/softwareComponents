@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.salorder.mapper.SalOrderAuditMapper">
+    
+	<sql id="salOrderAuditColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.order_code AS "orderCode.id",
+		a.audit_code AS "auditCode",
+		a.audit_person AS "auditPerson",
+		a.audit_date AS "auditDate",
+		a.audit_note AS "auditNote",
+		a.audit_stat AS "auditStat"
+	</sql>
+	
+	<sql id="salOrderAuditJoins">
+		
+			LEFT JOIN sal_order b ON b.id = a.order_code
+	</sql>
+	
+    
+	<select id="get" resultType="SalOrderAudit" >
+		SELECT 
+			<include refid="salOrderAuditColumns"/>
+		FROM sal_order_audit a
+		<include refid="salOrderAuditJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SalOrderAudit" >
+		SELECT 
+			<include refid="salOrderAuditColumns"/>
+		FROM sal_order_audit a
+		<include refid="salOrderAuditJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="orderCode != null and orderCode != ''">
+				AND a.order_code = #{orderCode.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SalOrderAudit" >
+		SELECT 
+			<include refid="salOrderAuditColumns"/>
+		FROM sal_order_audit a
+		<include refid="salOrderAuditJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_order_audit(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			order_code,
+			audit_code,
+			audit_person,
+			audit_date,
+			audit_note,
+			audit_stat
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{orderCode.id},
+			#{auditCode},
+			#{auditPerson},
+			#{auditDate},
+			#{auditNote},
+			#{auditStat}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_order_audit SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			order_code = #{orderCode.id},
+			audit_code = #{auditCode},
+			audit_person = #{auditPerson},
+			audit_date = #{auditDate},
+			audit_note = #{auditNote},
+			audit_stat = #{auditStat}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_order_audit
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE order_code = #{orderCode.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_order_audit SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE order_code = #{orderCode.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SalOrderAudit" statementType="STATEMENT">
+		select * FROM sal_order_audit  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

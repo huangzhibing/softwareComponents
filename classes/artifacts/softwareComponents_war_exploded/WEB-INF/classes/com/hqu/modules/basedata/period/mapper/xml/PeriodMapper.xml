@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.period.mapper.PeriodMapper">
+    
+	<sql id="periodColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.period_id AS "periodId",
+		a.period_begin AS "periodBegin",
+		a.period_end AS "periodEnd",
+		a.beginhour AS "beginHour",
+		a.endhour AS "endHour",
+		a.year AS "year",
+		a.close_flag AS "closeFlag"
+	</sql>
+	
+	<sql id="periodJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Period" >
+		SELECT 
+			<include refid="periodColumns"/>
+		FROM mdm_period a
+		<include refid="periodJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="getCurrentPeriod" resultType="Period" >
+		SELECT 
+			<include refid="periodColumns"/>
+		FROM mdm_period a
+		<include refid="periodJoins"/>
+		<where>
+			<if test="currentDate != null and currentDate != ''">
+			 	a.period_begin &lt; #{currentDate} AND a.period_end &gt; #{currentDate}
+			</if>
+		</where>
+	</select>
+	
+	<select id="getPeriodByClose" resultType="String">
+		SELECT MAX(a.period_id)
+		FROM mdm_period a
+		<where>
+			a.close_flag = "Y"
+		</where>
+	</select>
+
+	<select id="getBeginEndPeriod" resultType="map">
+		SELECT period_begin,period_end
+		FROM mdm_period a
+		<where>
+			a.period_id = #{periodId}
+		</where>
+	</select>
+	
+	<select id="findList" resultType="Period" >
+		SELECT 
+			<include refid="periodColumns"/>
+		FROM mdm_period a
+		<include refid="periodJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="year != null and year != ''">
+				AND a.year = #{year}
+			</if>
+			<if test="periodId != null and periodId != ''">
+				AND a.period_id = #{periodId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.period_begin DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Period" >
+		SELECT 
+			<include refid="periodColumns"/>
+		FROM mdm_period a
+		<include refid="periodJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.period_begin DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_period(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			period_id,
+			period_begin,
+			period_end,
+			beginhour,
+			endhour,
+			year,
+			close_flag
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{periodId},
+			#{periodBegin},
+			#{periodEnd},
+			#{beginHour},
+			#{endHour},
+			#{year},
+			#{closeFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_period SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			period_id = #{periodId},
+			period_begin = #{periodBegin},
+			period_end = #{periodEnd},
+			beginhour = #{beginHour},
+			endhour = #{endHour},
+			year = #{year},
+			close_flag = #{closeFlag}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_period
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_period SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Period" statementType="STATEMENT">
+		select * FROM mdm_period  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

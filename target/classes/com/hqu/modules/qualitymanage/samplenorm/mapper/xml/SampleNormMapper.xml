@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.samplenorm.mapper.SampleNormMapper">
+    
+	<sql id="sampleNormColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.snorm_code AS "snormCode",
+		a.snorm_name AS "snormName",
+		a.snorm_des AS "snormDes"
+	</sql>
+	
+	<sql id="sampleNormJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="SampleNorm" >
+		SELECT 
+			<include refid="sampleNormColumns"/>
+		FROM qms_samplenorm a
+		<include refid="sampleNormJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SampleNorm" >
+		SELECT 
+			<include refid="sampleNormColumns"/>
+		FROM qms_samplenorm a
+		<include refid="sampleNormJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="snormCode != null and snormCode != ''">
+				AND a.snorm_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{snormCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{snormCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{snormCode},'%')</if>
+			</if>
+			<if test="snormName != null and snormName != ''">
+				AND a.snorm_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{snormName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{snormName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{snormName},'%')</if>
+			</if>
+			<if test="snormDes != null and snormDes != ''">
+				AND a.snorm_des LIKE 
+					<if test="dbName == 'oracle'">'%'||#{snormDes}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{snormDes}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{snormDes},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SampleNorm" >
+		SELECT 
+			<include refid="sampleNormColumns"/>
+		FROM qms_samplenorm a
+		<include refid="sampleNormJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_samplenorm(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			snorm_code,
+			snorm_name,
+			snorm_des
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{snormCode},
+			#{snormName},
+			#{snormDes}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_samplenorm SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			snorm_code = #{snormCode},
+			snorm_name = #{snormName},
+			snorm_des = #{snormDes}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_samplenorm
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_samplenorm SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SampleNorm" statementType="STATEMENT">
+		select * FROM qms_samplenorm  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

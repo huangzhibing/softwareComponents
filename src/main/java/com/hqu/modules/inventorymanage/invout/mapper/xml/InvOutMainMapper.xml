@@ -1,0 +1,257 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.invout.mapper.InvOutMainMapper">
+    
+	<sql id="invOutMainColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.make_date AS "makeDate",
+		a.make_emp_id AS "makeEmp.no",
+		a.make_emp_name AS "makeEmpName",
+		a.bill_flag AS "billFlag",
+		a.ware_id AS "ware.wareID",
+		a.ware_name AS "wareName",
+		a.ware_emp_id AS "wareEmp.no",
+		a.ware_emp_name AS "wareEmpName",
+		a.dept_id AS "dept.code",
+		a.dept_name AS "deptName",
+		a.carrier_name AS "carrierName",
+		a.car_num AS "carNum",
+		a.away_date AS "awayDate",
+		a.cor_bill_num AS "corBillNum.billNum",
+		a.process_instance_id AS "processInstanceId"
+				
+				
+				
+				
+
+	</sql>
+	
+	<sql id="invOutMainJoins">
+		
+		LEFT JOIN sys_user makeEmp ON makeEmp.no = a.make_emp_id
+		LEFT JOIN inv_warehouse ware ON ware.ware_id = a.ware_id
+		LEFT JOIN sys_user wareEmp ON wareEmp.no = a.ware_emp_id
+		LEFT JOIN sys_office dept ON dept.code = a.dept_id
+		LEFT JOIN inv_billmain corBillNum ON corBillNum.bill_num = a.cor_bill_num
+	</sql>
+	
+    
+	<select id="get" resultType="InvOutMain" >
+		SELECT 
+			<include refid="invOutMainColumns"/>
+		FROM inv_out_main a
+		<include refid="invOutMainJoins"/>
+		WHERE a.id = #{id} AND corBillNum.io_type != 'CT01'
+	</select>
+	
+	<select id="findList" resultType="InvOutMain" >
+		SELECT 
+			<include refid="invOutMainColumns"/>
+		FROM inv_out_main a
+		<include refid="invOutMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			AND corBillNum.io_type != 'CT01'
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.make_date BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="makeEmp != null and makeEmp.id != null and makeEmp.id != ''">
+				AND a.make_emp_id = #{makeEmp.id}
+			</if>
+			<if test="makeEmpName != null and makeEmpName != ''">
+				AND a.make_emp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{makeEmpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{makeEmpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{makeEmpName},'%')</if>
+			</if>
+			<if test="ware != null and ware.id != null and ware.id != ''">
+				AND a.ware_id = #{ware.id}
+			</if>
+			<if test="wareName != null and wareName != ''">
+				AND a.ware_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareName},'%')</if>
+			</if>
+			<if test="wareEmp != null and wareEmp.id != null and wareEmp.id != ''">
+				AND a.ware_emp_id = #{wareEmp.id}
+			</if>
+			<if test="wareEmpName != null and wareEmpName != ''">
+				AND a.ware_emp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{wareEmpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{wareEmpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{wareEmpName},'%')</if>
+			</if>
+			<if test="dept != null and dept.id != null and dept.id != ''">
+				AND a.dept_id = #{dept.id}
+			</if>
+			<if test="deptName != null and deptName != ''">
+				AND a.dept_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{deptName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{deptName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{deptName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="InvOutMain" >
+		SELECT 
+			<include refid="invOutMainColumns"/>
+		FROM inv_out_main a
+		<include refid="invOutMainJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_out_main(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			make_date,
+			make_emp_id,
+			make_emp_name,
+			bill_flag,
+			ware_id,
+			ware_name,
+			ware_emp_id,
+			ware_emp_name,
+			dept_id,
+			dept_name,
+			carrier_name,
+			car_num,
+			away_date,
+			cor_bill_num,
+			process_instance_id
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{makeDate},
+			#{makeEmp.no},
+			#{makeEmpName},
+			#{billFlag},
+			#{ware.wareID},
+			#{wareName},
+			#{wareEmp.no},
+			#{wareEmpName},
+			#{dept.code},
+			#{deptName},
+			#{carrierName},
+			#{carNum},
+			#{awayDate},
+			#{corBillNum.billNum},
+			#{processInstanceId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_out_main SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			make_date = #{makeDate},
+			make_emp_id = #{makeEmp.no},
+			make_emp_name = #{makeEmpName},
+			bill_flag = #{billFlag},
+			ware_id = #{ware.wareID},
+			ware_name = #{wareName},
+			ware_emp_id = #{wareEmp.no},
+			ware_emp_name = #{wareEmpName},
+			dept_id = #{dept.code},
+			dept_name = #{deptName},
+			carrier_name = #{carrierName},
+			car_num = #{carNum},
+			away_date = #{awayDate},
+			cor_bill_num = #{corBillNum.billNum},
+			process_instance_id = #{processInstanceId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_out_main
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_out_main SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="InvOutMain" statementType="STATEMENT">
+		select * FROM inv_out_main  where ${propertyName} = '${value}'
+	</select>
+	<update id="updateProcessInstanceId">
+		UPDATE inv_out_main SET
+		process_instance_id = #{processInstanceId}
+		WHERE id = #{id}
+	</update>
+	<select id="getMaxId" resultType="String">
+		SELECT MAX(bill_num) FROM inv_out_main
+	</select>
+	<update id="updateRealityTime">
+		UPDATE inv_out_main SET
+		reality_start_time = #{realityStartTime},
+		reality_end_time = #{realityEndTime},
+		update_by = #{updateBy.id},
+		update_date = #{updateDate},
+		remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	<select id="getByProInsId" resultType="InvOutMain" >
+		SELECT
+		<include refid="invOutMainColumns"/>
+		FROM inv_out_main a
+		<include refid="invOutMainJoins"/>
+		WHERE a.process_instance_id = #{id}
+	</select>
+</mapper>

@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.initbill.mapper.InitBillMapper">
+	<select id="findPeriodByTime" parameterType="java.util.Map" resultType="com.hqu.modules.basedata.period.entity.Period">
+		select * from mdm_period where #{today} &lt;= period_end and #{today} &gt;= period_begin
+	</select>
+	<update id="changeRealQty">
+		update inv_account set real_qty=real_qty+${num} where id=#{id}
+	</update>
+	<update id="updateRealQty" parameterType="java.util.Map">
+		update inv_account set real_qty=#{qty} 
+		where
+			item_code=#{itemId} and ware_id=#{wareId}
+		<if test="loc_id != null and loc_id != ''">
+			AND loc_id=#{locId}
+		</if>
+		<if test="binId != null and binId != ''">
+			AND bin_id=#{binId}
+		</if>
+	</update>
+</mapper>

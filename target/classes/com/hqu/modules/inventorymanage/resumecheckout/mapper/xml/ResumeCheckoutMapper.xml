@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.resumecheckout.mapper.ResumeCheckoutMapper">
+    
+	<select id="findLastByDate" resultType="String" >
+		SELECT period_id FROM mdm_period where period_begin   &lt;   #{date} order by period_begin desc limit 2
+	</select>
+
+	<select id="findNextByDate" resultType="String">
+		SELECT period_id FROM mdm_period WHERE period_end > #{date} ORDER BY period_end limit 2
+	</select>
+	
+</mapper>

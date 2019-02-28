@@ -1,0 +1,138 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.contract.mapper.CtrTypeDefMapper">
+    
+	<sql id="ctrTypeDefColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.ctr_type_code AS "ctrTypeCode",
+		a.ctr_type_name AS "ctrTypeName",
+		a.ctr_type_desc AS "ctrTypeDesc"
+	</sql>
+	
+	<sql id="ctrTypeDefJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="CtrTypeDef" >
+		SELECT 
+			<include refid="ctrTypeDefColumns"/>
+		FROM sal_ctrtypedef a
+		<include refid="ctrTypeDefJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CtrTypeDef" >
+		SELECT 
+			<include refid="ctrTypeDefColumns"/>
+		FROM sal_ctrtypedef a
+		<include refid="ctrTypeDefJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="ctrTypeCode != null and ctrTypeCode != ''">
+				AND a.ctr_type_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ctrTypeCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ctrTypeCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ctrTypeCode},'%')</if>
+			</if>
+			<if test="ctrTypeName != null and ctrTypeName != ''">
+				AND a.ctr_type_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ctrTypeName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ctrTypeName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ctrTypeName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CtrTypeDef" >
+		SELECT 
+			<include refid="ctrTypeDefColumns"/>
+		FROM sal_ctrtypedef a
+		<include refid="ctrTypeDefJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_ctrtypedef(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			ctr_type_code,
+			ctr_type_name,
+			ctr_type_desc
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{ctrTypeCode},
+			#{ctrTypeName},
+			#{ctrTypeDesc}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_ctrtypedef SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			ctr_type_code = #{ctrTypeCode},
+			ctr_type_name = #{ctrTypeName},
+			ctr_type_desc = #{ctrTypeDesc}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_ctrtypedef
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_ctrtypedef SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CtrTypeDef" statementType="STATEMENT">
+		select * FROM sal_ctrtypedef  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.initbill.mapper.BillDetailInitBillMapper">
+    
+	<sql id="billDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum.id",
+		a.serial_num AS "serialNum",
+		a.bin_id AS "bin.id",
+		a.bin_name AS "binName",
+		a.loc_id AS "loc.id",
+		a.loc_name AS "locName",
+		a.item_code AS "item.id",
+		a.item_name AS "itemName",
+		a.item_spec AS "itemSpec",
+		a.item_pdn AS "itemPdn",
+		a.bar_code AS "barCode",
+		a.order_num AS "orderNum",
+		a.plan_num AS "planNum",
+		a.meas_unit AS "measUnit",
+		a.item_qty AS "itemQty",
+		a.item_rqty AS "itemRqty",
+		a.item_price AS "itemPrice",
+		a.item_sum AS "itemSum",
+		a.item_batch AS "itemBatch",
+		a.fitem_code AS "fitemCode",
+		a.forder_num AS "forderNum",
+		a.contract_num AS "contractNum",
+		a.cor_bill_num AS "corBillNum",
+		a.pick_flag AS "pickFlag",
+		a.estimate_flag AS "estimateFlag",
+		a.note AS "note",
+		a.mrp_flag AS "mrpFlag",
+		a.plan_price AS "planPrice",
+		a.tax_sum AS "taxSum",
+		a.vehicle_code AS "vehicleCode",
+		a.rev_station AS "revStation",
+		a.rev_account AS "revAccount",
+		a.cos_flag AS "cosFlag",
+		a.order_codes AS "orderCodes",
+		a.traffic_cost AS "trafficCost",
+		a.oper_no AS "operNo",
+		a.source_flag AS "sourceFlag",
+		a.oper_name AS "operName",
+		a.plan_sum AS "planSum",
+		a.cor_serialnum AS "corSerialnum",
+		a.old_price AS "oldPrice",
+		a.cg_qty AS "cgQty",
+		a.cg_sum AS "cgSum",
+		a.sub_sum AS "subSum",
+		a.vouch_qty AS "vouchQty",
+		a.vouch_sum AS "vouchSum",
+		a.vouch_sub AS "vouchSub",
+		a.real_sum AS "realSum",
+		a.real_sum_taxed AS "realSumTaxed",
+		a.tax_ratio AS "taxRatio",
+				
+				
+				
+				
+				
+				
+				
+
+				
+		bin.bin_id AS "bin.binId",
+				
+				
+		loc.loc_id AS "loc.locId",
+				
+				
+		item.code AS "item.code"
+	</sql>
+	
+	<sql id="billDetailJoins">
+		
+		LEFT JOIN inv_billmain b ON b.id = a.bill_num
+		LEFT JOIN inv_bin bin ON bin.id = a.bin_id
+		LEFT JOIN inv_location loc ON loc.id = a.loc_id
+		LEFT JOIN mdm_item item ON item.id = a.item_code
+	</sql>
+	
+    
+	<select id="get" resultType="BillDetail" >
+		SELECT 
+			<include refid="billDetailColumns"/>
+		FROM inv_billdetail a
+		<include refid="billDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="BillDetail" >
+		SELECT 
+			<include refid="billDetailColumns"/>
+		FROM inv_billdetail a
+		<include refid="billDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+            <if test="billNum != null and billNum.id != null and billNum.id != ''">
+                AND a.bill_num LIKE
+                <if test="dbName == 'oracle'">'%'||#{billNum.id}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{billNum.id}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{billNum.id},'%')</if>
+            </if>
+			<if test="serialNum != null and serialNum != ''">
+				AND a.serial_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{serialNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{serialNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{serialNum},'%')</if>
+			</if>
+			<if test="bin != null and bin.id != null and bin.id != ''">
+				AND a.bin_id = #{bin.id}
+			</if>
+			<if test="binName != null and binName != ''">
+				AND a.bin_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{binName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{binName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{binName},'%')</if>
+			</if>
+			<if test="loc != null and loc.id != null and loc.id != ''">
+				AND a.loc_id = #{loc.id}
+			</if>
+			<if test="locName != null and locName != ''">
+				AND a.loc_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{locName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{locName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{locName},'%')</if>
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code = #{item.id}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="itemSpec != null and itemSpec != ''">
+				AND a.item_spec LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemSpec}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemSpec}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemSpec},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BillDetail" >
+		SELECT 
+			<include refid="billDetailColumns"/>
+		FROM inv_billdetail a
+		<include refid="billDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_billdetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			serial_num,
+			bin_id,
+			bin_name,
+			loc_id,
+			loc_name,
+			item_code,
+			item_name,
+			item_spec,
+			item_pdn,
+			bar_code,
+			order_num,
+			plan_num,
+			meas_unit,
+			item_qty,
+			item_rqty,
+			item_price,
+			item_sum,
+			item_batch,
+			fitem_code,
+			forder_num,
+			contract_num,
+			cor_bill_num,
+			pick_flag,
+			estimate_flag,
+			note,
+			mrp_flag,
+			plan_price,
+			tax_sum,
+			vehicle_code,
+			rev_station,
+			rev_account,
+			cos_flag,
+			order_codes,
+			traffic_cost,
+			oper_no,
+			source_flag,
+			oper_name,
+			plan_sum,
+			cor_serialnum,
+			old_price,
+			cg_qty,
+			cg_sum,
+			sub_sum,
+			vouch_qty,
+			vouch_sum,
+			vouch_sub,
+			real_sum,
+			real_sum_taxed,
+			tax_ratio
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum.id},
+			#{serialNum},
+			#{bin.binId},
+			#{binName},
+			#{loc.locId},
+			#{locName},
+			#{item.code},
+			#{itemName},
+			#{itemSpec},
+			#{itemPdn},
+			#{barCode},
+			#{orderNum},
+			#{planNum},
+			#{measUnit},
+			#{itemQty},
+			#{itemRqty},
+			#{itemPrice},
+			#{itemSum},
+			#{itemBatch},
+			#{fitemCode},
+			#{forderNum},
+			#{contractNum},
+			#{corBillNum},
+			#{pickFlag},
+			#{estimateFlag},
+			#{note},
+			#{mrpFlag},
+			#{planPrice},
+			#{taxSum},
+			#{vehicleCode},
+			#{revStation},
+			#{revAccount},
+			#{cosFlag},
+			#{orderCodes},
+			#{trafficCost},
+			#{operNo},
+			#{sourceFlag},
+			#{operName},
+			#{planSum},
+			#{corSerialnum},
+			#{oldPrice},
+			#{cgQty},
+			#{cgSum},
+			#{subSum},
+			#{vouchQty},
+			#{vouchSum},
+			#{vouchSub},
+			#{realSum},
+			#{realSumTaxed},
+			#{taxRatio}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_billdetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum.id},
+			serial_num = #{serialNum},
+			bin_id = #{bin.binId},
+			bin_name = #{binName},
+			loc_id = #{loc.locId},
+			loc_name = #{locName},
+			item_code = #{item.code},
+			item_name = #{itemName},
+			item_spec = #{itemSpec},
+			item_pdn = #{itemPdn},
+			bar_code = #{barCode},
+			order_num = #{orderNum},
+			plan_num = #{planNum},
+			meas_unit = #{measUnit},
+			item_qty = #{itemQty},
+			item_rqty = #{itemRqty},
+			item_price = #{itemPrice},
+			item_sum = #{itemSum},
+			item_batch = #{itemBatch},
+			fitem_code = #{fitemCode},
+			forder_num = #{forderNum},
+			contract_num = #{contractNum},
+			cor_bill_num = #{corBillNum},
+			pick_flag = #{pickFlag},
+			estimate_flag = #{estimateFlag},
+			note = #{note},
+			mrp_flag = #{mrpFlag},
+			plan_price = #{planPrice},
+			tax_sum = #{taxSum},
+			vehicle_code = #{vehicleCode},
+			rev_station = #{revStation},
+			rev_account = #{revAccount},
+			cos_flag = #{cosFlag},
+			order_codes = #{orderCodes},
+			traffic_cost = #{trafficCost},
+			oper_no = #{operNo},
+			source_flag = #{sourceFlag},
+			oper_name = #{operName},
+			plan_sum = #{planSum},
+			cor_serialnum = #{corSerialnum},
+			old_price = #{oldPrice},
+			cg_qty = #{cgQty},
+			cg_sum = #{cgSum},
+			sub_sum = #{subSum},
+			vouch_qty = #{vouchQty},
+			vouch_sum = #{vouchSum},
+			vouch_sub = #{vouchSub},
+			real_sum = #{realSum},
+			real_sum_taxed = #{realSumTaxed},
+			tax_ratio = #{taxRatio}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_billdetail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNum.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_billdetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNum.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="BillDetail" statementType="STATEMENT">
+		select * FROM inv_billdetail  where ${propertyName} = '${value}'
+	</select>
+	<select id="findIdByItemCode" parameterType="String" resultType="String">
+		select bill_num from inv_billdetail where item_code=#{itemCode};
+	</select>
+</mapper>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.unit.mapper.UnitMapper">
+    
+	<sql id="unitColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.unit_code AS "unitCode",
+		a.unit_name AS "unitName",
+		a.unit_type AS "unittype.id",
+		a.is_stand AS "isStand",
+		a.stand_unit_code AS "standUnitCode",
+		a.stand_unit_name AS "standUnitName",
+		a.conversion AS "conversion",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		unittype.unit_type_name AS "unittype.unitTypeName"
+	</sql>
+	
+	<sql id="unitJoins">
+		
+		LEFT JOIN mdm_unit_type unittype ON unittype.unit_type_code = a.unit_type
+	</sql>
+	
+    
+	<select id="get" resultType="Unit" >
+		SELECT 
+			<include refid="unitColumns"/>
+		FROM mdm_unit a
+		<include refid="unitJoins"/>
+		WHERE (a.id = #{id}||a.unit_code = #{id})
+	</select>
+	
+	<select id="findList" resultType="Unit" >
+		SELECT 
+			<include refid="unitColumns"/>
+		FROM mdm_unit a
+		<include refid="unitJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="unitCode != null and unitCode != ''">
+				AND a.unit_code LIKE "%"#{unitCode}"%"
+			</if>
+			<if test="unitName != null and unitName != ''">
+				AND a.unit_name LIKE "%"#{unitName}"%"
+			</if>
+			<if test="unittype != null and unittype.id != null and unittype.id != ''">
+				AND (unittype.unit_type_code =#{unittype.id} || unittype.id = #{unittype.id})
+			</if>
+			<if test="isStand != null and isStand != ''">
+				AND a.is_stand LIKE "%"#{isStand}"%"
+			</if>
+			<if test="standUnitCode != null and standUnitCode != ''">
+				AND a.stand_unit_code LIKE "%"#{standUnitCode}"%"
+			</if>
+			<if test="standUnitName != null and standUnitName != ''">
+				AND a.stand_unit_name LIKE "%"#{standUnitName}"%"
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Unit" >
+		SELECT 
+			<include refid="unitColumns"/>
+		FROM mdm_unit a
+		<include refid="unitJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+
+	<select id="getMaxUnitCode" resultType="String">
+		SELECT MAX(unit_code)
+		FROM mdm_unit
+	</select>
+
+	<select id="getStandUnitCode" resultType="Unit">
+		SELECT *
+		FROM mdm_unit a
+		<where>
+			a.is_stand = "是"
+		</where>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_unit(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			unit_code,
+			unit_name,
+			unit_type,
+			is_stand,
+			stand_unit_code,
+			stand_unit_name,
+			conversion
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{unitCode},
+			#{unitName},
+			#{unittype.id},
+			#{isStand},
+			#{standUnitCode},
+			#{standUnitName},
+			#{conversion}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_unit SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			unit_code = #{unitCode},
+			unit_name = #{unitName},
+			unit_type = #{unittype.id},
+			is_stand = #{isStand},
+			stand_unit_code = #{standUnitCode},
+			stand_unit_name = #{standUnitName},
+			conversion = #{conversion}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_unit
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_unit SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Unit" statementType="STATEMENT">
+		select * FROM mdm_unit  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

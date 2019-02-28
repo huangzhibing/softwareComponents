@@ -1,0 +1,213 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.purreportweeksta.mapper.PurReportWeekStaMapper">
+    
+	<sql id="purReportWeekStaColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.year AS "year",
+		a.month AS "month",
+		a.week AS "week",
+		a.sum AS "sum",
+		a.qualified_num AS "qualifiedNum",
+		a.fail_num AS "failNum",
+		a.other_num AS "otherNum",
+		a.special_num AS "specialNum",
+		a.special_rate AS "specialRate",
+		a.qualified_rate AS "qualifiedRate"
+	</sql>
+	
+	<sql id="purReportWeekStaJoins">
+		
+	</sql>
+
+	<sql id="sumReportNewByDateColumns">
+		SUM(1) AS "sum",
+		SUM(IF(b.check_result='合格',1,0)) AS "qualifiedNum",
+		SUM(IF(b.check_result='不合格',1,0)) AS "failNum",
+		SUM(IF(b.check_result='待定',1,0)) AS "otherNum",
+		SUM(IF(b.check_result='	特采需要风险评估',1,0)) AS "specialNum",
+		SUM(IF(b.check_result='	特采需要风险评估',1,0))/SUM(1) AS "specialRate",
+		SUM(IF(b.check_result='合格',1,0))/SUM(1) AS "qualifiedRate"
+	</sql>
+
+	<!--根据月份来统计purreportnew表中合格，不合格，特采以及合格率，并以物料大类来分类显示-->
+	<select id="sumReportNewByDate" resultType="PurReportWeekSta">
+		SELECT
+		<include refid="sumReportNewByDateColumns"/>
+		FROM `qms_purreportnew` b
+		<where>
+			b.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="begindate != null and begindate != '' and enddate != null and enddate != ''">
+				AND date_format(b.check_date,'%Y%m%d') BETWEEN date_format(#{begindate},'%Y%m%d') AND date_format(#{enddate},'%Y%m%d')
+			</if>
+		</where>
+	</select>
+
+
+	<select id="get" resultType="PurReportWeekSta" >
+		SELECT 
+			<include refid="purReportWeekStaColumns"/>
+		FROM qms_purreport_week_sta a
+		<include refid="purReportWeekStaJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurReportWeekSta" >
+		SELECT 
+			<include refid="purReportWeekStaColumns"/>
+		FROM qms_purreport_week_sta a
+		<include refid="purReportWeekStaJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="year != null and year != ''">
+				AND a.year = #{year}
+			</if>
+			<if test="month != null and month != ''">
+				AND a.month = #{month}
+			</if>
+			<if test="week != null and week != ''">
+				AND a.week = #{week}
+			</if>
+			<if test="sum != null and sum != ''">
+				AND a.sum = #{sum}
+			</if>
+			<if test="qualifiedNum != null and qualifiedNum != ''">
+				AND a.qualified_num = #{qualifiedNum}
+			</if>
+			<if test="failNum != null and failNum != ''">
+				AND a.fail_num = #{failNum}
+			</if>
+			<if test="otherNum != null and otherNum != ''">
+				AND a.other_num = #{otherNum}
+			</if>
+			<if test="specialNum != null and specialNum != ''">
+				AND a.special_num = #{specialNum}
+			</if>
+			<if test="specialRate != null and specialRate != ''">
+				AND a.special_rate = #{specialRate}
+			</if>
+			<if test="qualifiedRate != null and qualifiedRate != ''">
+				AND a.qualified_rate = #{qualifiedRate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.week ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurReportWeekSta" >
+		SELECT 
+			<include refid="purReportWeekStaColumns"/>
+		FROM qms_purreport_week_sta a
+		<include refid="purReportWeekStaJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_purreport_week_sta(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			year,
+			month,
+			week,
+			sum,
+			qualified_num,
+			fail_num,
+			other_num,
+			special_num,
+			special_rate,
+			qualified_rate
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{year},
+			#{month},
+			#{week},
+			#{sum},
+			#{qualifiedNum},
+			#{failNum},
+			#{otherNum},
+			#{specialNum},
+			#{specialRate},
+			#{qualifiedRate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_purreport_week_sta SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			year = #{year},
+			month = #{month},
+			week = #{week},
+			sum = #{sum},
+			qualified_num = #{qualifiedNum},
+			fail_num = #{failNum},
+			other_num = #{otherNum},
+			special_num = #{specialNum},
+			special_rate = #{specialRate},
+			qualified_rate = #{qualifiedRate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_purreport_week_sta
+		WHERE id = #{id}
+	</update>
+
+	<update id="deleteByYearMonth">
+		DELETE FROM qms_purreport_week_sta
+		WHERE year = #{year} AND month = #{month}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_purreport_week_sta SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurReportWeekSta" statementType="STATEMENT">
+		select * FROM qms_purreport_week_sta  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

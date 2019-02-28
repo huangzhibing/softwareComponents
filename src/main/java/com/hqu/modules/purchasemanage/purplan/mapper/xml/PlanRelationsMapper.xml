@@ -1,0 +1,171 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.purplan.mapper.PlanRelationsMapper">
+    
+	<sql id="planRelationsColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.front_num AS "frontNum",
+		a.front_id AS "frontId",
+		a.after_num AS "afterNum",
+		a.after_id AS "afterId",
+		a.type AS "type",
+		a.state AS "state"
+	</sql>
+	
+	<sql id="planRelationsJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="PlanRelations" >
+		SELECT 
+			<include refid="planRelationsColumns"/>
+		FROM pur_relations a
+		<include refid="planRelationsJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PlanRelations" >
+		SELECT 
+			<include refid="planRelationsColumns"/>
+		FROM pur_relations a
+		<include refid="planRelationsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="remarks != null and remarks != ''">
+				AND a.remarks = #{remarks}
+			</if>
+			<if test="frontNum != null and frontNum != ''">
+				AND a.front_num = #{frontNum}
+			</if>
+			<if test="frontId != null and frontId != ''">
+				AND a.front_id = #{frontId}
+			</if>
+			<if test="afterNum != null and afterNum != ''">
+				AND a.after_num = #{afterNum}
+			</if>
+			<if test="afterId != null and afterId != ''">
+				AND a.after_id = #{afterId}
+			</if>
+			<if test="type != null and type != ''">
+				AND a.type = #{type}
+			</if>
+			<if test="state != null and state != ''">
+				AND a.state = #{state}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PlanRelations" >
+		SELECT 
+			<include refid="planRelationsColumns"/>
+		FROM pur_relations a
+		<include refid="planRelationsJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_relations(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			front_num,
+			front_id,
+			after_num,
+			after_id,
+			type,
+			state
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{frontNum},
+			#{frontId},
+			#{afterNum},
+			#{afterId},
+			#{type},
+			#{state}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_relations SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			front_num = #{frontNum},
+			front_id = #{frontId},
+			after_num = #{afterNum},
+			after_id = #{afterId},
+			type = #{type},
+			state = #{state}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_relations
+		WHERE id = #{id}
+	</update>
+
+	<!--物理删除（通过单据编码删除）-->
+	<update id="deleteByBillNum">
+		DELETE FROM pur_relations
+		WHERE after_num = #{afterNum}  AND type=#{type}
+	</update>
+
+	<!--物理删除（通过单据编码和序号删除）-->
+	<update id="deleteByBillNumAndSerialNum">
+		DELETE FROM pur_relations
+		WHERE after_num = #{afterNum} AND after_id=#{afterId} AND type=#{type}
+	</update>
+
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_relations SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PlanRelations" statementType="STATEMENT">
+		select * FROM pur_relations  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

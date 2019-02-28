@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.warehousemaintenance.countdata.mapper.CountDetailMapper">
+    
+	<sql id="countDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "countMain.id",
+		a.item_code AS "item.id",
+		a.item_name AS "itemName",
+		a.spec_model AS "specModel",
+		a.item_pdn AS "itemPdn",
+		a.batch_id AS "batchId",
+		a.plan_price AS "planPrice",
+		a.item_qty AS "itemQty",
+		a.real_qty AS "realQty",
+		a.yk_flag AS "ykFlag",
+		a.meas_unit AS "measUnit.id",
+				
+				
+				
+				
+				
+				
+		b.bill_num as "countMain.billNum",
+		item.code AS "item.code",
+				
+
+		measUnit.unit_code AS "measUnit.unitCode",
+		measUnit.unit_name AS "measUnit.unitName"
+	</sql>
+	
+	<sql id="countDetailJoins">
+		
+			LEFT JOIN inv_count_main b ON b.id = a.bill_num
+		LEFT JOIN mdm_item item ON item.id = a.item_code
+		LEFT JOIN mdm_unit measUnit ON measUnit.id = a.meas_unit
+	</sql>
+	
+    
+	<select id="get" resultType="CountDetail" >
+		SELECT 
+			<include refid="countDetailColumns"/>
+		FROM inv_count_detail a
+		<include refid="countDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="CountDetail" >
+		SELECT 
+			<include refid="countDetailColumns"/>
+		FROM inv_count_detail a
+		<include refid="countDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="countMain != null and countMain.id != null and countMain.id != ''">
+				AND a.bill_num = #{countMain.id}
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code = #{item.id}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="measUnit != null and measUnit.id != null and measUnit.id != ''">
+				AND a.meas_unit = #{measUnit.id}
+			</if>
+			<if test="specModel != null and specModel != ''">
+				AND a.spec_model LIKE 
+					<if test="dbName == 'oracle'">'%'||#{specModel}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{specModel}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{specModel},'%')</if>
+			</if>
+			<if test="itemPdn != null and itemPdn != ''">
+				AND a.item_pdn LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemPdn}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemPdn}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemPdn},'%')</if>
+			</if>
+			<if test="batchId != null and batchId != ''">
+				AND a.batch_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{batchId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{batchId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{batchId},'%')</if>
+			</if>
+			<if test="planPrice != null and planPrice != ''">
+				AND a.plan_price = #{planPrice}
+			</if>
+			<if test="itemQty != null and itemQty != ''">
+				AND a.item_qty = #{itemQty}
+			</if>
+			<if test="realQty != null and realQty != ''">
+				AND a.real_qty = #{realQty}
+			</if>
+			<if test="ykFlag != null and ykFlag != ''">
+				AND a.yk_flag = #{ykFlag}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="CountDetail" >
+		SELECT 
+			<include refid="countDetailColumns"/>
+		FROM inv_count_detail a
+		<include refid="countDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_count_detail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			item_code,
+			item_name,
+			meas_unit,
+			spec_model,
+			item_pdn,
+			batch_id,
+			plan_price,
+			item_qty,
+			real_qty,
+			yk_flag
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{countMain.id},
+			#{item.id},
+			#{itemName},
+			#{measUnit.unitCode},
+			#{specModel},
+			#{itemPdn},
+			#{batchId},
+			#{planPrice},
+			#{itemQty},
+			#{realQty},
+			#{ykFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_count_detail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{countMain.id},
+			item_code = #{item.id},
+			item_name = #{itemName},
+			meas_unit = #{measUnit.unitCode},
+			spec_model = #{specModel},
+			item_pdn = #{itemPdn},
+			batch_id = #{batchId},
+			plan_price = #{planPrice},
+			item_qty = #{itemQty},
+			real_qty = #{realQty},
+			yk_flag = #{ykFlag}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_count_detail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{countMain.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_count_detail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{countMain.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="CountDetail" statementType="STATEMENT">
+		select * FROM inv_count_detail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

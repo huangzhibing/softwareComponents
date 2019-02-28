@@ -1,0 +1,267 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.contractmain.mapper.ContractDetailWarningMapper">
+    
+	<sql id="contractDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.item_name AS "itemName",
+		a.item_qty AS "orderNum",
+		a.item_price AS "itemPrice",
+		a.item_price_taxed AS "itemPriceTaxed",
+		a.item_sum_taxed AS "itemSumTaxed",
+		a.notes AS "notes",
+		a.item_model AS "itemModel",
+		a.meas_unit AS "unit",
+	    a.arrive_date AS "planArriveDate",
+		b.make_empname AS "maker",
+		b.sup_name AS "accountName",
+		b.sup_id AS "accountId",
+		b.bill_num AS "billNum",
+		item.code AS "itemCode"
+	</sql>
+		
+	<sql id="contractDetailColumnsNotArriveAll1">
+		a.id,
+		a.create_by,
+		a.create_date,
+		a.update_by,
+		a.update_date,
+		a.remarks,
+		a.del_flag,
+		a.item_name,
+		a.item_qty,
+		a.item_price,
+		a.item_price_taxed,
+		a.item_sum_taxed,
+		a.notes,
+		a.item_model,
+		a.meas_unit,
+		a.arrive_date,
+		a.bill_num,
+		a.item_code,
+		SUM(i.check_qty) as sum_qty,
+		r.front_num, 
+		r.front_id,
+		i.create_date as arrived_date
+	</sql>
+		
+	<sql id="contractDetailColumnsNotArriveAll2">
+		temp1.id,
+		temp1.create_by,
+		temp1.create_date,
+		temp1.update_by,
+		temp1.update_date,
+		temp1.remarks,
+		temp1.del_flag,
+		temp1.item_name,
+		temp1.item_code,
+		temp1.item_qty,
+		temp1.item_price,
+		temp1.item_price_taxed,
+		temp1.item_sum_taxed,
+		temp1.notes,
+		temp1.item_model,
+		temp1.meas_unit,
+		temp1.arrive_date,
+		temp1.bill_num,
+		temp1.sum_qty,
+		temp1.front_num, 
+		temp1.front_id,
+		temp1.arrived_date
+	</sql>
+	
+	<sql id="contractDetailColumnsNotArriveAll3">
+		temp2.id AS "id",
+		temp2.create_by AS "createBy.id",
+		temp2.create_date AS "createDate",
+		temp2.update_by AS "updateBy.id",
+		temp2.update_date AS "updateDate",
+		temp2.remarks AS "remarks",
+		temp2.del_flag AS "delFlag",
+		temp2.item_name AS "itemName",
+		temp2.item_qty  AS "orderNum",
+		temp2.item_price AS "itemPrice",
+		temp2.item_price_taxed AS "itemPriceTaxed",
+		temp2.item_sum_taxed AS "itemSumTaxed",
+		temp2.notes AS "notes",
+		temp2.item_model AS "itemModel",
+		temp2.meas_unit AS "unit",
+	 	temp2.arrive_date AS "planArriveDate",  <!-- 计划交货时间 -->
+		temp2.arrived_date AS "arriveDate",	 <!-- 到货单生成时间 -->
+	    con.sup_name AS "accountName",
+		con.bill_num AS "billNum",
+		con.make_empname AS "maker",
+		item.code AS "itemCode"
+	</sql>
+		
+	
+	<sql id="contractDetailJoins">
+		LEFT JOIN pur_contractmain b ON b.bill_num = a.bill_num
+		LEFT JOIN mdm_item item ON item.id = a.item_code
+	</sql>
+	<!-- SELECT * FROM `pur_relations` r LEFT JOIN pur_contractdetail a ON (a.bill_num = r.front_num AND a.serial_num=r.front_id)
+		LEFT JOIN pur_invcheckdetail i ON (i.billnum = r.after_num AND i.serialnum=r.after_id) WHERE a.bill_num = r.front_num AND a.serial_num=r.front_id And i.billnum = r.after_num AND i.serialnum=r.after_id; -->
+	<sql id="relationsJoins">
+		LEFT JOIN pur_contractdetail a ON (a.bill_num = r.front_num AND a.serial_num=r.front_id)
+		LEFT JOIN pur_invcheckdetail i ON (i.billnum = r.after_num AND i.serialnum=r.after_id)
+	</sql>
+    
+	<select id="get" resultType="ContractDetailWarning" >
+		SELECT 
+			<include refid="contractDetailColumns"/>
+		FROM pur_contractdetail a
+		<include refid="contractDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	<!-- SELECT * FROM pur_contractdetail a WHERE not exists (SELECT p.front_num, p.front_id FROM pur_relations p WHERE a.bill_num=p.front_num and a.serial_num=p.front_id)
+; -->
+    <!-- 未到货的订单物料  -->
+	<select id="findList" resultType="ContractDetailWarning" >	   
+	   SELECT 
+	   		<include refid="contractDetailColumns"/> 
+	   FROM pur_contractdetail a
+		    <include refid="contractDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}			
+			<if test="createBeginDate != null and createBeginDate != null and createEndDate != '' and createEndDate != ''">
+				AND a.create_date BETWEEN #{createBeginDate} AND #{createEndDate}
+			</if>
+			<!-- 未交货 -->
+			 <if test="arriveBeginDate != null and arriveBeginDate != null and arriveEndDate != '' and arriveEndDate != ''">
+				 AND a.arrive_date BETWEEN #{arriveBeginDate} AND #{arriveEndDate} 
+			</if>
+
+			<if test="account != null and account.id != null and account.id != ''">
+				AND b.sup_id =#{account.id}
+			</if>
+			<if test="accountName != null and accountName != ''">
+				AND b.sup_name LIKE
+			     	<if test="dbName == 'oracle'">'%'||#{accountName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{accountName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{accountName},'%')</if>
+			</if>
+			<if test="item != null and item.id != null and item.id != ''">
+				AND a.item_code =#{item.id}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			    AND NOT EXISTS (SELECT p.front_num, p.front_id FROM pur_relations p WHERE a.bill_num=p.front_num and a.serial_num=p.front_id)
+		</where>
+		<choose>
+			<when test="orderBy != null and orderBy != ''">
+				ORDER BY ${orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+		        
+	</select>
+	
+<!-- 	(SELECT * FROM (SELECT * FROM (SELECT a.item_code,a.bill_num,a.item_qty,COUNT(i.check_qty),SUM(i.check_qty) as sum_qty FROM `pur_relations` r LEFT JOIN pur_contractdetail a ON (a.bill_num = r.front_num AND a.serial_num=r.front_id)
+		LEFT JOIN pur_invcheckdetail i ON (i.billnum = r.after_num AND i.serialnum=r.after_id) WHERE a.bill_num = r.front_num AND a.serial_num=r.front_id And i.billnum = r.after_num AND i.serialnum=r.after_id  GROUP BY r.front_num, r.front_id) AS temp WHERE temp.item_qty>sum_qty) as result LEFT JOIN pur_contractmain con ON con.bill_num = result.bill_num
+		LEFT JOIN mdm_item item ON item.id = result.item_code); 
+-->
+	<!--到货部分物料的订单-->
+	<select id="findListNotArriveAll" resultType="ContractDetailWarning" >
+	             	
+	                SELECT 
+					   	<include refid="contractDetailColumnsNotArriveAll3"/> 
+					 FROM
+	                 (SELECT 
+					   	<include refid="contractDetailColumnsNotArriveAll2"/> 
+					  FROM
+					  ( 
+					   SELECT 
+					   		<include refid="contractDetailColumnsNotArriveAll1"/> 
+					   FROM pur_relations r
+					        <include refid="relationsJoins"/>
+					         <!-- 通过关系表左连接订单子表和到货单子表，找出所有的已经到货的订单物料，对由同一个订单的物料生成的到货进行分组合并，因为同一个订单可以分批次到货，也就是统计一个订单共到货了多少 -->
+								WHERE a.bill_num = r.front_num AND a.serial_num=r.front_id AND i.billnum = r.after_num AND i.serialnum=r.after_id    
+							    GROUP BY r.front_num, r.front_id
+		                   ) <!-- 订单量大于到货量表示该订单的物料未完全到货，找到所有未完全到货的订单物料 -->
+		                  AS temp1  WHERE temp1.item_qty > temp1.sum_qty
+		                )    <!--未完全到货的订单物料连接订单主表和物料表，查询该订单物料的供应商信息和物料信息  -->
+		               AS temp2 LEFT JOIN pur_contractmain con ON con.bill_num = temp2.bill_num
+		                        LEFT JOIN mdm_item item ON item.id = temp2.item_code
+		                     <!-- 按检索条件返回查询结果 -->
+		             <where>
+								temp2.del_flag = #{DEL_FLAG_NORMAL}
+								${dataScope}			
+								<if test="createBeginDate != null and createBeginDate != null and createEndDate != '' and createEndDate != ''">
+									AND temp2.create_date BETWEEN #{createBeginDate} AND #{createEndDate}
+								</if>
+								<if test="arriveBeginDate != null and arriveBeginDate != null and arriveEndDate != '' and arriveEndDate != ''">
+								   	AND temp2.arrive_date BETWEEN #{arriveBeginDate} AND #{arriveEndDate}
+								</if>
+								<if test="account != null and account.id != null and account.id != ''">
+									AND con.sup_id =#{account.id}
+								</if>
+								<if test="accountName != null and accountName != ''">
+									AND con.sup_name LIKE
+									<if test="dbName == 'oracle'">'%'||#{accountName}||'%'</if>
+									<if test="dbName == 'mssql'">'%'+#{accountName}+'%'</if>
+									<if test="dbName == 'mysql'">concat('%',#{accountName},'%')</if>
+								</if>
+								<if test="item != null and item.id != null and item.id != ''">
+									AND temp2.item_code =#{item.id}
+								</if>
+								<if test="itemName != null and itemName != ''">
+									AND temp2.item_name LIKE 
+										<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+										<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+										<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+								</if>
+								<!-- 左连接时查找满足条件的数据 -->
+					               AND con.bill_num = temp2.bill_num AND item.id = temp2.item_code
+							</where>
+		             
+		<choose>
+			<when test="orderBy != null and orderBy != ''">
+				ORDER BY ${orderBy}
+			</when>
+			<otherwise>
+				ORDER BY temp2.create_date ASC
+			</otherwise>
+		</choose>    
+	       
+	       
+	        
+	
+	</select>	
+	
+	<!--SELECT * FROM (SELECT * FROM (SELECT a.item_qty,COUNT(i.check_qty),SUM(i.check_qty) as sum_qty FROM pur_relations r LEFT JOIN pur_contractdetail a ON (a.bill_num = r.front_num AND a.serial_num=r.front_id)
+		LEFT JOIN pur_invcheckdetail i ON (i.billnum = r.after_num AND i.serialnum=r.after_id) WHERE a.bill_num = r.front_num AND a.serial_num=r.front_id And i.billnum = r.after_num AND i.serialnum=r.after_id  GROUP BY r.front_num, r.front_id) AS temp WHERE temp.item_qty>sum_qty)  as result LEFT JOIN pur_contractmain con ON con.bill_num = result.bill_num
+		LEFT JOIN mdm_item item ON item.id = result.item_code; -->
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_contractdetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{contractMain.billNum}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ContractDetailSummary" statementType="STATEMENT">
+		select * FROM pur_contractdetail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.product.mapper.ProductMapper">
+    
+	<sql id="productColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.item_code AS "item.code",
+		a.item_name AS "itemNameRu",
+		a.item_pdn AS "itemPdn",
+		a.item_spec AS "itemSpec",
+		a.item_measure AS "itemMeasure",
+		a.lead_time_assemble AS "leadTimeAssemble",
+				
+				
+				
+				
+				
+				
+		item.name AS "item.name"
+	</sql>
+	
+	<sql id="productJoins">
+		
+		LEFT JOIN mdm_item item ON item.code = a.item_code
+	</sql>
+	
+    
+	<select id="get" resultType="Product" >
+		SELECT 
+			<include refid="productColumns"/>
+		FROM mdm_product a
+		<include refid="productJoins"/>
+		WHERE a.item_code = #{item.code}
+	</select>
+	<select id="getCountByCode" resultType="Integer">
+		SELECT COUNT(*) FROM mdm_product a WHERE a.item_code = #{code}
+	</select>
+	<select id="getById" resultType="Product" >
+		SELECT
+			<include refid="productColumns"/>
+		FROM mdm_product a
+		<include refid="productJoins"/>
+		WHERE a.id = #{item.id}
+	</select>
+	
+	<select id="findList" resultType="Product" >
+		SELECT 
+			<include refid="productColumns"/>
+		FROM mdm_product a
+		<include refid="productJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="item != null and item.code  != null and item.code  != ''">
+				AND a.item_code = #{item.code }
+			</if>
+			<if test="itemNameRu != null and itemNameRu != ''">
+				AND a.item_name LIKE concat(concat("%",#{itemNameRu}),"%")
+			</if>
+			<if test="itemPdn != null and itemPdn != ''">
+				AND a.item_pdn LIKE concat(concat("%",#{itemPdn}),"%")
+			</if>
+			<if test="itemSpec != null and itemSpec != ''">
+				AND a.item_spec LIKE concat(concat("%",#{itemSpec}),"%")
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY item.code ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Product" >
+		SELECT 
+			<include refid="productColumns"/>
+		FROM mdm_product a
+		<include refid="productJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY item.code ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_product(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			item_code,
+			item_name,
+			item_pdn,
+			item_spec,
+			item_measure,
+			lead_time_assemble
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{item.code },
+			#{itemNameRu},
+			#{itemPdn},
+			#{itemSpec},
+			#{itemMeasure},
+			#{leadTimeAssemble}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_product SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			item_code = #{item.code},
+			item_name = #{itemNameRu},
+			item_pdn = #{itemPdn},
+			item_spec = #{itemSpec},
+			item_measure = #{itemMeasure},
+			lead_time_assemble = #{leadTimeAssemble}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_product
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_product SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Product" statementType="STATEMENT">
+		select * FROM mdm_product  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

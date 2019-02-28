@@ -1,0 +1,395 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.process.mapper.SfcProcessDetailMapper">
+    
+	<sql id="sfcProcessDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.processbillno AS "processBillNo",
+		a.mpsplanid AS "mpsPlanId",
+		a.billtype AS "billType",
+		a.billstate AS "billState",
+		a.assignedstate AS "assignedState",
+		a.prodcode AS "prodCode",
+		a.prodname AS "prodName",
+		a.planqty AS "planQty",
+		a.planbdate AS "planBdate",
+		a.planedate AS "planEdate",
+		a.finishqty AS "finishQty",
+		a.sfcno AS "sfcNo",
+		a.makepid AS "makePID",
+		a.makedate AS "makeDate",
+		a.confirmpid AS "confirmPID",
+		a.confirmdate AS "confirmDate",
+		a.deliverypid AS "deliveryPID",
+		a.deliverydate AS "deliveryDate"
+	</sql>
+	
+	<sql id="sfcProcessDetailJoins">
+		
+		LEFT JOIN sys_user makePID ON makePID.id = a.makepid
+		LEFT JOIN sys_user confirmPID ON confirmPID.id = a.confirmpid
+		LEFT JOIN sys_user deliveryPID ON deliveryPID.id = a.deliverypid
+	</sql>
+	
+    
+	<select id="get" resultType="SfcProcessDetail" >
+		SELECT 
+			<include refid="sfcProcessDetailColumns"/>
+		FROM sfc_processdetail a
+		<include refid="sfcProcessDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="SfcProcessDetail" >
+		SELECT 
+			<include refid="sfcProcessDetailColumns"/>
+		FROM sfc_processdetail a
+		<include refid="sfcProcessDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="processBillNo != null and processBillNo != ''">
+				AND a.processbillno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{processBillNo}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{processBillNo}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{processBillNo},'%')</if>
+			</if>
+			<if test="mpsPlanId != null and mpsPlanId != ''">
+				AND a.mpsplanid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{mpsPlanId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{mpsPlanId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{mpsPlanId},'%')</if>
+			</if>
+			<if test="prodCode != null and prodCode != ''">
+				AND a.prodcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{prodCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{prodCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{prodCode},'%')</if>
+			</if>
+
+			<if test="prodName != null and prodName != ''">
+				AND a.prodname LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodName},'%')</if>
+			</if>
+
+			<if test="beginPlanBdate != null and endPlanBdate != null and beginPlanBdate != '' and endPlanBdate != ''">
+				AND a.planbdate BETWEEN #{beginPlanBdate} AND #{endPlanBdate}
+			</if>
+			<if test="beginPlanEdate != null and endPlanEdate != null and beginPlanEdate != '' and endPlanEdate != ''">
+				AND a.planedate BETWEEN #{beginPlanEdate} AND #{endPlanEdate}
+			</if>
+			<if test="sfcNo != null and sfcNo != ''">
+				AND a.sfcno = #{sfcNo}
+			</if>
+			<if test="makePID != null and makePID != ''">
+				AND a.makepid = #{makePID}
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.makedate BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="confirmPID != null and confirmPID != ''">
+				AND a.confirmpid = #{confirmPID}
+			</if>
+			<if test="beginConfirmDate != null and endConfirmDate != null and beginConfirmDate != '' and endConfirmDate != ''">
+				AND a.confirmdate BETWEEN #{beginConfirmDate} AND #{endConfirmDate}
+			</if>
+			<if test="deliveryPID != null and deliveryPID != ''">
+				AND a.deliverypid = #{deliveryPID}
+			</if>
+			<if test="beginDeliveryDate != null and endDeliveryDate != null and beginDeliveryDate != '' and endDeliveryDate != ''">
+				AND a.deliverydate BETWEEN #{beginDeliveryDate} AND #{endDeliveryDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.planbdate ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="SfcProcessDetail" >
+		SELECT 
+			<include refid="sfcProcessDetailColumns"/>
+		FROM sfc_processdetail a
+		<include refid="sfcProcessDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.planbdate ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_processdetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			processbillno,
+			mpsplanid,
+			billtype,
+			billstate,
+			assignedstate,
+			prodcode,
+			prodname,
+			planqty,
+			planbdate,
+			planedate,
+			finishqty,
+			sfcno,
+			makepid,
+			makedate,
+			confirmpid,
+			confirmdate,
+			deliverypid,
+			deliverydate
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{processBillNo},
+			#{mpsPlanId},
+			#{billType},
+			#{billState},
+			#{assignedState},
+			#{prodCode},
+			#{prodName},
+			#{planQty},
+			#{planBdate},
+			#{planEdate},
+			#{finishQty},
+			#{sfcNo},
+			#{makePID},
+			#{makeDate},
+			#{confirmPID},
+			#{confirmDate},
+			#{deliveryPID},
+			#{deliveryDate}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_processdetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			processbillno = #{processBillNo},
+			mpsplanid = #{mpsPlanId},
+			billtype = #{billType},
+			billstate = #{billState},
+			assignedstate = #{assignedState},
+			prodcode = #{prodCode},
+			prodname = #{prodName},
+			planqty = #{planQty},
+			planbdate = #{planBdate},
+			planedate = #{planEdate},
+			finishqty = #{finishQty},
+			sfcno = #{sfcNo},
+			makepid = #{makePID},
+			makedate = #{makeDate},
+			confirmpid = #{confirmPID},
+			confirmdate = #{confirmDate},
+			deliverypid = #{deliveryPID},
+			deliverydate = #{deliveryDate}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_processdetail
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_processdetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="SfcProcessDetail" statementType="STATEMENT">
+		select * FROM sfc_processdetail  where ${propertyName} = '${value}'
+	</select>
+
+
+
+	<select id="findAssignedList" resultType="SfcProcessDetail" >
+		SELECT
+		<include refid="sfcProcessDetailColumns"/>
+		FROM sfc_processdetail a
+		<include refid="sfcProcessDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} and a.billstate = 'S' and a.assignedstate in ('N','P')
+			${dataScope}
+			<if test="processBillNo != null and processBillNo != ''">
+				AND a.processbillno LIKE
+				<if test="dbName == 'oracle'">'%'||#{processBillNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{processBillNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{processBillNo},'%')</if>
+			</if>
+			<if test="mpsPlanId != null and mpsPlanId != ''">
+				AND a.mpsplanid LIKE
+				<if test="dbName == 'oracle'">'%'||#{mpsPlanId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{mpsPlanId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{mpsPlanId},'%')</if>
+			</if>
+			<if test="prodCode != null and prodCode != ''">
+				AND a.prodcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodCode},'%')</if>
+			</if>
+
+			<if test="prodName != null and prodName != ''">
+				AND a.prodname LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodName},'%')</if>
+			</if>
+
+			<if test="beginPlanBdate != null and endPlanBdate != null and beginPlanBdate != '' and endPlanBdate != ''">
+				AND a.planbdate BETWEEN #{beginPlanBdate} AND #{endPlanBdate}
+			</if>
+			<if test="beginPlanEdate != null and endPlanEdate != null and beginPlanEdate != '' and endPlanEdate != ''">
+				AND a.planedate BETWEEN #{beginPlanEdate} AND #{endPlanEdate}
+			</if>
+			<if test="sfcNo != null and sfcNo != ''">
+				AND a.sfcno = #{sfcNo}
+			</if>
+			<if test="makePID != null and makePID != ''">
+				AND a.makepid = #{makePID}
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.makedate BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="confirmPID != null and confirmPID != ''">
+				AND a.confirmpid = #{confirmPID}
+			</if>
+			<if test="beginConfirmDate != null and endConfirmDate != null and beginConfirmDate != '' and endConfirmDate != ''">
+				AND a.confirmdate BETWEEN #{beginConfirmDate} AND #{endConfirmDate}
+			</if>
+			<if test="deliveryPID != null and deliveryPID != ''">
+				AND a.deliverypid = #{deliveryPID}
+			</if>
+			<if test="beginDeliveryDate != null and endDeliveryDate != null and beginDeliveryDate != '' and endDeliveryDate != ''">
+				AND a.deliverydate BETWEEN #{beginDeliveryDate} AND #{endDeliveryDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.planbdate ASC
+			</otherwise>
+		</choose>
+	</select>
+
+
+
+
+	<select id="findAssignedAllList" resultType="SfcProcessDetail" >
+		SELECT
+		<include refid="sfcProcessDetailColumns"/>
+		FROM sfc_processdetail a
+		<include refid="sfcProcessDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL} and a.billstate = 'S' and a.assignedstate in ('N','P','C')
+			${dataScope}
+			<if test="processBillNo != null and processBillNo != ''">
+				AND a.processbillno LIKE
+				<if test="dbName == 'oracle'">'%'||#{processBillNo}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{processBillNo}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{processBillNo},'%')</if>
+			</if>
+			<if test="mpsPlanId != null and mpsPlanId != ''">
+				AND a.mpsplanid LIKE
+				<if test="dbName == 'oracle'">'%'||#{mpsPlanId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{mpsPlanId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{mpsPlanId},'%')</if>
+			</if>
+			<if test="prodCode != null and prodCode != ''">
+				AND a.prodcode LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodCode},'%')</if>
+			</if>
+
+			<if test="prodName != null and prodName != ''">
+				AND a.prodname LIKE
+				<if test="dbName == 'oracle'">'%'||#{prodName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{prodName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{prodName},'%')</if>
+			</if>
+
+			<if test="beginPlanBdate != null and endPlanBdate != null and beginPlanBdate != '' and endPlanBdate != ''">
+				AND a.planbdate BETWEEN #{beginPlanBdate} AND #{endPlanBdate}
+			</if>
+			<if test="beginPlanEdate != null and endPlanEdate != null and beginPlanEdate != '' and endPlanEdate != ''">
+				AND a.planedate BETWEEN #{beginPlanEdate} AND #{endPlanEdate}
+			</if>
+			<if test="sfcNo != null and sfcNo != ''">
+				AND a.sfcno = #{sfcNo}
+			</if>
+			<if test="makePID != null and makePID != ''">
+				AND a.makepid = #{makePID}
+			</if>
+			<if test="beginMakeDate != null and endMakeDate != null and beginMakeDate != '' and endMakeDate != ''">
+				AND a.makedate BETWEEN #{beginMakeDate} AND #{endMakeDate}
+			</if>
+			<if test="confirmPID != null and confirmPID != ''">
+				AND a.confirmpid = #{confirmPID}
+			</if>
+            <if test="assignedState != null and assignedState !=''">
+                AND a.assignedstate = #{assignedState}
+            </if>
+			<if test="beginConfirmDate != null and endConfirmDate != null and beginConfirmDate != '' and endConfirmDate != ''">
+				AND a.confirmdate BETWEEN #{beginConfirmDate} AND #{endConfirmDate}
+			</if>
+			<if test="deliveryPID != null and deliveryPID != ''">
+				AND a.deliverypid = #{deliveryPID}
+			</if>
+			<if test="beginDeliveryDate != null and endDeliveryDate != null and beginDeliveryDate != '' and endDeliveryDate != ''">
+				AND a.deliverydate BETWEEN #{beginDeliveryDate} AND #{endDeliveryDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.planbdate ASC
+			</otherwise>
+		</choose>
+	</select>
+
+
+</mapper>

@@ -1,0 +1,236 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.billtype.mapper.BillTypeMapper">
+    
+	<sql id="billTypeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.io_type AS "ioType",
+		a.io_flag AS "ioFlag",
+		a.io_desc AS "ioDesc",
+		a.curr_qty AS "currQty",
+		a.curr_total_qty AS "currTotalQty",
+		a.begin_qty AS "beginQty",
+		a.in_qty AS "inQty",
+		a.out_qty AS "outQty",
+		a.waste_qty AS "wasteQty",
+		a.wait_qty AS "waitQty",
+		a.assign_qty AS "assignQty",
+		a.wshop_assign AS "wshopQty",
+		a.wshop_use AS "wshopUse",
+		a.wshop_cost AS "wshopCost",
+		a.pur_assign AS "purAssign",
+		a.sell_order AS "sellOrder",
+		a.cost_price AS "costPrice",
+		a.account_id AS "accountId",
+		a.account_name AS "accountName",
+		a.din_qty AS "dinQty",
+		a.dout_qty AS "doutQty",
+		a.pin_qty AS "pinQty",
+		a.pout_qty AS "poutQty",
+		a.tin_qty AS "tinQty",
+		a.tout_qty AS "toutQty",
+		a.note AS "note"
+	</sql>
+	
+	<sql id="billTypeJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="BillType" >
+		SELECT 
+			<include refid="billTypeColumns"/>
+		FROM inv_bill_type a
+		<include refid="billTypeJoins"/>
+		WHERE (a.id = #{id}||a.io_type = #{id})
+	</select>
+	
+	<select id="findList" resultType="BillType" >
+		SELECT 
+			<include refid="billTypeColumns"/>
+		FROM inv_bill_type a
+		<include refid="billTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="ioType != null and ioType != ''and ioType != '12'">
+				AND a.io_type LIKE
+					<if test="dbName == 'oracle'">'%'||#{ioType}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ioType}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ioType},'%')</if>
+			</if>
+			<if test="ioType != null and ioType == '12'">
+				AND a.io_type IN ('CO01','WT01')
+			</if>
+			<if test="ioFlag != null and ioFlag != ''">
+				AND a.io_flag = #{ioFlag}
+			</if>
+			<if test="ioDesc != null and ioDesc != ''">
+				AND a.io_desc LIKE 
+					<if test="dbName == 'oracle'">'%'||#{ioDesc}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{ioDesc}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{ioDesc},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.io_type ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="BillType" >
+		SELECT 
+			<include refid="billTypeColumns"/>
+		FROM inv_bill_type a
+		<include refid="billTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.io_type ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO inv_bill_type(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			io_type,
+			io_flag,
+			io_desc,
+			curr_qty,
+			curr_total_qty,
+			begin_qty,
+			in_qty,
+			out_qty,
+			waste_qty,
+			wait_qty,
+			assign_qty,
+			wshop_assign,
+			wshop_use,
+			wshop_cost,
+			pur_assign,
+			sell_order,
+			cost_price,
+			account_id,
+			account_name,
+			din_qty,
+			dout_qty,
+			pin_qty,
+			pout_qty,
+			tin_qty,
+			tout_qty,
+			note
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{ioType},
+			#{ioFlag},
+			#{ioDesc},
+			#{currQty},
+			#{currTotalQty},
+			#{beginQty},
+			#{inQty},
+			#{outQty},
+			#{wasteQty},
+			#{waitQty},
+			#{assignQty},
+			#{wshopQty},
+			#{wshopUse},
+			#{wshopCost},
+			#{purAssign},
+			#{sellOrder},
+			#{costPrice},
+			#{accountId},
+			#{accountName},
+			#{dinQty},
+			#{doutQty},
+			#{pinQty},
+			#{poutQty},
+			#{tinQty},
+			#{toutQty},
+			#{note}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE inv_bill_type SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			io_type = #{ioType},
+			io_flag = #{ioFlag},
+			io_desc = #{ioDesc},
+			curr_qty = #{currQty},
+			curr_total_qty = #{currTotalQty},
+			begin_qty = #{beginQty},
+			in_qty = #{inQty},
+			out_qty = #{outQty},
+			waste_qty = #{wasteQty},
+			wait_qty = #{waitQty},
+			assign_qty = #{assignQty},
+			wshop_assign = #{wshopQty},
+			wshop_use = #{wshopUse},
+			wshop_cost = #{wshopCost},
+			pur_assign = #{purAssign},
+			sell_order = #{sellOrder},
+			cost_price = #{costPrice},
+			account_id = #{accountId},
+			account_name = #{accountName},
+			din_qty = #{dinQty},
+			dout_qty = #{doutQty},
+			pin_qty = #{pinQty},
+			pout_qty = #{poutQty},
+			tin_qty = #{tinQty},
+			tout_qty = #{toutQty},
+			note = #{note}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM inv_bill_type
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE inv_bill_type SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="BillType" statementType="STATEMENT">
+		select * FROM inv_bill_type  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

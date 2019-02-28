@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.accounttype.mapper.AccountType2Mapper">
+    
+	<sql id="accountType2Columns">
+		a.id AS "id",
+		a.acc_type_code AS "accTypeCode",
+		a.acc_type_name AS "accTypeName",
+		a.acc_type_desc AS "accTypeDesc",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="accountType2Joins">
+		
+	</sql>
+	
+	<select id="selectMax" resultType="String" >
+		SELECT max(acc_type_code) FROM sal_accounttype
+	</select>
+    
+	<select id="get" resultType="AccountType2" >
+		SELECT 
+			<include refid="accountType2Columns"/>
+		FROM sal_accounttype a
+		<include refid="accountType2Joins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="AccountType2" >
+		SELECT 
+			<include refid="accountType2Columns"/>
+		FROM sal_accounttype a
+		<include refid="accountType2Joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="accTypeCode != null and accTypeCode != ''">
+				AND a.acc_type_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{accTypeCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{accTypeCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{accTypeCode},'%')</if>
+			</if>
+			<if test="accTypeName != null and accTypeName != ''">
+				AND a.acc_type_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{accTypeName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{accTypeName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{accTypeName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="AccountType2" >
+		SELECT 
+			<include refid="accountType2Columns"/>
+		FROM sal_accounttype a
+		<include refid="accountType2Joins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_accounttype(
+			id,
+			acc_type_code,
+			acc_type_name,
+			acc_type_desc,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{accTypeCode},
+			#{accTypeName},
+			#{accTypeDesc},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_accounttype SET 	
+			acc_type_code = #{accTypeCode},
+			acc_type_name = #{accTypeName},
+			acc_type_desc = #{accTypeDesc},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_accounttype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_accounttype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="AccountType2" statementType="STATEMENT">
+		select * FROM sal_accounttype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,341 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.accountfile.mapper.SalaccountMapper">
+    
+	<sql id="salaccountColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.account_code AS "accountCode",
+		a.account_name AS "accountName",
+		a.account_sname AS "accountSname",
+		a.acc_type_code AS "accType.accTypeCode",
+		a.acc_type_name AS "accTypeNameRu",
+		a.area_code AS "areaDef.id",
+		a.area_name AS "areaName",
+		a.account_prop AS "accountProp",
+		a.level_code AS "levelCode",
+		a.account_mgr AS "accountMgr",
+		a.sub_type_code AS "accountType2.id",
+		a.sub_type_name AS "subTypeName",
+		a.net_asset AS "netAsset",
+		a.sup_higher_up AS "supHigherUp",
+		a.account_addr AS "accountAddr",
+		a.post_code AS "postCode",
+		a.main_prod AS "mainProd",
+		a.reg_cap AS "regCap",
+		a.emp_dim AS "empDim",
+		a.recent_stat AS "recentStat",
+		a.tax_code AS "taxCode",
+		a.tel_num AS "telNum",
+		a.reg AS "reg",
+		a.fax_num AS "faxNum",
+		a.email AS "email",
+		a.web_addr AS "webAddr",
+		a.rev_person AS "revPerson",
+		a.bank_name AS "bankName",
+		a.bank_account AS "bankAccount",
+		a.account_indu AS "accountIndu",
+		a.busi_rev AS "busiRev",
+		a.input_date AS "inputDate",
+		a.make_emp_id AS "makeEmpid",
+		a.make_emp_name AS "makeEmpname",
+		a.sup_evalation AS "supEvalation",
+		a.sup_reputation_sum AS "supReputationSum",
+		a.sup_notes AS "supNotes",
+		a.state AS "state",
+		a.sub_intr AS "subIntr",
+		a.sup_flag AS "supFlag",
+		a.data1 AS "data1",
+		a.flag AS "flag",
+		a.base_score AS "baseScore",
+		a.trade_score AS "tradeScore",
+		a.total_score AS "totalScore",
+		a.result AS "result",
+		a.fncid AS "fncId",
+		a.sup_float AS "supFloat",
+		a.sup_tax AS "supTax",
+		a.sal_orgz_code AS "salOrgzCode",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		accType.acc_type_name AS "accType.accTypeName"
+	</sql>
+	
+	<sql id="salaccountJoins">
+		
+		LEFT JOIN mdm_accounttype accType ON accType.id = a.acc_type_code
+	</sql>
+	
+    
+	<select id="get" resultType="Salaccount" >
+		SELECT 
+			<include refid="salaccountColumns"/>
+		FROM mdm_account a
+		<include refid="salaccountJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Salaccount" >
+		SELECT 
+			<include refid="salaccountColumns"/>
+		FROM mdm_account a
+		<include refid="salaccountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="areaDef != null and areaDef.id != null and areaDef.id != ''">
+				AND a.area_code = #{areaDef.id}
+			</if>
+			<if test="areaName != null and areaName != ''">
+				AND a.area_name = #{areaName}
+			</if>
+			<if test="accountProp != null and accountProp != ''">
+				AND a.account_prop = #{accountProp}
+			</if>
+			<if test="accountType2 != null and accountType2.id != null and accountType2.id != ''">
+				AND a.sub_type_code = #{accountType2.id}
+			</if>
+			<if test="subTypeName != null and subTypeName != ''">
+				AND a.sub_type_name = #{subTypeName}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Salaccount" >
+		SELECT 
+			<include refid="salaccountColumns"/>
+		FROM mdm_account a
+		<include refid="salaccountJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_account(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			account_code,
+			account_name,
+			account_sname,
+			acc_type_code,
+			acc_type_name,
+			area_code,
+			area_name,
+			account_prop,
+			level_code,
+			account_mgr,
+			sub_type_code,
+			sub_type_name,
+			net_asset,
+			sup_higher_up,
+			account_addr,
+			post_code,
+			main_prod,
+			reg_cap,
+			emp_dim,
+			recent_stat,
+			tax_code,
+			tel_num,
+			reg,
+			fax_num,
+			email,
+			web_addr,
+			rev_person,
+			bank_name,
+			bank_account,
+			account_indu,
+			busi_rev,
+			input_date,
+			make_emp_id,
+			make_emp_name,
+			sup_evalation,
+			sup_reputation_sum,
+			sup_notes,
+			state,
+			sub_intr,
+			sup_flag,
+			data1,
+			flag,
+			base_score,
+			trade_score,
+			total_score,
+			result,
+			fncid,
+			sup_float,
+			sup_tax,
+			sal_orgz_code
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{accountCode},
+			#{accountName},
+			#{accountSname},
+			#{accType.accTypeCode},
+			#{accTypeNameRu},
+			#{areaDef.id},
+			#{areaName},
+			#{accountProp},
+			#{levelCode},
+			#{accountMgr},
+			#{accountType2.id},
+			#{subTypeName},
+			#{netAsset},
+			#{supHigherUp},
+			#{accountAddr},
+			#{postCode},
+			#{mainProd},
+			#{regCap},
+			#{empDim},
+			#{recentStat},
+			#{taxCode},
+			#{telNum},
+			#{reg},
+			#{faxNum},
+			#{email},
+			#{webAddr},
+			#{revPerson},
+			#{bankName},
+			#{bankAccount},
+			#{accountIndu},
+			#{busiRev},
+			#{inputDate},
+			#{makeEmpid},
+			#{makeEmpname},
+			#{supEvalation},
+			#{supReputationSum},
+			#{supNotes},
+			#{state},
+			#{subIntr},
+			#{supFlag},
+			#{data1},
+			#{flag},
+			#{baseScore},
+			#{tradeScore},
+			#{totalScore},
+			#{result},
+			#{fncId},
+			#{supFloat},
+			#{supTax},
+			#{salOrgzCode}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_account SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			account_code = #{accountCode},
+			account_name = #{accountName},
+			account_sname = #{accountSname},
+			acc_type_code = #{accType.accTypeCode},
+			acc_type_name = #{accTypeNameRu},
+			area_code = #{areaDef.id},
+			area_name = #{areaName},
+			account_prop = #{accountProp},
+			level_code = #{levelCode},
+			account_mgr = #{accountMgr},
+			sub_type_code = #{accountType2.id},
+			sub_type_name = #{subTypeName},
+			net_asset = #{netAsset},
+			sup_higher_up = #{supHigherUp},
+			account_addr = #{accountAddr},
+			post_code = #{postCode},
+			main_prod = #{mainProd},
+			reg_cap = #{regCap},
+			emp_dim = #{empDim},
+			recent_stat = #{recentStat},
+			tax_code = #{taxCode},
+			tel_num = #{telNum},
+			reg = #{reg},
+			fax_num = #{faxNum},
+			email = #{email},
+			web_addr = #{webAddr},
+			rev_person = #{revPerson},
+			bank_name = #{bankName},
+			bank_account = #{bankAccount},
+			account_indu = #{accountIndu},
+			busi_rev = #{busiRev},
+			input_date = #{inputDate},
+			make_emp_id = #{makeEmpid},
+			make_emp_name = #{makeEmpname},
+			sup_evalation = #{supEvalation},
+			sup_reputation_sum = #{supReputationSum},
+			sup_notes = #{supNotes},
+			state = #{state},
+			sub_intr = #{subIntr},
+			sup_flag = #{supFlag},
+			data1 = #{data1},
+			flag = #{flag},
+			base_score = #{baseScore},
+			trade_score = #{tradeScore},
+			total_score = #{totalScore},
+			result = #{result},
+			fncid = #{fncId},
+			sup_float = #{supFloat},
+			sup_tax = #{supTax},
+			sal_orgz_code = #{salOrgzCode}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_account
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_account SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Salaccount" statementType="STATEMENT">
+		select * FROM mdm_account  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

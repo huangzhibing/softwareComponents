@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.inventorymanage.newinvcheckmain.mapper.NewinvCheckDetailCodeMapper">
+    
+	<sql id="newinvCheckDetailCodeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.serialnum AS "serialNum",
+		a.billnum AS "billNum.id",
+		a.itemcode AS "itemCode",
+		a.itembarcode AS "itemBarcode",
+		a.supbarcode AS "supBarcode",
+		a.locId AS "locId",
+		a.binId AS "binId"
+	</sql>
+	
+	<sql id="newinvCheckDetailCodeJoins">
+		
+			LEFT JOIN reinv_checkmain b ON b.id = a.billnum
+	</sql>
+	
+    
+	<select id="get" resultType="NewinvCheckDetailCode" >
+		SELECT 
+			<include refid="newinvCheckDetailCodeColumns"/>
+		FROM reinv_checkdetailcode a
+		<include refid="newinvCheckDetailCodeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="NewinvCheckDetailCode" >
+		SELECT 
+			<include refid="newinvCheckDetailCodeColumns"/>
+		FROM reinv_checkdetailcode a
+		<include refid="newinvCheckDetailCodeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="serialNum != null and serialNum != ''">
+				AND a.serialnum = #{serialNum}
+			</if>
+			<if test="billNum != null and billNum.id != null and billNum.id != ''">
+				AND a.billnum = #{billNum.id}
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND a.itemcode = #{itemCode}
+			</if>
+			<if test="itemBarcode != null and itemBarcode != ''">
+				AND a.itembarcode = #{itemBarcode}
+			</if>
+			<if test="supBarcode != null and supBarcode != ''">
+				AND a.supbarcode = #{supBarcode}
+			</if>
+			<if test="binId !=null and binId != ''">
+				AND a.binId=#{binId}
+			</if>
+			<if test="locId !=null and locId != ''">
+				AND a.locId=#{locId}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="NewinvCheckDetailCode" >
+		SELECT 
+			<include refid="newinvCheckDetailCodeColumns"/>
+		FROM reinv_checkdetailcode a
+		<include refid="newinvCheckDetailCodeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO reinv_checkdetailcode(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			serialnum,
+			billnum,
+			itemcode,
+			itembarcode,
+			supbarcode,
+			binId,
+			locId
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{serialNum},
+			#{billNum.id},
+			#{itemCode},
+			#{itemBarcode},
+			#{supBarcode},
+			#{binId},
+			#{locId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE reinv_checkdetailcode SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			serialnum = #{serialNum},
+			billnum = #{billNum.id},
+			itemcode = #{itemCode},
+			itembarcode = #{itemBarcode},
+			supbarcode = #{supBarcode},
+			binId = #{binId},
+			locId = #{locId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM reinv_checkdetailcode
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE billnum = #{billNum.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE reinv_checkdetailcode SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE billnum = #{billNum.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="NewinvCheckDetailCode" statementType="STATEMENT">
+		select * FROM reinv_checkdetailcode  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

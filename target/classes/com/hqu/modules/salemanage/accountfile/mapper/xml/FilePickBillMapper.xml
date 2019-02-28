@@ -1,0 +1,230 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.salemanage.accountfile.mapper.FilePickBillMapper">
+    
+	<sql id="filePickBillColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.pbill_code AS "pbillCode",
+		a.contract_code AS "contract.id",
+		a.pbill_date AS "pbillDate",
+		a.pbill_person AS "pbillPerson.id",
+		a.pbill_psn_name AS "pbillPsnName",
+		a.rcv_account_code AS "account.id",
+		a.rcv_account_name AS "rcvAccountName",
+		a.rcv_addr AS "rcvAddr",
+		a.rcv_person AS "rcvPerson",
+		a.rcv_tel AS "rcvTel",
+		a.pbill_stat AS "pbillStat",
+		a.trans_account AS "transAccount",
+		a.pick_date AS "pickDate",
+		a.qms_flag AS "qmsFlag",
+		a.ware_id AS "ware.id",
+		a.ware_name AS "wareName",
+		a.io_type AS "io.id",
+		a.io_desc AS "iodesc",
+		a.pass_flag AS "passFlag",
+		a.out_bill_code AS "outBillCode",
+		a.process_instance_id AS "processInstanceId",
+				
+				
+				
+				
+				
+				
+				
+				
+		contract.contract_code AS "contract.contractCode",
+				
+				
+		pbillPerson.no AS "pbillPerson.no"
+	</sql>
+	
+	<sql id="filePickBillJoins">
+		
+		LEFT JOIN sal_contract contract ON contract.id = a.contract_code
+		LEFT JOIN sys_user pbillPerson ON pbillPerson.id = a.pbill_person
+			LEFT JOIN mdm_account b ON b.id = a.rcv_account_code
+	</sql>
+	
+    
+	<select id="get" resultType="FilePickBill" >
+		SELECT 
+			<include refid="filePickBillColumns"/>
+		FROM sal_pick_bill a
+		<include refid="filePickBillJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="FilePickBill" >
+		SELECT 
+			<include refid="filePickBillColumns"/>
+		FROM sal_pick_bill a
+		<include refid="filePickBillJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="account != null and account.id != null and account.id != ''">
+				AND a.rcv_account_code = #{account.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="FilePickBill" >
+		SELECT 
+			<include refid="filePickBillColumns"/>
+		FROM sal_pick_bill a
+		<include refid="filePickBillJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sal_pick_bill(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			pbill_code,
+			contract_code,
+			pbill_date,
+			pbill_person,
+			pbill_psn_name,
+			rcv_account_code,
+			rcv_account_name,
+			rcv_addr,
+			rcv_person,
+			rcv_tel,
+			pbill_stat,
+			trans_account,
+			pick_date,
+			qms_flag,
+			ware_id,
+			ware_name,
+			io_type,
+			io_desc,
+			pass_flag,
+			out_bill_code,
+			process_instance_id
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{pbillCode},
+			#{contract.id},
+			#{pbillDate},
+			#{pbillPerson.id},
+			#{pbillPsnName},
+			#{account.id},
+			#{rcvAccountName},
+			#{rcvAddr},
+			#{rcvPerson},
+			#{rcvTel},
+			#{pbillStat},
+			#{transAccount},
+			#{pickDate},
+			#{qmsFlag},
+			#{ware.id},
+			#{wareName},
+			#{io.id},
+			#{iodesc},
+			#{passFlag},
+			#{outBillCode},
+			#{processInstanceId}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sal_pick_bill SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			pbill_code = #{pbillCode},
+			contract_code = #{contract.id},
+			pbill_date = #{pbillDate},
+			pbill_person = #{pbillPerson.id},
+			pbill_psn_name = #{pbillPsnName},
+			rcv_account_code = #{account.id},
+			rcv_account_name = #{rcvAccountName},
+			rcv_addr = #{rcvAddr},
+			rcv_person = #{rcvPerson},
+			rcv_tel = #{rcvTel},
+			pbill_stat = #{pbillStat},
+			trans_account = #{transAccount},
+			pick_date = #{pickDate},
+			qms_flag = #{qmsFlag},
+			ware_id = #{ware.id},
+			ware_name = #{wareName},
+			io_type = #{io.id},
+			io_desc = #{iodesc},
+			pass_flag = #{passFlag},
+			out_bill_code = #{outBillCode},
+			process_instance_id = #{processInstanceId}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sal_pick_bill
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE rcv_account_code = #{account.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sal_pick_bill SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE rcv_account_code = #{account.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="FilePickBill" statementType="STATEMENT">
+		select * FROM sal_pick_bill  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

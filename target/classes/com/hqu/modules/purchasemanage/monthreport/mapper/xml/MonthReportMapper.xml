@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.monthreport.mapper.MonthReportMapper">
+    
+	<sql id="monthReportColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.del_flag AS "delFlag",
+		a.seq AS "seq",
+		a.qms_code AS "qmsCode",
+		a.sup_id AS "supCode",
+		a.sup_name AS "supName",
+		a.item_name AS "item.name",
+		a.spec_model AS "specModel",
+		a.class_name AS "className",
+		a.pur_qty AS "purQty",
+		a.chk_qty AS "chkQty",
+		a.fail_qty AS "failQty",
+		a.ratio AS "ratio",
+		a.chk_res AS "chkRes",
+		a.chk_date AS "chkDate",
+		a.make_empid AS "makeEmpid.no",
+		a.make_empname AS "makeEmpName.name",
+		a.remarks AS "remarks",
+		purReportNew.report_id AS "purReportNew.reportId"
+	</sql>
+	<!--qms_purreportnew-->
+	<sql id="monthReportJoins">
+		
+		LEFT JOIN sys_user makeEmpid ON makeEmpid.id = a.make_empid
+		LEFT JOIN sys_user makeEmpName ON makeEmpName.id = a.make_empname
+		LEFT JOIN qms_purreportnew purReportNew ON purReportNew.report_id = a.qms_code
+	</sql>
+	
+    
+	<select id="get" resultType="MonthReport" >
+		SELECT 
+			<include refid="monthReportColumns"/>
+		FROM qms_monthreport a
+		<include refid="monthReportJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MonthReport" >
+		SELECT 
+			<include refid="monthReportColumns"/>
+		FROM qms_monthreport a
+		<include refid="monthReportJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+
+
+
+
+            <if test="supCode != null and supCode !=''">
+
+                AND a.sup_id LIKE
+                <if test="dbName == 'oracle'">'%'||#{supCode}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{supCode}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{supCode},'%')</if>
+            </if>
+
+
+
+            <if test="supName !=null and supName !=''">
+
+                AND a.sup_name LIKE
+                <if test="dbName == 'oracle'">'%'||#{supName}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{supName}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{supName},'%')</if>
+            </if>
+            <if test="name != null and name !=''">
+                AND a.item_name LIKE
+                <if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+            </if>
+
+
+
+
+
+        </where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MonthReport" >
+		SELECT 
+			<include refid="monthReportColumns"/>
+		FROM qms_monthreport a
+		<include refid="monthReportJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_monthreport(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			del_flag,
+			seq,
+			qms_code,
+			sup_id,
+			sup_name,
+			item_name,
+			spec_model,
+			class_name,
+			pur_qty,
+			chk_qty,
+			fail_qty,
+			ratio,
+			chk_res,
+			chk_date,
+			make_empid,
+			make_empname,
+			remarks
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{delFlag},
+			#{seq},
+			#{purReportNew.reportId},
+			#{supCode},
+			#{supName},
+			#{item.name},
+			#{specModel},
+			#{className},
+			#{purQty},
+			#{chkQty},
+			#{failQty},
+			#{ratio},
+			#{chkRes},
+			#{chkDate},
+			#{makeEmpid.no},
+			#{makeEmpName.name},
+			#{remarks}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_monthreport SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			seq = #{seq},
+			qms_code = #{purReportNew.reportId},
+			sup_id = #{supCode},
+			sup_name = #{supName},
+			item_name = #{item.name},
+			spec_model = #{specModel},
+			class_name = #{className},
+			pur_qty = #{purQty},
+			chk_qty = #{chkQty},
+			fail_qty = #{failQty},
+			ratio = #{ratio},
+			chk_res = #{chkRes},
+			chk_date = #{chkDate},
+			make_empid = #{makeEmpid.no},
+			make_empname = #{makeEmpName.name},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_monthreport
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_monthreport SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="MonthReport" statementType="STATEMENT">
+		select * FROM qms_monthreport  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

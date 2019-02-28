@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.archives.mapper.PurLinkManMapper">
+    
+	<sql id="purLinkManColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.link_code AS "linkCode",
+		a.link_name AS "linkName",
+		a.link_sex AS "linkSex",
+		a.link_level AS "linkLevel",
+		a.link_position AS "linkPosition",
+		a.link_tel AS "linkTel",
+		a.link_phone AS "linkPhone",
+		a.link_mail AS "linkMail",
+		a.link_remarks AS "linkRemarks",
+		a.mdm_account_id AS "Puraccount.id"
+	</sql>
+	
+	<sql id="purLinkManJoins">
+		
+			LEFT JOIN mdm_account b ON b.id = a.mdm_account_id
+	</sql>
+	
+    
+	<select id="get" resultType="PurLinkMan" >
+		SELECT 
+			<include refid="purLinkManColumns"/>
+		FROM pur_linkman a
+		<include refid="purLinkManJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurLinkMan" >
+		SELECT 
+			<include refid="purLinkManColumns"/>
+		FROM pur_linkman a
+		<include refid="purLinkManJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="linkCode != null and linkCode != ''">
+				AND a.link_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{linkCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{linkCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{linkCode},'%')</if>
+			</if>
+			<if test="linkName != null and linkName != ''">
+				AND a.link_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{linkName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{linkName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{linkName},'%')</if>
+			</if>
+			<if test="Puraccount != null and Puraccount.id != null and Puraccount.id != ''">
+				AND a.mdm_account_id = #{Puraccount.id}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurLinkMan" >
+		SELECT 
+			<include refid="purLinkManColumns"/>
+		FROM pur_linkman a
+		<include refid="purLinkManJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_linkman(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			link_code,
+			link_name,
+			link_sex,
+			link_level,
+			link_position,
+			link_tel,
+			link_phone,
+			link_mail,
+			link_remarks,
+			mdm_account_id
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{linkCode},
+			#{linkName},
+			#{linkSex},
+			#{linkLevel},
+			#{linkPosition},
+			#{linkTel},
+			#{linkPhone},
+			#{linkMail},
+			#{linkRemarks},
+			#{Puraccount.id}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_linkman SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			link_code = #{linkCode},
+			link_name = #{linkName},
+			link_sex = #{linkSex},
+			link_level = #{linkLevel},
+			link_position = #{linkPosition},
+			link_tel = #{linkTel},
+			link_phone = #{linkPhone},
+			link_mail = #{linkMail},
+			link_remarks = #{linkRemarks},
+			mdm_account_id = #{Puraccount.id}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_linkman
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE mdm_account_id = #{Puraccount.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_linkman SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE mdm_account_id = #{Puraccount.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurLinkMan" statementType="STATEMENT">
+		select * FROM pur_linkman  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

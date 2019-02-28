@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.qmsauditstd.mapper.AuditstdMapper">
+    
+	<sql id="auditstdColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.sn AS "sn",
+		a.auditp_code AS "auditpCode",
+		a.auditp_name AS "auditpName",
+		a.audit_item_code AS "auditItemCode",
+		a.audit_item_name AS "auditItemName",
+		a.audit_dept_code AS "office.id",
+		a.audit_dept_name AS "auditDeptName",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		office.code AS "office.code"
+	</sql>
+	
+	<sql id="auditstdJoins">
+		
+		LEFT JOIN sys_office office ON office.id = a.audit_dept_code
+	</sql>
+	
+    
+	<select id="get" resultType="Auditstd" >
+		SELECT 
+			<include refid="auditstdColumns"/>
+		FROM qms_auditstd a
+		<include refid="auditstdJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Auditstd" >
+		SELECT 
+			<include refid="auditstdColumns"/>
+		FROM qms_auditstd a
+		<include refid="auditstdJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="auditpCode != null and auditpCode != ''">
+				AND a.auditp_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditpCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditpCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditpCode},'%')</if>
+			</if>
+			<if test="auditpName != null and auditpName != ''">
+				AND a.auditp_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditpName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditpName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditpName},'%')</if>
+			</if>
+			<if test="auditItemCode != null and auditItemCode != ''">
+				AND a.audit_item_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditItemCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditItemCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditItemCode},'%')</if>
+			</if>
+			<if test="auditItemName != null and auditItemName != ''">
+				AND a.audit_item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditItemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditItemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditItemName},'%')</if>
+			</if>
+			<if test="office != null and office.id != null and office.id != ''">
+				AND a.audit_dept_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{office.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{office.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{office.id},'%')</if>
+			</if>
+			<if test="auditDeptName != null and auditDeptName != ''">
+				AND a.audit_dept_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{auditDeptName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{auditDeptName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{auditDeptName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Auditstd" >
+		SELECT 
+			<include refid="auditstdColumns"/>
+		FROM qms_auditstd a
+		<include refid="auditstdJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_auditstd(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			sn,
+			auditp_code,
+			auditp_name,
+			audit_item_code,
+			audit_item_name,
+			audit_dept_code,
+			audit_dept_name
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{sn},
+			#{auditpCode},
+			#{auditpName},
+			#{auditItemCode},
+			#{auditItemName},
+			#{office.id},
+			#{auditDeptName}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_auditstd SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			sn = #{sn},
+			auditp_code = #{auditpCode},
+			auditp_name = #{auditpName},
+			audit_item_code = #{auditItemCode},
+			audit_item_name = #{auditItemName},
+			audit_dept_code = #{office.id},
+			audit_dept_name = #{auditDeptName}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_auditstd
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_auditstd SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Auditstd" statementType="STATEMENT">
+		select * FROM qms_auditstd  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

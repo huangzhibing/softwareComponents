@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.qmsqcnorm.mapper.QCNormMapper">
+    
+	<sql id="qCNormColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.qcnorm_id AS "qcnormId",
+		a.qcnorm_name AS "qcnormName",
+		a.obj_code AS "qnobj.id",
+		a.obj_name AS "objNameRu",
+		a.quality_norm AS "qualityNorm",
+		a.compile_person AS "compilePerson",
+		a.compile_date AS "compileDate",
+		a.begin_date AS "beginDate",
+		a.end_date AS "endDate",
+		a.quality_norm_file AS "qualityNormFile",														
+		qnobj.obj_code AS "qnobj.objCode"
+	</sql>
+	
+	<sql id="qCNormJoins">
+		LEFT JOIN qms_objectdef qnobj ON qnobj.id = a.obj_code
+	</sql>
+	
+	
+    
+	<select id="get" resultType="QCNorm" >
+		SELECT 
+			<include refid="qCNormColumns"/>
+		FROM qms_qcnorm a
+		<include refid="qCNormJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="QCNorm" >
+		SELECT 
+			<include refid="qCNormColumns"/>
+		FROM qms_qcnorm a
+		<include refid="qCNormJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="qcnormId != null and qcnormId != ''">
+				AND a.qcnorm_id LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qcnormId}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qcnormId}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qcnormId},'%')</if>
+			</if>
+			<if test="qcnormName != null and qcnormName != ''">
+				AND a.qcnorm_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qcnormName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qcnormName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qcnormName},'%')</if>
+			</if>
+			<if test="qnobj != null and qnobj.id != null and qnobj.id != ''">
+				AND a.obj_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qnobj.id}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qnobj.id}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qnobj.id},'%')</if>
+			</if>
+			<if test="objNameRu != null and objNameRu != ''">
+				AND a.obj_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{objNameRu}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{objNameRu}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{objNameRu},'%')</if>
+			</if>
+			<if test="qualityNorm != null and qualityNorm != ''">
+				AND a.quality_norm LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qualityNorm}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qualityNorm}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qualityNorm},'%')</if>
+			</if>
+			<if test="compilePerson != null and compilePerson != ''">
+				AND a.compile_person LIKE 
+					<if test="dbName == 'oracle'">'%'||#{compilePerson}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{compilePerson}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{compilePerson},'%')</if>
+			</if>
+			<if test="compileDate != null and compileDate != ''">
+				AND a.compile_date LIKE 
+					<if test="dbName == 'oracle'">'%'||#{compileDate}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{compileDate}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{compileDate},'%')</if>
+			</if>
+			<if test="beginBeginDate != null and endBeginDate != null and beginBeginDate != '' and endBeginDate != ''">
+				AND a.begin_date BETWEEN #{beginBeginDate} AND #{endBeginDate}
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="QCNorm" >
+		SELECT 
+			<include refid="qCNormColumns"/>
+		FROM qms_qcnorm a
+		<include refid="qCNormJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_qcnorm(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			qcnorm_id,
+			qcnorm_name,
+			obj_code,
+			obj_name,
+			quality_norm,
+			compile_person,
+			compile_date,
+			begin_date,
+			end_date,
+			quality_norm_file	
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{qcnormId},
+			#{qcnormName},
+			#{qnobj.id},
+			#{objNameRu},
+			#{qualityNorm},
+			#{compilePerson},
+			#{compileDate},
+			#{beginDate},
+			#{endDate},
+			#{qualityNormFile}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_qcnorm SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			qcnorm_id = #{qcnormId},
+			qcnorm_name = #{qcnormName},
+			obj_code = #{qnobj.id},
+			obj_name = #{objNameRu},
+			quality_norm = #{qualityNorm},
+			compile_person = #{compilePerson},
+			compile_date = #{compileDate},
+			begin_date = #{beginDate},
+			end_date = #{endDate},
+			quality_norm_file = #{qualityNormFile}	
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_qcnorm
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_qcnorm SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="QCNorm" statementType="STATEMENT">
+		select * FROM qms_qcnorm  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

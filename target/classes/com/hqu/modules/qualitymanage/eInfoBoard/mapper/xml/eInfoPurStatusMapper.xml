@@ -1,0 +1,163 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.eInfoBoard.mapper.eInfoPurStatusMapper">
+
+    <sql id="eInfoPurStatusColumns">
+		a.report_id AS "reportId",
+		a.obj_name AS "objName",
+		a.checkprj AS "checkprj",
+		a.is_quality AS "isQuality",
+		a.create_date AS "startDate",
+		UNIX_TIMESTAMP(b.update_date) - UNIX_TIMESTAMP(a.update_date) AS "checkDuration"
+	</sql>
+
+    <sql id="eInfoPurStatusJoins">
+		(SELECT @arownum:=@arownum+1 AS rownum,report_id,obj_name,checkprj,update_date,is_quality,create_date FROM
+			(SELECT report_id,obj_name,checkprj,update_date,is_quality,create_date FROM qms_verifyqcnorm
+			WHERE report_id LIKE 'CHL%'
+			GROUP BY report_id,checkprj
+			ORDER BY report_id DESC,update_date DESC) t1,(select @arownum:=0) t)a,
+		(SELECT @brownum:=@brownum+1 AS rownum,report_id,obj_name,checkprj,update_date,is_quality,create_date FROM
+			(SELECT report_id,obj_name,checkprj,update_date,is_quality,create_date FROM qms_verifyqcnorm
+			WHERE report_id LIKE 'CHL%'
+			GROUP BY report_id,checkprj
+			ORDER BY report_id DESC,update_date DESC) t2,(select @brownum:=1) t)b
+    </sql>
+<!--	SELECT a.report_id,a.obj_name,a.checkprj,a.update_date,b.report_id,b.obj_name,b.checkprj,b.update_date,CASE a.is_quality WHEN 't' THEN '检验合格' WHEN 'f' THEN '检验不合格' END AS "a.is_quality",TIMEDIFF(b.update_date,a.update_date)
+FROM
+
+(SELECT @arownum:=@arownum+1 AS rownum,report_id,obj_name,checkprj,update_date,is_quality FROM
+	(SELECT report_id,obj_name,checkprj,update_date,is_quality FROM qms_verifyqcnorm
+	WHERE report_id LIKE 'CHL%'
+	GROUP BY report_id,checkprj
+	ORDER BY report_id DESC,update_date DESC) t1,(select @arownum:=0) t)a,
+(SELECT @brownum:=@brownum+1 AS rownum,report_id,obj_name,checkprj,update_date,is_quality FROM
+	(SELECT report_id,obj_name,checkprj,update_date,is_quality FROM qms_verifyqcnorm
+	WHERE report_id LIKE 'CHL%'
+	GROUP BY report_id,checkprj
+	ORDER BY report_id DESC,update_date DESC) t2,(select @brownum:=1) t)b
+
+WHERE a.report_id LIKE 'CHL%' AND a.rownum = b.rownum AND a.report_id = b.report_id
+GROUP BY a.report_id,a.checkprj
+ORDER BY a.report_id DESC,a.update_date DESC-->
+
+    <select id="get" resultType="eInfoPurStatus" >
+        SELECT
+        <include refid="eInfoPurStatusColumns"/>
+        FROM qms_eInfoPurStatus a
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="eInfoPurStatus" >
+        SELECT
+        <include refid="eInfoPurStatusColumns"/>
+        FROM
+        <include refid="eInfoPurStatusJoins"/>
+        <where>
+            ${dataScope}
+			a.rownum = b.rownum AND a.report_id = b.report_id
+            <if test="reportId != null and reportId != ''">
+                AND a.report_id = #{reportId}
+            </if>
+			<if test="objName != null and objName != ''">
+				AND a.obj_name = #{objName}
+			</if>
+			<if test="checkprj != null and checkprj != ''">
+				AND a.checkprj = #{checkprj}
+			</if>
+			<if test="isQuality != null and isQuality != ''">
+				AND a.is_quality = #{isQuality}
+			</if>
+			<if test="startBeginDate != null and startEndDate != null and startEndDate != '' and startBeginDate != ''">
+				AND a.create_date BETWEEN #{startBeginDate} AND #{startEndDate}
+			</if>
+        </where>
+			GROUP BY a.report_id,a.checkprj
+			ORDER BY a.report_id DESC,a.update_date DESC
+    </select>
+
+    <select id="findAllList" resultType="eInfoPurStatus" >
+        SELECT
+        <include refid="eInfoPurStatusColumns"/>
+        FROM qms_verifyqcnorm a
+        <include refid="eInfoPurStatusJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            ${dataScope}
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				GROUP BY a.report_id,a.checkprj
+				ORDER BY a.report_id DESC,a.update_date DESC
+            </when>
+            <otherwise>
+				GROUP BY a.report_id,a.checkprj
+				ORDER BY a.report_id DESC,a.update_date DESC
+            </otherwise>
+        </choose>
+    </select>
+
+    <insert id="insert">
+		INSERT INTO qms_eInfoPurStatus(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			sup_name,
+			sum_batch,
+			bad_batch,
+			y,
+			m
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{supName},
+			#{sumBatch},
+			#{badBatch},
+			#{y},
+			#{m}
+		)
+	</insert>
+
+    <update id="update">
+		UPDATE qms_eInfoPurStatus SET
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			sup_name = #{supName},
+			sum_batch = #{sumBatch},
+			bad_batch = #{badBatch},
+			y = #{y},
+			m = #{m}
+		WHERE id = #{id}
+	</update>
+
+
+    <!--物理删除-->
+    <update id="delete">
+		DELETE FROM qms_eInfoPurStatus
+		WHERE id = #{id}
+	</update>
+
+    <!--逻辑删除-->
+    <update id="deleteByLogic">
+		UPDATE qms_eInfoPurStatus SET
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+
+
+    <!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+    <select id="findUniqueByProperty" resultType="eInfoPurStatus" statementType="STATEMENT">
+		select * FROM qms_eInfoPurStatus  where ${propertyName} = '${value}'
+	</select>
+
+</mapper>

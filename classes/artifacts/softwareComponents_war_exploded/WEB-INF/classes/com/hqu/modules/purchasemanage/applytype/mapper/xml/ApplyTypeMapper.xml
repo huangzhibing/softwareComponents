@@ -1,0 +1,154 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.applytype.mapper.ApplyTypeMapper">
+    
+	<sql id="applyTypeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.applytypeid AS "applytypeid",
+		a.applytypename AS "applytypename",
+		a.applytypenote AS "applytypenote",
+		a.user_dept_code AS "userDeptCode"
+	</sql>
+	
+	<sql id="applyTypeJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="ApplyType" >
+		SELECT 
+			<include refid="applyTypeColumns"/>
+		FROM pur_applytype a
+		<include refid="applyTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="ApplyType" >
+		SELECT 
+			<include refid="applyTypeColumns"/>
+		FROM pur_applytype a
+		<include refid="applyTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="applytypeid != null and applytypeid != ''">
+				AND a.applytypeid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{applytypeid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{applytypeid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{applytypeid},'%')</if>
+			</if>
+			<if test="applytypename != null and applytypename != ''">
+				AND a.applytypename LIKE 
+					<if test="dbName == 'oracle'">'%'||#{applytypename}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{applytypename}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{applytypename},'%')</if>
+			</if>
+			<if test="applytypenote != null and applytypenote != ''">
+				AND a.applytypenote LIKE 
+					<if test="dbName == 'oracle'">'%'||#{applytypenote}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{applytypenote}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{applytypenote},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+</select>
+	
+	<select id="getMaxApplytypeid" resultType="String">
+	    SELECT MAX(applytypeid)
+	    FROM pur_applytype
+	</select>
+
+	
+	<select id="findAllList" resultType="ApplyType" >
+		SELECT 
+			<include refid="applyTypeColumns"/>
+		FROM pur_applytype a
+		<include refid="applyTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_applytype(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			applytypeid,
+			applytypename,
+			applytypenote,
+			user_dept_code
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{applytypeid},
+			#{applytypename},
+			#{applytypenote},
+			#{userDeptCode}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_applytype SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			applytypeid = #{applytypeid},
+			applytypename = #{applytypename},
+			applytypenote = #{applytypenote},
+			user_dept_code = #{userDeptCode}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_applytype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_applytype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="ApplyType" statementType="STATEMENT">
+		select * FROM pur_applytype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

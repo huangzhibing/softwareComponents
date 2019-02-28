@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.purplan.mapper.ItemExtendMapper">
+    
+	<sql id="itemExtendColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.code AS "code",
+		a.name AS "name",
+		a.class_code AS "classCode.classId",
+		a.class_name AS "className",
+		a.spec_model AS "specModel",
+		a.texture AS "texture",
+		a.gb AS "gb",
+		a.draw_no AS "drawNO",
+		a.unit_code AS "unitCode.unitCode",
+		a.unit AS "unit",
+		a.safety_qty AS "safetyQty",
+		a.lead_time AS "leadTime",
+		a.max_storage AS "maxStorage",
+		a.min_storage AS "minStorage",
+		a.plan_price AS "planPrice",
+		a.system_sign AS "systemSign",
+		a.is_key AS "isKey",
+		a.item_batch AS "itemBatch",
+		a.is_in_motor AS "isInMotor",
+		b.name AS "classCode.name",
+		unitCode.unit_name AS "unitCode.unitName",
+		
+		k.now_sum AS "nowQty",
+		k.cost_price AS "costPrice"
+	</sql>
+	
+	<sql id="itemExtendJoins">
+		LEFT JOIN mdm_itemclass b ON b.id = a.class_code
+		LEFT JOIN mdm_unit unitCode ON unitCode.id = a.unit_code
+		LEFT JOIN inv_account k ON k.item_code = a.id
+	</sql>
+	
+    
+	<select id="get" resultType="ItemExtend" >
+		SELECT 
+			<include refid="itemExtendColumns"/>
+		FROM mdm_item a
+		<include refid="itemExtendJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	
+	
+	<select id="findList" resultType="ItemExtend" >
+		SELECT 
+			<include refid="itemExtendColumns"/>
+		FROM mdm_item a
+		<include refid="itemExtendJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="code != null and code != ''">
+				AND a.code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{code}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{code}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{code},'%')</if>
+			</if>
+			<if test="name != null and name != ''">
+				AND a.name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{name}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{name}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{name},'%')</if>
+			</if>
+                    <if test="classCode != null  and classCode.id != null and classCode.id != ''">
+                        AND (b.id = #{classCode.id} OR b.parent_ids LIKE
+                        <if test="dbName == 'oracle'">'%,'||#{classCode.id}||',%')</if>
+                        <if test="dbName == 'mysql'">CONCAT('%,', #{classCode.id}, ',%'))</if>
+                        <if test="dbName == 'mssql'">'%'+#{classCode.id}+'%')</if>
+                    </if>
+			<if test="className != null and className != ''">
+				AND a.class_name = #{className}
+			</if>
+			<if test="specModel != null and specModel != ''">
+				AND a.spec_model LIKE 
+					<if test="dbName == 'oracle'">'%'||#{specModel}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{specModel}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{specModel},'%')</if>
+			</if>
+			<if test="texture != null and texture != ''">
+				AND a.texture LIKE 
+					<if test="dbName == 'oracle'">'%'||#{texture}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{texture}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{texture},'%')</if>
+			</if>
+			<if test="unitCode != null and unitCode.unitCode != null and unitCode.unitCode != ''">
+				AND a.unit_code = #{unitCode.unitCode}
+			</if>
+			<if test="unit != null and unit != ''">
+				AND a.unit = #{unit}
+			</if>
+			<if test="systemSign != null and systemSign != ''">
+				AND a.system_sign LIKE 
+					<if test="dbName == 'oracle'">'%'||#{systemSign}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{systemSign}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{systemSign},'%')</if>
+			</if>
+			<if test="isKey != null and isKey != ''">
+				AND a.is_key = #{isKey}
+			</if>
+			<if test="isInMotor != null and isInMotor != ''">
+				AND a.is_in_motor = #{isInMotor}
+			</if>
+		</where>
+		GROUP BY a.id 
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="ItemExtend" >
+		SELECT 
+			<include refid="itemExtendColumns"/>
+		FROM mdm_item a
+		<include refid="itemExtendJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	
+	
+</mapper>

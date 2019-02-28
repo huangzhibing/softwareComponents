@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.costmanage.report.mapper.ReportMapper">
+
+    <sql id="billMainColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.bill_date AS "billDate",
+		a.dept_id AS "dept.code",
+		a.dept_name AS "deptName",
+		a.io_type AS "io.ioType",
+		a.io_desc AS "ioDesc",
+		a.io_flag AS "ioFlag",
+		a.ware_id AS "ware.wareID",
+		a.ware_name AS "wareName",
+		a.bill_person AS "billPerson.no",
+		a.ware_empid AS "wareEmp.user.no",
+		a.ware_empname AS "wareEmpname",
+		a.cor_bill_num AS "corBillNum",
+		a.cor_id AS "corId",
+		a.use_id AS "invuse.useId",
+		a.use_name AS "useName",
+		a.bill_flag AS "billFlag",
+		a.estimate_flag AS "estimateFlag",
+		a.period_id AS "period.periodId",
+		a.bill_desc AS "billDesc",
+		a.rec_empid AS "recEmp.no",
+		a.rec_empname AS "recEmpname",
+		a.rec_date AS "recDate",
+		a.bill_empid AS "billEmp.no",
+		a.bill_empname AS "billEmpname",
+		a.note AS "note",
+		a.order_code AS "orderCode",
+		a.tax_ratio AS "taxRatio",
+		a.ino_id AS "inoId",
+		a.class_id AS "classId",
+		a.class_desc AS "classDesc",
+		a.cflag AS "cflag",
+		a.fnumber AS "fnumber",
+		a.finvoice_id AS "finvoiceID",
+		a.bill_type AS "billType",
+		a.red_flag AS "redFlag",
+		a.cg_flag AS "cgFlag",
+		a.total_sum AS "totalSum",
+		a.oper_date AS "operDate",
+		a.bill_source AS "billSource",
+		a.cg_num AS "cgNum",
+		a.work_poscode AS "workPoscode",
+		a.work_posname AS "wordPosname",
+		a.rcv_addr AS "rcvAddr",
+		a.trans_account AS "transAccount",
+		a.car_num AS "carNum",
+		a.account_code AS "account.accountCode",
+		a.account_name AS "accountName",
+		cosbill.cos_billnum_status AS "cosBillStatus",
+
+
+
+
+
+		io.io_desc AS "io.ioDesc",
+
+
+		billEmp.name AS "billEmp.name",
+
+		billPerson.name AS "billPerson.name",
+
+		ware.id AS "ware.id",
+
+		period.id AS "period.id",
+
+		account.id AS "account.id",
+
+		billdetail.item_code AS "item.code",
+		billdetail.item_name AS "item.name",
+		billdetail.item_spec AS "item.specModel",
+		billdetail.meas_unit AS "item.unit",
+		billdetail.item_qty AS "itemQty",
+		billdetail.item_price AS "itemPrice",
+		billdetail.item_sum AS "itemSum",
+		billdetail.order_num AS "orderNum",
+        pickBill.rcv_account_name AS "corName",
+        a.order_id AS orderId
+	</sql>
+
+    <sql id="billMainJoins">
+		LEFT JOIN sys_office dept ON dept.code = a.dept_id
+		LEFT JOIN inv_bill_type io ON io.io_type = a.io_type
+		LEFT JOIN inv_warehouse ware ON ware.ware_id = a.ware_id
+		LEFT JOIN sys_user billPerson ON billPerson.no = a.bill_person
+		LEFT JOIN inv_employee wareEmp ON wareEmp.emp_id = a.ware_empid
+		LEFT JOIN inv_use invuse ON invuse.use_id = a.use_id
+		LEFT JOIN sys_user recEmp ON recEmp.no = a.rec_empid
+		LEFT JOIN sys_user billEmp ON billEmp.no = a.bill_empid
+		LEFT JOIN mdm_period period ON period.period_id = a.period_id
+		LEFT JOIN mdm_account account ON account.account_code=a.account_code
+
+		LEFT JOIN cos_billrecord cosbill ON cosbill.cor_billnum = a.bill_num
+
+		LEFT JOIN inv_billdetail billdetail ON billdetail.bill_num = a.id
+		LEFT JOIN sal_pick_bill pickBill ON pickBill.pbill_code = a.cor_bill_num
+	</sql>
+
+
+    <select id="findList" resultType="Report" >
+        SELECT
+        <include refid="billMainColumns"/>
+        FROM inv_billmain a
+        <include refid="billMainJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            AND a.io_type = 'CO01'
+            AND a.bill_flag= 'T'
+            <if test="orderId != null and orderId != ''">
+                AND a.order_id LIKE
+                <if test="dbName == 'oracle'">'%'||#{orderId}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{orderId}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{orderId},'%')</if>
+            </if>
+            <if test="beginBillDate != null and endBillDate != null and beginBillDate != '' and endBillDate != ''">
+                AND a.bill_date BETWEEN #{beginBillDate} AND #{endBillDate}
+            </if>
+            <if test="corName != null and corName != ''">
+                AND pickBill.rcv_account_name LIKE
+                <if test="dbName == 'oracle'">'%'||#{corName}||'%'</if>
+                <if test="dbName == 'mssql'">'%'+#{corName}+'%'</if>
+                <if test="dbName == 'mysql'">concat('%',#{corName},'%')</if>
+            </if>
+            <if test=" item!=null and item.name!= null and item.name != ''">
+                AND billdetail.item_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{item.name}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{item.name}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{item.name},'%')</if>
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderBy != null and page.orderBy != ''">
+                ORDER BY ${page.orderBy}
+            </when>
+            <otherwise>
+                ORDER BY a.bill_date DESC
+            </otherwise>
+        </choose>
+    </select>
+
+
+
+
+
+
+</mapper>

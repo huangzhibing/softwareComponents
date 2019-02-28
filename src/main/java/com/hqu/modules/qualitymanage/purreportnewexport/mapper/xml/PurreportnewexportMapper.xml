@@ -1,0 +1,158 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.qualitymanage.purreportnewexport.mapper.PurreportnewexportMapper">
+    
+	<sql id="purreportnewexportColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.item_name AS "itemName",
+		a.item_specmodel AS "itemSpecmodel",
+		a.check_date AS "checkDate",
+		a.supname AS "supname",
+		a.report_id AS "reportId",
+		a.check_person AS "checkPerson",
+		a.good_num AS "goodNum",
+		a.bad_num AS "badNum",
+		a.rate AS "rate",
+		a.bad_detail AS "badDetail",
+		a.item_name_detail AS "itemNameDetail"
+	</sql>
+	
+	<sql id="purreportnewexportJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="Purreportnewexport" >
+		SELECT 
+			<include refid="purreportnewexportColumns"/>
+		FROM qms_purreportnewexport a
+		<include refid="purreportnewexportJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="Purreportnewexport" >
+		SELECT 
+			<include refid="purreportnewexportColumns"/>
+		FROM qms_purreportnewexport a
+		<include refid="purreportnewexportJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="Purreportnewexport" >
+		SELECT 
+			<include refid="purreportnewexportColumns"/>
+		FROM qms_purreportnewexport a
+		<include refid="purreportnewexportJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO qms_purreportnewexport(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			item_name,
+			item_specmodel,
+			check_date,
+			supname,
+			report_id,
+			check_person,
+			good_num,
+			bad_num,
+			rate,
+			bad_detail,
+			item_name_detail
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{itemName},
+			#{itemSpecmodel},
+			#{checkDate},
+			#{supname},
+			#{reportId},
+			#{checkPerson},
+			#{goodNum},
+			#{badNum},
+			#{rate},
+			#{badDetail},
+			#{itemNameDetail}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE qms_purreportnewexport SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			item_name = #{itemName},
+			item_specmodel = #{itemSpecmodel},
+			check_date = #{checkDate},
+			supname = #{supname},
+			report_id = #{reportId},
+			check_person = #{checkPerson},
+			good_num = #{goodNum},
+			bad_num = #{badNum},
+			rate = #{rate},
+			bad_detail = #{badDetail},
+			item_name_detail = #{itemNameDetail}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM qms_purreportnewexport
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE qms_purreportnewexport SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="Purreportnewexport" statementType="STATEMENT">
+		select * FROM qms_purreportnewexport  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

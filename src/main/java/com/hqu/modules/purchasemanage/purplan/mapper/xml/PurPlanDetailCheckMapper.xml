@@ -1,0 +1,306 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.purplan.mapper.PurPlanDetailCheckMapper">
+    
+	<sql id="purPlanDetailCheckColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum.id",
+		a.serial_num AS "serialNum",
+		a.item_code AS "itemCode.id",
+		a.item_name AS "itemName",
+		a.item_specmodel AS "itemSpecmodel",
+		a.item_texture AS "itemTexture",
+		a.unit_name AS "unitName",
+		a.plan_qty AS "planQty",
+		a.pur_price AS "purPrice",
+		a.pur_sum AS "purSum",
+		a.plan_price AS "planPrice",
+		a.plan_sum AS "planSum",
+		a.inv_qty AS "invQty",
+		a.road_qty AS "roadQty",
+		a.pur_start_date AS "purStartDate",
+		a.pur_arrive_date AS "purArriveDate",
+		a.sup_id AS "supId.id",
+		a.sup_name AS "supName",
+		a.buyer_id AS "buyerId.user.id",
+		a.buyer_name AS "buyerName",
+		a.safety_qtys AS "safetyQtys",
+		a.batch_lt AS "batchLt",
+		a.request_date AS "requestDate",
+		a.cost_price AS "costPrice",
+		a.con_qty AS "conQty",
+		a.check_qty AS "checkQty",
+		a.notes AS "notes",
+		a.apply_qty_all AS "applyQtyAll",
+		a.log AS "log",
+		a.item_pdn AS "itemPdn",
+		a.apply_sum_all AS "applySumAll",
+		a.pur_qty AS "purQty",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		itemCode.code AS "itemCode.code",
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+		supId.account_code AS "supId.accountCode",
+				
+				
+		buyerId.buyername AS "buyerId.buyername"
+	</sql>
+	
+	<sql id="purPlanDetailCheckJoins">
+		
+			LEFT JOIN pur_planmain b ON b.id = a.bill_num
+		LEFT JOIN mdm_item itemCode ON itemCode.id = a.item_code
+		LEFT JOIN mdm_account supId ON supId.id = a.sup_id
+		LEFT JOIN pur_groupbuyer buyerId ON buyerId.id = a.buyer_id
+	</sql>
+	
+    
+	<select id="get" resultType="PurPlanDetailCheck" >
+		SELECT 
+			<include refid="purPlanDetailCheckColumns"/>
+		FROM pur_plandetail a
+		<include refid="purPlanDetailCheckJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurPlanDetailCheck" >
+		SELECT 
+			<include refid="purPlanDetailCheckColumns"/>
+		FROM pur_plandetail a
+		<include refid="purPlanDetailCheckJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum.id != null and billNum.id != ''">
+				AND a.bill_num = #{billNum.id}
+			</if>
+			<if test="itemCode != null and itemCode.id != null and itemCode.id != ''">
+				AND a.item_code = #{itemCode.id}
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND a.item_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+			<if test="itemSpecmodel != null and itemSpecmodel != ''">
+				AND a.item_specmodel LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemSpecmodel}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemSpecmodel}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemSpecmodel},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.serial_num ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurPlanDetailCheck" >
+		SELECT 
+			<include refid="purPlanDetailCheckColumns"/>
+		FROM pur_plandetail a
+		<include refid="purPlanDetailCheckJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.create_date ASC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_plandetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			serial_num,
+			item_code,
+			item_name,
+			item_specmodel,
+			item_texture,
+			unit_name,
+			plan_qty,
+			pur_price,
+			pur_sum,
+			plan_price,
+			plan_sum,
+			inv_qty,
+			road_qty,
+			pur_start_date,
+			pur_arrive_date,
+			sup_id,
+			sup_name,
+			buyer_id,
+			buyer_name,
+			safety_qtys,
+			batch_lt,
+			request_date,
+			cost_price,
+			con_qty,
+			check_qty,
+			notes,
+			apply_qty_all,
+			log,
+			item_pdn,
+			apply_sum_all,
+			pur_qty
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum.id},
+			#{serialNum},
+			#{itemCode.id},
+			#{itemName},
+			#{itemSpecmodel},
+			#{itemTexture},
+			#{unitName},
+			#{planQty},
+			#{purPrice},
+			#{purSum},
+			#{planPrice},
+			#{planSum},
+			#{invQty},
+			#{roadQty},
+			#{purStartDate},
+			#{purArriveDate},
+			#{supId.id},
+			#{supName},
+			#{buyerId.user.id},
+			#{buyerName},
+			#{safetyQtys},
+			#{batchLt},
+			#{requestDate},
+			#{costPrice},
+			#{conQty},
+			#{checkQty},
+			#{notes},
+			#{applyQtyAll},
+			#{log},
+			#{itemPdn},
+			#{applySumAll},
+			#{purQty}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_plandetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum.id},
+			serial_num = #{serialNum},
+			item_code = #{itemCode.id},
+			item_name = #{itemName},
+			item_specmodel = #{itemSpecmodel},
+			item_texture = #{itemTexture},
+			unit_name = #{unitName},
+			plan_qty = #{planQty},
+			pur_price = #{purPrice},
+			pur_sum = #{purSum},
+			plan_price = #{planPrice},
+			plan_sum = #{planSum},
+			inv_qty = #{invQty},
+			road_qty = #{roadQty},
+			pur_start_date = #{purStartDate},
+			pur_arrive_date = #{purArriveDate},
+			sup_id = #{supId.id},
+			sup_name = #{supName},
+			buyer_id = #{buyerId.user.id},
+			buyer_name = #{buyerName},
+			safety_qtys = #{safetyQtys},
+			batch_lt = #{batchLt},
+			request_date = #{requestDate},
+			cost_price = #{costPrice},
+			con_qty = #{conQty},
+			check_qty = #{checkQty},
+			notes = #{notes},
+			apply_qty_all = #{applyQtyAll},
+			log = #{log},
+			item_pdn = #{itemPdn},
+			apply_sum_all = #{applySumAll},
+			pur_qty = #{purQty}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_plandetail
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNum.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_plandetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		<choose>
+			<when test="id !=null and id != ''">
+				WHERE id = #{id}
+			</when>
+			<otherwise>
+				WHERE bill_num = #{billNum.id}
+			</otherwise>
+		</choose>
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurPlanDetailCheck" statementType="STATEMENT">
+		select * FROM pur_plandetail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.plantype.mapper.PlanTypeMapper">
+    
+	<sql id="planTypeColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.plantypeid AS "plantypeId",
+		a.plantypename AS "plantypename",
+		a.plantypenotes AS "plantypenotes"
+	</sql>
+	
+	<sql id="planTypeJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="PlanType" >
+		SELECT 
+			<include refid="planTypeColumns"/>
+		FROM pur_plantype a
+		<include refid="planTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PlanType" >
+		SELECT 
+			<include refid="planTypeColumns"/>
+		FROM pur_plantype a
+		<include refid="planTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="plantypeId != null and plantypeId != ''">
+				AND a.plantypeid LIKE
+				<if test="dbName == 'oracle'">'%'||#{plantypeId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{plantypeId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{plantypeId},'%')</if>
+			</if>
+			<if test="plantypename != null and plantypename != ''">
+				AND a.plantypename LIKE
+				<if test="dbName == 'oracle'">'%'||#{plantypename}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{plantypename}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{plantypename},'%')</if>
+			</if>
+			<if test="plantypenotes != null and plantypenotes != ''">
+				AND a.plantypenotes LIKE
+				<if test="dbName == 'oracle'">'%'||#{plantypenotes}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{plantypenotes}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{plantypenotes},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+<select id="getMaxPlantypeId" resultType="String">
+		SELECT MAX(plantypeid)
+		FROM pur_plantype
+	</select>
+	
+	<select id="findAllList" resultType="PlanType" >
+		SELECT 
+			<include refid="planTypeColumns"/>
+		FROM pur_plantype a
+		<include refid="planTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_plantype(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			plantypeid,
+			plantypename,
+			plantypenotes
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{plantypeId},
+			#{plantypename},
+			#{plantypenotes}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_plantype SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			plantypeid = #{plantypeId},
+			plantypename = #{plantypename},
+			plantypenotes = #{plantypenotes}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_plantype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_plantype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PlanType" statementType="STATEMENT">
+		select * FROM pur_plantype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

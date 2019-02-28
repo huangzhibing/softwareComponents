@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.basedata.machinetype.mapper.MachineTypeMapper">
+    
+	<sql id="machineTypeColumns">
+		a.id AS "id",
+		a.machine_type_code AS "machineTypeCode",
+		a.machine_type_name AS "machineTypeName",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag"
+	</sql>
+	
+	<sql id="machineTypeJoins">
+		
+	</sql>
+	
+	<select id="selectMax" resultType="String" >
+		SELECT max(machine_type_code) FROM mdm_machinetype
+	</select>
+    
+	<select id="get" resultType="MachineType" >
+		SELECT 
+			<include refid="machineTypeColumns"/>
+		FROM mdm_machinetype a
+		<include refid="machineTypeJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MachineType" >
+		SELECT 
+			<include refid="machineTypeColumns"/>
+		FROM mdm_machinetype a
+		<include refid="machineTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="machineTypeCode != null and machineTypeCode != ''">
+				AND a.machine_type_code like "%"#{machineTypeCode}"%"
+			</if>
+			<if test="machineTypeName != null and machineTypeName != ''">
+				AND a.machine_type_name like "%"#{machineTypeName}"%"
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MachineType" >
+		SELECT 
+			<include refid="machineTypeColumns"/>
+		FROM mdm_machinetype a
+		<include refid="machineTypeJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO mdm_machinetype(
+			id,
+			machine_type_code,
+			machine_type_name,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag
+		) VALUES (
+			#{id},
+			#{machineTypeCode},
+			#{machineTypeName},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE mdm_machinetype SET 	
+			machine_type_code = #{machineTypeCode},
+			machine_type_name = #{machineTypeName},
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM mdm_machinetype
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE mdm_machinetype SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="MachineType" statementType="STATEMENT">
+		select * FROM mdm_machinetype  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

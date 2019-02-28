@@ -1,0 +1,223 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.pursupbackdetail.mapper.PurSupBackDetailMapper">
+    
+<!-- 	<sql id="purSupBackDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.serial_num AS "serialNum",
+		a.back_date AS "backDate",
+		a.billnum AS "billNum",
+		a.sup_id AS "supId",
+		a.sup_name AS "supName",
+		a.item_code AS "itemCode",
+		a.item_name AS "itemName",
+		a.item_specmodel AS "itemSpecModel",
+		a.back_qty AS "backQty",
+		a.unit_code AS "unitCode",
+		a.real_price_taxed AS "realPriceTaxed",
+		a.real_sum_taxed AS "realSumTaxed",
+		a.con_billnum AS "conBillNum",
+		a.back_reason AS "backReason"
+	</sql> -->
+	
+		<sql id="purSupBackDetailColumns">
+		b.update_date AS "backDate",
+		b.billnum AS "billNum",
+		a.sup_id AS "supId",
+		a.sup_name AS "supName",
+		c.`code` AS "itemCode",
+		b.item_name AS "itemName",
+		b.item_specmodel AS "itemSpecModel",
+		b.check_qty AS "backQty",
+		b.unit_code AS "unitCode",
+		e.item_price_taxed AS "realPriceTaxed",
+		e.item_sum_taxed AS "realSumTaxed",
+		e.bill_num AS "conBillNum",
+		a.back_reason AS "backReason"
+	</sql>
+	
+	<sql id="purSupBackDetailJoins">
+		LEFT JOIN pur_invcheckmain a ON a.billnum = b.billnum
+		LEFT JOIN mdm_item c ON c.id = b.item_code
+		LEFT JOIN pur_contractmain d ON a.contract_id = d.bill_num
+		LEFT JOIN pur_contractdetail e on e.bill_num = d.bill_num
+	</sql>
+	
+    
+	<select id="get" resultType="PurSupBackDetail" >
+		SELECT 
+			<include refid="purSupBackDetailColumns"/>
+		FROM pur_invcheckdetail b
+		<include refid="purSupBackDetailJoins"/>
+		WHERE b.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="PurSupBackDetail" >
+		SELECT 
+			<include refid="purSupBackDetailColumns"/>
+		FROM pur_invcheckdetail b
+		<include refid="purSupBackDetailJoins"/>
+		<where>
+			b.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			AND a.contract_id != '' AND b.back_flag = '1'
+			<if test="beginBackDate != null and endBackDate != null and beginBackDate != '' and endBackDate != ''">
+				AND b.update_date BETWEEN #{beginBackDate} AND #{endBackDate}
+			</if>
+			<if test="billNum != null and billNum != ''">
+				AND b.billnum LIKE
+				<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="supId != null and supId != ''">
+				AND a.sup_id LIKE
+				<if test="dbName == 'oracle'">'%'||#{supId}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{supId}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{supId},'%')</if>
+			</if>
+			<if test="supName != null and supName != ''">
+				AND a.sup_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{supName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{supName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{supName},'%')</if>
+			</if>
+			<if test="itemCode != null and itemCode != ''">
+				AND c.`code` LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemCode},'%')</if>
+			</if>
+			<if test="itemName != null and itemName != ''">
+				AND b.item_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{itemName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{itemName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{itemName},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY b.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="PurSupBackDetail" >
+		SELECT 
+			<include refid="purSupBackDetailColumns"/>
+		FROM pur_supbackdetail a
+		<include refid="purSupBackDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO pur_supbackdetail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			serial_num,
+			back_date,
+			billnum,
+			sup_id,
+			sup_name,
+			item_code,
+			item_name,
+			item_specmodel,
+			back_qty,
+			unit_code,
+			real_price_taxed,
+			real_sum_taxed,
+			con_billnum,
+			back_reason
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{serialNum},
+			#{backDate},
+			#{billNum},
+			#{supId},
+			#{supName},
+			#{itemCode},
+			#{itemName},
+			#{itemSpecModel},
+			#{backQty},
+			#{unitCode},
+			#{realPriceTaxed},
+			#{realSumTaxed},
+			#{conBillNum},
+			#{backReason}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE pur_supbackdetail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			serial_num = #{serialNum},
+			back_date = #{backDate},
+			billnum = #{billNum},
+			sup_id = #{supId},
+			sup_name = #{supName},
+			item_code = #{itemCode},
+			item_name = #{itemName},
+			item_specmodel = #{itemSpecModel},
+			back_qty = #{backQty},
+			unit_code = #{unitCode},
+			real_price_taxed = #{realPriceTaxed},
+			real_sum_taxed = #{realSumTaxed},
+			con_billnum = #{conBillNum},
+			back_reason = #{backReason}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM pur_supbackdetail
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE pur_supbackdetail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="PurSupBackDetail" statementType="STATEMENT">
+		select * FROM pur_supbackdetail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

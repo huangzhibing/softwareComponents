@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.purchasemanage.adtdetail.mapper.AdtDetailMapper">
+    
+	<sql id="adtDetailColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.bill_num AS "billNum",
+		a.bill_type_code AS "billTypeCode",
+		a.bill_type_name AS "billTypeName",
+		a.justify_result AS "justifyResult",
+		a.justify_remark AS "justifyRemark",
+		a.jperson_code AS "jpersonCode",
+		a.justify_person AS "justifyPerson",
+		a.jdept_code AS "jdeptCode",
+		a.jdept_name AS "jdeptName",
+		a.jposition_code AS "jpositionCode",
+		a.jposition_name AS "jpositionName",
+		a.justify_date AS "justifyDate",
+		a.model_code AS "modelCode",
+		a.is_finished AS "isFinished",
+		a.step AS "step",
+		a.finish_flag AS "finishFlag"
+	</sql>
+	
+	<sql id="adtDetailJoins">
+		
+	</sql>
+	
+    
+	<select id="get" resultType="AdtDetail" >
+		SELECT 
+			<include refid="adtDetailColumns"/>
+		FROM adt_detail a
+		<include refid="adtDetailJoins"/>
+		WHERE a.id = #{id}
+	</select>
+
+	<select id="findStep" resultType="Integer" >
+		SELECT
+		MAX(a.step)
+		FROM adt_detail a
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE
+				<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="billTypeCode != null and billTypeCode != ''">
+				AND a.bill_type_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{billTypeCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billTypeCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billTypeCode},'%')</if>
+			</if>
+			<if test="billTypeName != null and billTypeName != ''">
+				AND a.bill_type_name LIKE
+				<if test="dbName == 'oracle'">'%'||#{billTypeName}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{billTypeName}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{billTypeName},'%')</if>
+			</if>
+
+			<if test="modelCode != null and modelCode != ''">
+				AND a.model_code LIKE
+				<if test="dbName == 'oracle'">'%'||#{modelCode}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{modelCode}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{modelCode},'%')</if>
+			</if>
+			<if test="isFinished != null and isFinished != ''">
+				AND a.is_finished LIKE
+				<if test="dbName == 'oracle'">'%'||#{isFinished}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{isFinished}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{isFinished},'%')</if>
+			</if>
+			<if test="step != null and step != ''">
+				AND a.step LIKE
+				<if test="dbName == 'oracle'">'%'||#{step}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{step}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{step},'%')</if>
+			</if>
+			<if test="finishFlag != null and finishFlag != ''">
+				AND a.finish_flag LIKE
+				<if test="dbName == 'oracle'">'%'||#{finishFlag}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{finishFlag}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{finishFlag},'%')</if>
+			</if>
+		</where>
+	</select>
+
+	<select id="findList" resultType="AdtDetail" >
+		SELECT 
+			<include refid="adtDetailColumns"/>
+		FROM adt_detail a
+		<include refid="adtDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+			<if test="billNum != null and billNum != ''">
+				AND a.bill_num LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billNum}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billNum}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billNum},'%')</if>
+			</if>
+			<if test="billTypeCode != null and billTypeCode != ''">
+				AND a.bill_type_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billTypeCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billTypeCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billTypeCode},'%')</if>
+			</if>
+			<if test="billTypeName != null and billTypeName != ''">
+				AND a.bill_type_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{billTypeName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{billTypeName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{billTypeName},'%')</if>
+			</if>
+			<if test="justifyResult != null and justifyResult != ''">
+				AND a.justify_result LIKE 
+					<if test="dbName == 'oracle'">'%'||#{justifyResult}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{justifyResult}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{justifyResult},'%')</if>
+			</if>
+			<if test="justifyRemark != null and justifyRemark != ''">
+				AND a.justify_remark LIKE 
+					<if test="dbName == 'oracle'">'%'||#{justifyRemark}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{justifyRemark}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{justifyRemark},'%')</if>
+			</if>
+			<if test="jpersonCode != null and jpersonCode != ''">
+				AND a.jperson_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{jpersonCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{jpersonCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{jpersonCode},'%')</if>
+			</if>
+			<if test="justifyPerson != null and justifyPerson != ''">
+				AND a.justify_person LIKE 
+					<if test="dbName == 'oracle'">'%'||#{justifyPerson}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{justifyPerson}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{justifyPerson},'%')</if>
+			</if>
+			<if test="jdeptCode != null and jdeptCode != ''">
+				AND a.jdept_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{jdeptCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{jdeptCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{jdeptCode},'%')</if>
+			</if>
+			<if test="jdeptName != null and jdeptName != ''">
+				AND a.jdept_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{jdeptName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{jdeptName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{jdeptName},'%')</if>
+			</if>
+			<if test="jpositionCode != null and jpositionCode != ''">
+				AND a.jposition_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{jpositionCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{jpositionCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{jpositionCode},'%')</if>
+			</if>
+			<if test="jpositionName != null and jpositionName != ''">
+				AND a.jposition_name LIKE 
+					<if test="dbName == 'oracle'">'%'||#{jpositionName}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{jpositionName}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{jpositionName},'%')</if>
+			</if>
+			<if test="justifyDate != null and justifyDate != ''">
+				AND a.justify_date LIKE 
+					<if test="dbName == 'oracle'">'%'||#{justifyDate}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{justifyDate}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{justifyDate},'%')</if>
+			</if>
+			<if test="modelCode != null and modelCode != ''">
+				AND a.model_code LIKE 
+					<if test="dbName == 'oracle'">'%'||#{modelCode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{modelCode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{modelCode},'%')</if>
+			</if>
+			<if test="isFinished != null and isFinished != ''">
+				AND a.is_finished LIKE 
+					<if test="dbName == 'oracle'">'%'||#{isFinished}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{isFinished}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{isFinished},'%')</if>
+			</if>
+			<if test="step != null and step != ''">
+				AND a.step LIKE 
+					<if test="dbName == 'oracle'">'%'||#{step}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{step}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{step},'%')</if>
+			</if>
+			<if test="finishFlag != null and finishFlag != ''">
+				AND a.finish_flag LIKE 
+					<if test="dbName == 'oracle'">'%'||#{finishFlag}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{finishFlag}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{finishFlag},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="AdtDetail" >
+		SELECT 
+			<include refid="adtDetailColumns"/>
+		FROM adt_detail a
+		<include refid="adtDetailJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO adt_detail(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			bill_num,
+			bill_type_code,
+			bill_type_name,
+			justify_result,
+			justify_remark,
+			jperson_code,
+			justify_person,
+			jdept_code,
+			jdept_name,
+			jposition_code,
+			jposition_name,
+			justify_date,
+			model_code,
+			is_finished,
+			step,
+			finish_flag
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{billNum},
+			#{billTypeCode},
+			#{billTypeName},
+			#{justifyResult},
+			#{justifyRemark},
+			#{jpersonCode},
+			#{justifyPerson},
+			#{jdeptCode},
+			#{jdeptName},
+			#{jpositionCode},
+			#{jpositionName},
+			#{justifyDate},
+			#{modelCode},
+			#{isFinished},
+			#{step},
+			#{finishFlag}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE adt_detail SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			bill_num = #{billNum},
+			bill_type_code = #{billTypeCode},
+			bill_type_name = #{billTypeName},
+			justify_result = #{justifyResult},
+			justify_remark = #{justifyRemark},
+			jperson_code = #{jpersonCode},
+			justify_person = #{justifyPerson},
+			jdept_code = #{jdeptCode},
+			jdept_name = #{jdeptName},
+			jposition_code = #{jpositionCode},
+			jposition_name = #{jpositionName},
+			justify_date = #{justifyDate},
+			model_code = #{modelCode},
+			is_finished = #{isFinished},
+			step = #{step},
+			finish_flag = #{finishFlag}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM adt_detail
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE adt_detail SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="AdtDetail" statementType="STATEMENT">
+		select * FROM adt_detail  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>
