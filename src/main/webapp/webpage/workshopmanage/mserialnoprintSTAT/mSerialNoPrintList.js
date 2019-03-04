@@ -251,6 +251,13 @@ $(document).ready(function() {
     });
 
 
+
+    $('#beginProdDate').datetimepicker({
+        format: "YYYY-MM-DD"
+    });
+    $('#endProdDate').datetimepicker({
+        format: "YYYY-MM-DD"
+    });
 		
 		
 	});

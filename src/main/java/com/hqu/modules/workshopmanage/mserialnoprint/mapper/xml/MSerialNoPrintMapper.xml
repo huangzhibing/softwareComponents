@@ -29,6 +29,18 @@
 	<sql id="mSerialNoPrintJoins">
 		LEFT JOIN mdm_item item ON item.code=a.prodcode
 		LEFT JOIN sfc_processdetail process ON process.processbillno=a.processbillno
+		<if test="teamCode !=null and teamCode !=''">
+			INNER JOIN (SELECT distinct mserialno FROM sfc_processroutinedetail WHERE teamcode LIKE concat('%',#{teamCode},'%')) teamcodejoin ON teamcodejoin.mserialno = a.mserialno
+		</if>
+
+		<if test="personIncharge !=null and personIncharge !=''">
+			INNER JOIN (SELECT distinct mserialno FROM sfc_processroutinedetail WHERE personincharge LIKE concat('%',#{personIncharge},'%'))personjoin ON personjoin.mserialno = a.mserialno
+		</if>
+
+		<if test="invcheckNo !=null and invcheckNo !=''">
+			INNER JOIN (SELECT distinct mserialno FROM sfc_invcheckdetail WHERE bill_no LIKE concat('%',#{invcheckNo},'%'))invcheckjoin ON invcheckjoin.mserialno = a.mserialno
+		</if>
+
 	</sql>
 	
     
@@ -106,6 +118,9 @@
 					<if test="dbName == 'oracle'">'%'||#{prodname}||'%'</if>
 					<if test="dbName == 'mssql'">'%'+#{prodname}+'%'</if>
 					<if test="dbName == 'mysql'">concat('%',#{prodname},'%')</if>
+			</if>
+			<if test="beginProdDate != null and beginProdDate != '' and endProdDate != null and endProdDate != ''">
+				AND process.planbdate BETWEEN #{beginProdDate} AND #{endProdDate}
 			</if>
 		</where>
 		<choose>

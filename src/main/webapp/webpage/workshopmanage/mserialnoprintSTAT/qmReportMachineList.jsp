@@ -13,7 +13,7 @@
 	<div class="wrapper wrapper-content">
 	<div class="panel panel-primary">
 	<div class="panel-heading">
-        <h3 class="panel-title">	<a class="panelButton" href="${ctx}//mserialnoprint/mSerialNoPrint/machinelist"><i class="ti-angle-left"></i> 返回</a> 整机质量问题列表</h3>
+        <h3 class="panel-title">	<a class="panelButton" href="${ctx}//mserialnoprint/mSerialNoPrint/machinelist"><i class="ti-angle-left"></i> 返回</a> <span style="padding-left: 40%;">整机质量问题列表</span></h3>
 	</div>
 	<div class="panel-body">
 		<sys:message content="${message}"/>
@@ -117,9 +117,9 @@
 						</form>
 				</div>
 			</shiro:hasPermission> --%>
-	        	<a class="accordion-toggle btn btn-default" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
+	        	<%--<a class="accordion-toggle btn btn-default" data-toggle="collapse" data-parent="#accordion2" href="#collapseTwo">
 					<i class="fa fa-search"></i> 检索
-				</a>
+				</a>--%>
 		    </div>
 		
 	<!-- 表格 -->

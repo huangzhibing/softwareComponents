@@ -20,7 +20,7 @@
 	
 	<!-- 搜索 -->
 	<div class="accordion-group">
-	<div id="collapseTwo" class="accordion-body collapse">
+	<div id="collapseTwo" class="accordion-body">
 		<div class="accordion-inner">
 			<form:form id="searchForm" modelAttribute="processRoutineDetail" class="form form-horizontal well clearfix">
 			<div class="row">

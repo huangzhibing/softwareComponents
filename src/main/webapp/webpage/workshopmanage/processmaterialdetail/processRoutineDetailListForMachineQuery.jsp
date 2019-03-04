@@ -13,7 +13,7 @@
 	<div class="wrapper wrapper-content">
 	<div class="panel panel-primary">
 	<div class="panel-heading">
-		<h3 class="panel-title">	<a class="panelButton" href="${ctx}//mserialnoprint/mSerialNoPrint/machinelist"><i class="ti-angle-left"></i> 返回</a></h3>
+		<h3 class="panel-title">	<a class="panelButton" href="${ctx}//mserialnoprint/mSerialNoPrint/machinelist"><i class="ti-angle-left"></i> 返回</a><span style="padding-left: 40%;">生产记录</span></h3>
 	</div>
 
 	<div class="panel-body">

@@ -86,7 +86,7 @@
 
 				<tr>
 
-					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>请填写领料日期：</label></td>
+					<td class="width-15 active"><label class="pull-right"><font color="red">*</font>请填写生产日期：</label></td>
 					<td class="width-35">
 							<div class='input-group form_datetime' id='operDate'>
 			                    <input type='text'  name="operDate" class="form-control required"  value="<fmt:formatDate value="${sfcMaterialOrder.operDate}" pattern="yyyy-MM-dd"/>"/>

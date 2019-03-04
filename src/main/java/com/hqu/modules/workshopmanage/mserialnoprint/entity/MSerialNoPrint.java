@@ -31,6 +31,15 @@ public class MSerialNoPrint extends DataEntity<MSerialNoPrint> {
     private Date proddate; //生产日期
 	private String prodname;		// 产品名称
     private String objsn;//整机二维码
+
+
+	//查询条件字段
+	private String personIncharge;//负责人
+	private String invcheckNo;//装配完工单号
+	private String teamCode;//班组编号
+
+	private Date beginProdDate;//查询生产日期
+	private Date endProdDate;
 	
 	public MSerialNoPrint() {
 		super();
@@ -153,4 +162,46 @@ public class MSerialNoPrint extends DataEntity<MSerialNoPrint> {
     public void setProddate(Date proddate) {
         this.proddate = proddate;
     }
+
+	public String getPersonIncharge() {
+		return personIncharge;
+	}
+
+	public void setPersonIncharge(String personIncharge) {
+		this.personIncharge = personIncharge;
+	}
+
+	public String getInvcheckNo() {
+		return invcheckNo;
+	}
+
+	public void setInvcheckNo(String invcheckNo) {
+		this.invcheckNo = invcheckNo;
+	}
+
+	public String getTeamCode() {
+		return teamCode;
+	}
+
+	public void setTeamCode(String teamCode) {
+		this.teamCode = teamCode;
+	}
+
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	public Date getBeginProdDate() {
+		return beginProdDate;
+	}
+
+	public void setBeginProdDate(Date beginProdDate) {
+		this.beginProdDate = beginProdDate;
+	}
+
+	@JsonFormat(pattern = "yyyy-MM-dd")
+	public Date getEndProdDate() {
+		return endProdDate;
+	}
+
+	public void setEndProdDate(Date endProdDate) {
+		this.endProdDate = endProdDate;
+	}
 }
