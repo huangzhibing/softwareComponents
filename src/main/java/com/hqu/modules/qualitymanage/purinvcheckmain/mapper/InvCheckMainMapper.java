@@ -7,6 +7,7 @@ import com.hqu.modules.qualitymanage.purinvcheckmain.entity.InvCheckDetailCode;
 import com.hqu.modules.qualitymanage.purinvcheckmain.entity.InvCheckMain;
 import com.jeeplus.core.persistence.BaseMapper;
 import com.jeeplus.core.persistence.annotation.MyBatisMapper;
+import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
@@ -28,4 +29,8 @@ public interface InvCheckMainMapper extends BaseMapper<InvCheckMain> {
     List<InvCheckMain> findListbyBillTypeAndStateAndItemBarCode(InvCheckMain invCheckMain);
 
     List<InvCheckMain> findListForInv(InvCheckMain invCheckMain);
+
+    double getCurrentQtybyConIdandItemCode(@Param("conId") String conId, @Param("itemCode") String itemCode);
+
+    double getItemQtybyConIdandItemCode(@Param("conId") String conId, @Param("itemCode") String itemCode);
 }

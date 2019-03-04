@@ -32,7 +32,7 @@
 				<label class="label-item single-overflow pull-left" title="主生产计划号：">主生产计划号：</label>
 				<form:input path="mpsplanid" htmlEscape="false" maxlength="64"  class=" form-control"/>
 			</div>
-			 <div class="col-xs-12 col-sm-6 col-md-4">
+			<%-- <div class="col-xs-12 col-sm-6 col-md-4">
 				<label class="label-item single-overflow pull-left" title="车间作业计划号：">车间作业计划号：</label>
 				<form:input path="processbillno" htmlEscape="false" maxlength="64"  class=" form-control"/>
 			</div>
@@ -43,7 +43,7 @@
 			 <div class="col-xs-12 col-sm-6 col-md-4">
 				<label class="label-item single-overflow pull-left" title="加工路线单号：">加工路线单号：</label>
 				<form:input path="routinebillno" htmlEscape="false" maxlength="64"  class=" form-control"/>
-			</div>
+			</div>--%>
 			 <%--<div class="col-xs-12 col-sm-6 col-md-4">
 				<label class="label-item single-overflow pull-left" title="工艺编码：">工艺编码：</label>
 				<form:input path="routingcode" htmlEscape="false" maxlength="64"  class=" form-control"/>
@@ -56,13 +56,20 @@
 				<label class="label-item single-overflow pull-left" title="已分配标志：">已分配标志：</label>
 				<form:input path="isassigned" htmlEscape="false" maxlength="1"  class=" form-control"/>
 			</div>--%>
-			 <div class="col-xs-12 col-sm-6 col-md-4">
+			<%-- <div class="col-xs-12 col-sm-6 col-md-4">
 				<label class="label-item single-overflow pull-left" title="产品编码：">产品编码：</label>
 				<form:input path="prodcode" htmlEscape="false" maxlength="64"  class=" form-control"/>
-			</div>
+			</div>--%>
 			 <div class="col-xs-12 col-sm-6 col-md-4">
-				<label class="label-item single-overflow pull-left" title="产品名称：">产品名称：</label>
-				<form:input path="prodname" htmlEscape="false" maxlength="64"  class=" form-control"/>
+				 <div class="input-group" style="width: 100%">
+					 <label class="label-item single-overflow pull-left" title="产品名称：">产品名称：</label>
+
+					<form:input path="prodname" htmlEscape="false" maxlength="64"  class=" form-control"/>
+					 <span class="input-group-btn">
+										 <button type="button"  id="prodButton" class="btn btn-primary" style="top: 11px;"><i class="fa fa-search"></i></button>
+										 <button type="button" id="prodDelButton" class="close" data-dismiss="alert" style="position: absolute; top: 30px; right: 53px; z-index: 999; display: block;">×</button>
+					</span>
+				 </div>
 			</div>
             <div class="col-xs-12 col-sm-6 col-md-4">
                 <label class="label-item single-overflow pull-left" title="二维码：">二维码：</label>

@@ -124,6 +124,9 @@ public class InvCheckMainService extends CrudService<InvCheckMainMapper, InvChec
 		else if("C".equals(invCheckMain.getBillType())){
 			invCheckMain.setBillType("生成");
 		}
+		else if("T".equals(invCheckMain.getBillType())){
+			invCheckMain.setBillType("退货");
+		}
 		if("Y".equals(invCheckMain.getThFlag())){
 			invCheckMain.setThFlag("估价");
 		}else if("N".equals(invCheckMain.getThFlag())){
@@ -301,6 +304,8 @@ public class InvCheckMainService extends CrudService<InvCheckMainMapper, InvChec
 			invCheckMain.setBillType("M");
 		}else if("生成".equals(invCheckMain.getBillType())){
 			invCheckMain.setBillType("C");
+		}else if("退货".equals(invCheckMain.getBillType())){
+			invCheckMain.setBillType("T");
 		}
 		
 		if("估价".equals(invCheckMain.getThFlag())){

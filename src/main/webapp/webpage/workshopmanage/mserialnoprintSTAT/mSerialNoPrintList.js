@@ -211,6 +211,46 @@ $(document).ready(function() {
 		  $("#searchForm  .select-item").html("");
 		  $('#mSerialNoPrintTable1').bootstrapTable('refresh');
 		});
+
+
+
+    /**
+     * 产品弹框选择按钮事件绑定
+     */
+    $("#prodButton").click(function(){
+        top.layer.open({
+            type: 2,
+            area: ['800px', '500px'],
+            title:"选择产品名称",
+            auto:true,
+            name:'friend',
+            content: "${ctx}/tag/gridselect?url="+encodeURIComponent("${ctx}/product/product/data")+"&fieldLabels="+encodeURIComponent("产品名称|编码")+"&fieldKeys="+encodeURIComponent("itemNameRu|item.code")+"&searchLabels="+encodeURIComponent("产品名称|编码")+"&searchKeys="+encodeURIComponent("itemNameRu|item.code")+"&isMultiSelected=false",
+            btn: ['确定', '关闭'],
+            yes: function(index, layero){
+                var iframeWin = layero.find('iframe')[0].contentWindow; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
+                var items = iframeWin.getSelections();
+                if(items == ""){
+                    jp.warning("必须选择一条数据!");
+                    return;
+                }
+                var item=items[0];
+                console.log(item);
+                //$("#aprodName").val(item.itemNameRu);
+                $("#prodname").val(item.item.name);
+                top.layer.close(index);//关闭对话框。
+            },
+            cancel: function(index){
+            }
+        });
+    });
+    $("#prodDelButton").click(function(){
+        // 清除
+        $("#prodname").val("");
+        $("#prodname").focus();
+
+    });
+
+
 		
 		
 	});
@@ -275,13 +315,20 @@ $(document).ready(function() {
   }
 
   function edit1(){
-      window.location = "${ctx}/mserialnoprint/mSerialNoPrint/form?id=" + getIdSelections();
+      var serialno = $.map($("#mSerialNoPrintTable1").bootstrapTable('getSelections'), function (row) {
+          return row.mserialno
+      });
+      window.location = "${ctx}/processmaterialdetail/processRoutineDetail/listformachinequery?sn=" +serialno;
   }
 
 function edit2(){
-    window.location = "${ctx}/mserialnoprint/mSerialNoPrint/form?id=" + getIdSelections();
+    var serialno = $.map($("#mSerialNoPrintTable1").bootstrapTable('getSelections'), function (row) {
+        return row.mserialno
+    });
+    window.location = "${ctx}//replacelog/materialReplaceLog/listformachinequery?sn=" + serialno;
 }
 function edit3(){
+
 
     window.location = "${ctx}/mserialnoprint/mSerialNoPrint/formPZ?id=" + getIdSelections();
 }

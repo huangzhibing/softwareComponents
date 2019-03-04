@@ -68,7 +68,19 @@ public class ProcessMaterialDetailController extends BaseController {
 		}
 		return entity;
 	}
-	
+
+
+	/**
+	 * 整机综合查询-生产记录（被页面mserialnoprintSTAT调用）
+	 */
+	@RequestMapping(value = "listformachinequery")
+	public String listformachinequery(@RequestParam(required=false) String sn,Model model) {
+		model.addAttribute("sn",sn);
+		return "workshopmanage/processmaterialdetail/processRoutineDetailListForMachineQuery";
+	}
+
+
+
 	/**
 	 * 车间物料安装明细列表页面
 	 */

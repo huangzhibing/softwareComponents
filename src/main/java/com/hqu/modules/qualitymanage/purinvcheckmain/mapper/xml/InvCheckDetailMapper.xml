@@ -13,6 +13,7 @@
 		a.billnum AS "InvCheckMain.billnum",
 		a.serialnum AS "serialnum",
 		a.item_code AS "item.id",
+		a.item_code AS "itemInvAccountId",
 		a.item_name AS "itemName",
 		a.mass_require AS "massRequire",
 		a.check_qty AS "checkQty",
@@ -63,6 +64,7 @@
 		item.code AS "item.code",
 		item.id AS "itemId",
 		item.code AS "itemCode",
+		inva.item_code AS "itemInvAccountCode",
 		a.front_billnum AS "frontBillNum",
 		a.front_serialnum AS "frontSerialNum",
 		a.front_qty AS "frontQty"
@@ -73,6 +75,7 @@
 		
 		LEFT JOIN pur_invcheckmain b ON b.id = a.billnum
 		LEFT JOIN mdm_item item ON item.id = a.item_code
+		LEFT JOIN inv_account inva ON inva.item_code = item.code
 	</sql>
 	
     
@@ -83,10 +86,10 @@
 		<include refid="invCheckDetailJoins"/>
 		WHERE a.id = #{id}
 	</select>
-	
+
 	<select id="findList" resultType="InvCheckDetail" >
-		SELECT 
-			<include refid="invCheckDetailColumns"/>
+		SELECT
+		<include refid="invCheckDetailColumns"/>
 		FROM pur_invcheckdetail a
 		<include refid="invCheckDetailJoins"/>
 		<where>
@@ -109,8 +112,8 @@
 			</if>
 			<if test="serialnum != null">
 				AND a.serialnum = #{serialnum}
-			</if>			
-			
+			</if>
+
 		</where>
 		<choose>
 			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
@@ -225,7 +228,14 @@
 			#{delFlag},
 			#{InvCheckMain.billnum},
 			#{serialnum},
-			#{item.id},
+		<if test="item != null">
+			<if test="item.id != null and item.id != ''">
+				#{item.id},
+			</if>
+		</if>
+		<if test="itemInvAccountId != null and itemInvAccountId != ''">
+			#{itemInvAccountId},
+		</if>
 			#{itemName},
 			#{massRequire},
 			#{checkQty},
@@ -277,7 +287,14 @@
 			remarks = #{remarks},
 			billnum = #{InvCheckMain.billnum},
 			serialnum = #{serialnum},
-			item_code = #{item.id},
+		<if test="item != null">
+			<if test="item.id != null and item.id != ''">
+				item_code = #{item.id},
+			</if>
+		</if>
+		<if test="itemInvAccountId != null and itemInvAccountId != ''">
+			item_code = #{itemInvAccountId},
+		</if>
 			item_name = #{itemName},
 			mass_require = #{massRequire},
 			check_qty = #{checkQty},

@@ -172,7 +172,7 @@
 				<div class="form-group">
 					<label class="col-sm-2 control-label">检验日期：</label>
 					<div class="col-sm-10">
-						<form:input path='checkDate' htmlEscape="false"  class="form-control " readonly="true" />
+						<input type='text' id='checkDate1' name="checkDate" class="form-control " readonly="true" value="${fns:getMyDate()}"/>
 			                 
 					</div>
 				</div>

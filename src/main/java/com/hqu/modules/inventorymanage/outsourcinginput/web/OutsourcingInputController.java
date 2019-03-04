@@ -310,10 +310,16 @@ public class OutsourcingInputController extends BaseController {
                 newBillNum = String.format("%04d", Integer.parseInt(newBillNum.substring(11, 15)) + 1);
             }
             //设置单据编号
+            billMain.setBillNum("WGI" + sdf.format(date) + newBillNum);
             if("BInput".equals(type)){
-                billMain.setBillNum("WGT" + sdf.format(date) + newBillNum);
-            }else {
-                billMain.setBillNum("WGI" + sdf.format(date) + newBillNum);
+                SimpleDateFormat sdf2 = new SimpleDateFormat("yyyyMMdd");
+                String newBillNum2 = billMainService.getMaxIdByTypeAndDate("WGT" + sdf2.format(date));
+                if (StringUtils.isEmpty(newBillNum2)) {
+                    newBillNum2 = "0000";
+                } else {
+                    newBillNum2 = String.format("%04d", Integer.parseInt(newBillNum2.substring(11, 15)) + 1);
+                }
+                billMain.setBillNum("WGT" + sdf.format(date) + newBillNum2);
             }
             model.addAttribute("isAdd", true);
         } else {
@@ -466,6 +472,35 @@ public class OutsourcingInputController extends BaseController {
     }
 
     /**
+     * 采购到货列表数据
+     */
+    @ResponseBody
+    @RequiresPermissions("billmain:billMain:list")
+    @RequestMapping(value = {"dataBackList"})
+    public Map<String, Object> dataBackAudit(InvCheckMain invCheckMain, HttpServletRequest request, HttpServletResponse response, Model model) {
+        invCheckMain.setBillType("T");
+        invCheckMain.setBillStateFlag("E");
+        List<InvCheckMain> list=invCheckMainService.findListbyBillStateFlag(invCheckMain);
+        invCheckMainService.ListToChinese(list);
+        Page<InvCheckMain> page=new Page<InvCheckMain>(request, response);
+        //分页
+        String intPage= request.getParameter("pageNo");
+        int pageNo=Integer.parseInt(intPage);
+        int pageSize= page.getPageSize();
+        page.setCount(list.size());
+        if(pageNo==1&&pageSize==-1){
+            page.setList(list);
+        }else{
+            List<InvCheckMain> reportL=  new ArrayList<InvCheckMain>();
+            for(int i=(pageNo-1)*pageSize;i<list.size()&& i<pageNo*pageSize;i++){
+                reportL.add(list.get(i));
+            }
+            page.setList(reportL);
+
+        }
+        return getBootstrapData(page);
+    }
+    /**
      * 保存单据
      */
     @RequiresPermissions(value = {"billmain:billMain:add", "billmain:billMain:edit"}, logical = Logical.OR)
@@ -526,13 +561,15 @@ public class OutsourcingInputController extends BaseController {
                 return "redirect:"+Global.getAdminPath()+"/outsourcinginput/outsourcingInput/Blist?type=" + type + "&repage";
             }
         }else{
-            if("true".equals(Audit)){
+            if(",true".equals(Audit)){
                 billMain.setBillFlag("N");
                 billMainService.save(billMain);
+                addMessage(redirectAttributes,"审核通过");
             }else if("false".equals(Audit)){
-                auditCache.put("Audit",AuditComment);
+//                auditCache.put("Audit",AuditComment);
                 billMain.setBillFlag("V");
                 billMainService.save(billMain);
+                addMessage(redirectAttributes,"审核不通过");
             }
         }
         return "redirect:"+Global.getAdminPath()+"/outsourcinginput/outsourcingInput/Blist?type=" + type + "&repage";

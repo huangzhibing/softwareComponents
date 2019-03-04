@@ -7,6 +7,30 @@
 	<script type="text/javascript">
 	var buyerIdforbeginSetPlan = null;
 
+    function qtyCtrl(conId,itemCode){
+        var flag = false;
+        $.ajax({
+            url:"${ctx}/purinvcheckmain/invCheckMain/getCurrentQty?conId="+conId+"&itemCode="+itemCode,
+            type: "GET",
+            cache:false,
+            async:false,
+            dataType: "text",
+            success:function(data){
+                var wcheckQty = $("#invCheckDetailList0_checkQty").val();
+                console.log(1*wcheckQty - 1*rcheckQty - 1*data)
+                if(1*wcheckQty - 1*rcheckQty - 1*data > 0){
+                    jp.warning("总到货物料量超出合同量！");
+                }else{
+                    flag =  true;
+                }
+            },
+            error:function(){
+                jp.warning("读取物料合同量失败！");
+            }
+        });
+        if(flag){return true;}else{return false;}
+    }
+
 	function getNowFormatDate() {
         var date = new Date();
         var seperator1 = "-";
@@ -98,9 +122,14 @@
 				if(invCheckDetailRowIdx == 0){
 					jp.warning("请输入物料子表信息！");
 				}else{
-					jp.loading();
-					form.submit();
-					}
+                    var conId = $("#contractId").val();var itemCode = $("#invCheckDetailList0_itemId").val();
+                    console.log(conId,itemCode);
+                    var t = qtyCtrl(conId, itemCode);
+                    if(t==true){
+                        jp.loading();
+                        form.submit();
+                    }
+                }
 				},
 				errorContainer: "#messageBox",
 				errorPlacement: function(error, element) {
@@ -907,6 +936,7 @@
 			</script>
 			<script type="text/javascript">
 				var invCheckDetailRowIdx = 0, invCheckDetailTpl = $("#invCheckDetailTpl").html().replace(/(\/\/\<!\-\-)|(\/\/\-\->)/g,"");
+                var rcheckQty = '';
 				$(document).ready(function() {
 				$("#billStateFlag").val("正在修改");
 				$("#billType").val("生成");
@@ -920,7 +950,8 @@
 					selectContractOnlyShowDetail();
 				}
 				var data = ${fns:toJson(invCheckMain.invCheckDetailList)};
-				
+				rcheckQty = data[0].checkQty;
+				console.log(rcheckQty);
 				for (var i=0; i<data.length; i++){
 				console.log(data);
 					addRow('#invCheckDetailList', invCheckDetailRowIdx, invCheckDetailTpl, data[i]);

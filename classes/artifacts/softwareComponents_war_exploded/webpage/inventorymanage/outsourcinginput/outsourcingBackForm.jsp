@@ -92,7 +92,7 @@
                     title:"选择到货单",
                     auto:true,
                     name:'friend',
-                    content: "${ctx}/tag/gridselect?url="+encodeURIComponent("${ctx}/purinvcheckmain/invCheckMain/databyoutsouring")+"&fieldLabels="+encodeURIComponent("到货单号")+"&fieldKeys="+encodeURIComponent("billnum")+"&searchLabels="+encodeURIComponent("到货单号")+"&searchKeys="+encodeURIComponent("billnum")+"&isMultiSelected=false",
+                    content: "${ctx}/tag/gridselect?url="+encodeURIComponent("${ctx}/outsourcinginput/outsourcingInput/dataBackList")+"&fieldLabels="+encodeURIComponent("退货单号")+"&fieldKeys="+encodeURIComponent("billnum")+"&searchLabels="+encodeURIComponent("退货单号")+"&searchKeys="+encodeURIComponent("billnum")+"&isMultiSelected=false",
                     btn: ['确定', '关闭'],
                     yes: function(index, layero){
                         var iframeWin = layero.find('iframe')[0].contentWindow; //得到iframe页的窗口对象，执行iframe页的方法：iframeWin.method();
@@ -107,6 +107,21 @@
                         $('#corBillNum').val(item.billnum);
                         $('#accountNames').val(item.supId);
                         $('#accountName').val(item.supName);
+                        $('#wareNames').val(item.wareId);
+                        $('#wareName').val(item.wareName);
+                        $.ajax({
+                            url:"${ctx}/outboundinput/outboundInput/getEmp",
+                            data:{
+                                wareID:$('#wareNames').val()
+                            },
+                            dataType:'json',
+                            success:function(re){
+                                console.log(re);
+                                $('#wareEmpId').val(re.id);
+                                $('#wareEmpNames').val(re.user.no);
+                                $('#wareEmpname').val(re.empName);
+                            }
+                        });
                         <%--$('#rcvAddr').val(item.rcvAddr);--%>
                         <%--$('#transAccount').val(item.transAccount);--%>
                         $.get("${ctx}/purinvcheckmain/invCheckMain/detail?id="+item.id, function(details){
@@ -136,18 +151,10 @@
             });
             $('#input_submit_button').click(function () {
                $('#billFlag').val("S");
+               jp.close();
             });
             $('#input_save_button').click(function () {
                 $('#billFlag').val("J");
-            });
-            $('#input_audit_button').click(function () {
-                console.log($('#aduitComment').val());
-                if($('#aduitComment').val() === ""){
-                    $('#Comment').css("display","block");
-                    jp.alert("请填写审批意见");
-                }else {
-
-                }
             });
             var id = '${billMain.billNum}';
             $.ajax({
@@ -180,6 +187,20 @@
             });
 
         }
+        function auditNote() {
+            layer.prompt({
+                formType: 2,
+                title: '请填写不通过意见,并确认',
+                maxlength: 50
+            }, function(value, index, elem){
+                $('#note').val(value);
+                $('#Audit').val("false");
+                $('#inputForm').submit();
+                layer.close(index);
+                jp.close();
+            });
+        }
+
         function getItemBatch() {
             var date = new Date();
             var year = date.getFullYear().toString();
@@ -368,12 +389,22 @@
                                 <input readonly class="form-control" name="period.periodId" value="${billMain.period.periodId}">
                             </div>
                         </div>
-                        <div id="Comment" class="form-group" style="display: none;">
-                            <label class="col-sm-2 control-label"><font color="red">*</font>审批意见：</label>
-                            <div class="col-sm-10">
-                                <textarea id="auditComment" class="form-control required" name="auditComment" ng-value="${auditComment}"></textarea>
+                        <%--<div id="Comment" class="form-group" style="display: none;">--%>
+                            <%--<label class="col-sm-2 control-label"><font color="red">*</font>审批意见：</label>--%>
+                            <%--<div class="col-sm-10">--%>
+                                <%--<textarea id="auditComment" class="form-control required" name="auditComment" ng-value="${auditComment}"></textarea>--%>
+                            <%--</div>--%>
+                        <%--</div>--%>
+                        <form:input path="note" htmlEscape="false" cssStyle="display: none"/>
+                        <input id="Audit" name="Audit" htmlEscape="false" style="display: none;"/>
+                        <c:if test="${type eq 'BQuery'}">
+                            <div class="form-group">
+                                <label class="col-sm-2 control-label"><font color="red">*</font>审核不通过意见：</label>
+                                <div class="col-sm-10">
+                                    <form:textarea type="text" readonly="true" htmlEscape="false" class="form-control" path="note"></form:textarea>
+                                </div>
                             </div>
-                        </div>
+                        </c:if>
                         <div class="tabs-container">
                                 <ul class="nav nav-tabs">
                                     <li class="active"><a data-toggle="tab" href="#tab-1" aria-expanded="true">退货信息：</a>
@@ -640,7 +671,7 @@
                             <div class="col-lg-3">
                                 <div class="form-group text-center">
                                     <div>
-                                        <button class="btn btn-primary btn-block btn-lg btn-parsley" name="Audit" value="true" data-loading-text="正在反过账...">审 核 通 过</button>
+                                        <button class="btn btn-primary btn-block btn-lg btn-parsley" type="submit" name="Audit" value="true" data-loading-text="审核通过...">审 核 通 过</button>
                                     </div>
                                 </div>
                             </div>
@@ -648,7 +679,7 @@
                             <div class="col-lg-3">
                                 <div class="form-group text-center">
                                     <div>
-                                        <button id="input_audit_button" class="btn btn-danger btn-block btn-lg btn-parsley" name="Audit" value="false" data-loading-text="正在反过账...">审 核 不 通 过</button>
+                                        <button id="input_audit_button" type="button" onclick="auditNote()" class="btn btn-danger btn-block btn-lg btn-parsley" data-loading-text="审核不通过...">审 核 不 通 过</button>
                                     </div>
                                 </div>
                             </div>

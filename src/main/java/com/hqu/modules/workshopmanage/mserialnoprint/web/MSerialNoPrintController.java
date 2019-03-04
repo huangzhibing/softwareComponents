@@ -326,7 +326,8 @@ public class MSerialNoPrintController extends BaseController {
 	@RequestMapping(value = "formPZ")
 	public String formPZ(MSerialNoPrint mSerialNoPrint, Model model) {
 
-		model.addAttribute("mCode",mSerialNoPrint.getMserialno());
+		model.addAttribute("mCode",mSerialNoPrint.getObjsn());
+		model.addAttribute("mSerialNoPrint",mSerialNoPrint);
 		return "workshopmanage/mserialnoprintSTAT/qmReportMachineList";
 	}
 
@@ -335,8 +336,8 @@ public class MSerialNoPrintController extends BaseController {
 	@RequestMapping(value = "formPZdata")
 	public Map<String, Object> formPZdata(String mCode,MSerialNoPrint mSerialNoPrint, Model model,HttpServletRequest request, HttpServletResponse response) {
 		List<QmReport> resultList = new ArrayList();
-		//mcode 为机台码
-		String mcode = mCode;
+		//mcode 检验单序列号40位的
+		String objSn = mCode;
 		List<QmReport> qmReportList = qmReportService.findList(new QmReport());
 		List<QmReport> qmReportList1 = new ArrayList<>();
 		for(QmReport temp:qmReportList){
@@ -346,8 +347,8 @@ public class MSerialNoPrintController extends BaseController {
 		for(QmReport temp:qmReportList1){
 			List<QmReportRSn> qmReportRSnList = temp.getQmReportRSnList();
 			for (QmReportRSn qmReportRSn:qmReportRSnList){
-				String reportId = qmReportRSn.getReportId();
-				if(mcode.equals(reportId)){
+				String sn = qmReportRSn.getObjSn();
+				if(objSn.equals(sn)){
 					resultList.add(temp);
 				}
 			}
@@ -359,7 +360,7 @@ public class MSerialNoPrintController extends BaseController {
 		qmReport.setQmType("整机");
 		qmReport.setState("编辑中");
 		Page<QmReport> page = qmReportService.findPage(new Page<QmReport>(request, response), qmReport);
-		//page.setList(resultList);
+		page.setList(resultList);
 		page.setPageSize(resultList.size());
 		return getBootstrapData(page);
 	}

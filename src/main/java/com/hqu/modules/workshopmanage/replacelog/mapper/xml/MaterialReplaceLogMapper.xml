@@ -1,0 +1,284 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hqu.modules.workshopmanage.replacelog.mapper.MaterialReplaceLogMapper">
+    
+	<sql id="materialReplaceLogColumns">
+		a.id AS "id",
+		a.create_by AS "createBy.id",
+		a.create_date AS "createDate",
+		a.update_by AS "updateBy.id",
+		a.update_date AS "updateDate",
+		a.remarks AS "remarks",
+		a.del_flag AS "delFlag",
+		a.routinebillno AS "routinebillno",
+		a.seqno AS "seqno",
+		a.routingcode AS "routingcode",
+		a.itemcode AS "itemcode",
+		a.itemsn AS "itemsn",
+		a.centercode AS "centercode",
+		a.routingname AS "routingname",
+		a.itemname AS "itemname",
+		a.assembleqty AS "assembleqty",
+		a.finishedqty AS "finishedqty",
+		a.centername AS "centername",
+		a.assemblepersonid AS "assemblepersonid",
+		a.assemblepersonname AS "assemblepersonname",
+		a.assembletime AS "assembletime",
+		a.actualteamcode AS "actualteamcode",
+		a.hasqualitypro AS "hasqualitypro",
+		a.qualityproblem AS "qualityproblem",
+		a.originalid AS "originalid",
+
+
+		mno.mserialno AS "serialno"
+	</sql>
+	
+	<sql id="materialReplaceLogJoins">
+		LEFT JOIN ppc_mserialno mno ON mno.routinebillno=a.routinebillno AND mno.seqno=a.seqno
+	</sql>
+	
+    
+	<select id="get" resultType="MaterialReplaceLog" >
+		SELECT 
+			<include refid="materialReplaceLogColumns"/>
+		FROM sfc_material_replace_log a
+		<include refid="materialReplaceLogJoins"/>
+		WHERE a.id = #{id}
+	</select>
+	
+	<select id="findList" resultType="MaterialReplaceLog" >
+		SELECT 
+			<include refid="materialReplaceLogColumns"/>
+		FROM sfc_material_replace_log a
+		<include refid="materialReplaceLogJoins"/>
+		<where>
+			${dataScope}
+			<if test="routinebillno != null and routinebillno != ''">
+				AND a.routinebillno LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routinebillno}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routinebillno}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routinebillno},'%')</if>
+			</if>
+			<if test="seqno != null and seqno != ''">
+				AND a.seqno = #{seqno}
+			</if>
+			<if test="routingcode != null and routingcode != ''">
+				AND a.routingcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routingcode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routingcode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routingcode},'%')</if>
+			</if>
+			<if test="serialno != null and serialno != ''">
+				AND mno.mserialno LIKE
+				<if test="dbName == 'oracle'">'%'||#{serialno}||'%'</if>
+				<if test="dbName == 'mssql'">'%'+#{serialno}+'%'</if>
+				<if test="dbName == 'mysql'">concat('%',#{serialno},'%')</if>
+			</if>
+			<if test="itemcode != null and itemcode != ''">
+				AND a.itemcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemcode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemcode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemcode},'%')</if>
+			</if>
+			<if test="itemsn != null and itemsn != ''">
+				AND a.itemsn LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemsn}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemsn}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemsn},'%')</if>
+			</if>
+			<if test="centercode != null and centercode != ''">
+				AND a.centercode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{centercode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{centercode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{centercode},'%')</if>
+			</if>
+			<if test="routingname != null and routingname != ''">
+				AND a.routingname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{routingname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{routingname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{routingname},'%')</if>
+			</if>
+			<if test="itemname != null and itemname != ''">
+				AND a.itemname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{itemname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{itemname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{itemname},'%')</if>
+			</if>
+			<if test="assembleqty != null and assembleqty != ''">
+				AND a.assembleqty = #{assembleqty}
+			</if>
+			<if test="finishedqty != null and finishedqty != ''">
+				AND a.finishedqty = #{finishedqty}
+			</if>
+			<if test="centername != null and centername != ''">
+				AND a.centername LIKE 
+					<if test="dbName == 'oracle'">'%'||#{centername}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{centername}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{centername},'%')</if>
+			</if>
+			<if test="assemblepersonid != null and assemblepersonid != ''">
+				AND a.assemblepersonid = #{assemblepersonid}
+			</if>
+			<if test="assemblepersonname != null and assemblepersonname != ''">
+				AND a.assemblepersonname LIKE 
+					<if test="dbName == 'oracle'">'%'||#{assemblepersonname}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{assemblepersonname}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{assemblepersonname},'%')</if>
+			</if>
+			<if test="beginAssembletime != null and endAssembletime != null and beginAssembletime != '' and endAssembletime != ''">
+				AND a.assembletime BETWEEN #{beginAssembletime} AND #{endAssembletime}
+			</if>
+			<if test="actualteamcode != null and actualteamcode != ''">
+				AND a.actualteamcode LIKE 
+					<if test="dbName == 'oracle'">'%'||#{actualteamcode}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{actualteamcode}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{actualteamcode},'%')</if>
+			</if>
+			<if test="hasqualitypro != null and hasqualitypro != ''">
+				AND a.hasqualitypro = #{hasqualitypro}
+			</if>
+			<if test="qualityproblem != null and qualityproblem != ''">
+				AND a.qualityproblem LIKE 
+					<if test="dbName == 'oracle'">'%'||#{qualityproblem}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{qualityproblem}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{qualityproblem},'%')</if>
+			</if>
+			<if test="originalid != null and originalid != ''">
+				AND a.originalid LIKE 
+					<if test="dbName == 'oracle'">'%'||#{originalid}||'%'</if>
+					<if test="dbName == 'mssql'">'%'+#{originalid}+'%'</if>
+					<if test="dbName == 'mysql'">concat('%',#{originalid},'%')</if>
+			</if>
+		</where>
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="findAllList" resultType="MaterialReplaceLog" >
+		SELECT 
+			<include refid="materialReplaceLogColumns"/>
+		FROM sfc_material_replace_log a
+		<include refid="materialReplaceLogJoins"/>
+		<where>
+			a.del_flag = #{DEL_FLAG_NORMAL}
+			${dataScope}
+		</where>		
+		<choose>
+			<when test="page !=null and page.orderBy != null and page.orderBy != ''">
+				ORDER BY ${page.orderBy}
+			</when>
+			<otherwise>
+				ORDER BY a.update_date DESC
+			</otherwise>
+		</choose>
+	</select>
+	
+	<insert id="insert">
+		INSERT INTO sfc_material_replace_log(
+			id,
+			create_by,
+			create_date,
+			update_by,
+			update_date,
+			remarks,
+			del_flag,
+			routinebillno,
+			seqno,
+			routingcode,
+			itemcode,
+			itemsn,
+			centercode,
+			routingname,
+			itemname,
+			assembleqty,
+			finishedqty,
+			centername,
+			assemblepersonid,
+			assemblepersonname,
+			assembletime,
+			actualteamcode,
+			hasqualitypro,
+			qualityproblem,
+			originalid
+		) VALUES (
+			#{id},
+			#{createBy.id},
+			#{createDate},
+			#{updateBy.id},
+			#{updateDate},
+			#{remarks},
+			#{delFlag},
+			#{routinebillno},
+			#{seqno},
+			#{routingcode},
+			#{itemcode},
+			#{itemsn},
+			#{centercode},
+			#{routingname},
+			#{itemname},
+			#{assembleqty},
+			#{finishedqty},
+			#{centername},
+			#{assemblepersonid},
+			#{assemblepersonname},
+			#{assembletime},
+			#{actualteamcode},
+			#{hasqualitypro},
+			#{qualityproblem},
+			#{originalid}
+		)
+	</insert>
+	
+	<update id="update">
+		UPDATE sfc_material_replace_log SET 	
+			update_by = #{updateBy.id},
+			update_date = #{updateDate},
+			remarks = #{remarks},
+			routinebillno = #{routinebillno},
+			seqno = #{seqno},
+			routingcode = #{routingcode},
+			itemcode = #{itemcode},
+			itemsn = #{itemsn},
+			centercode = #{centercode},
+			routingname = #{routingname},
+			itemname = #{itemname},
+			assembleqty = #{assembleqty},
+			finishedqty = #{finishedqty},
+			centername = #{centername},
+			assemblepersonid = #{assemblepersonid},
+			assemblepersonname = #{assemblepersonname},
+			assembletime = #{assembletime},
+			actualteamcode = #{actualteamcode},
+			hasqualitypro = #{hasqualitypro},
+			qualityproblem = #{qualityproblem},
+			originalid = #{originalid}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!--物理删除-->
+	<update id="delete">
+		DELETE FROM sfc_material_replace_log
+		WHERE id = #{id}
+	</update>
+	
+	<!--逻辑删除-->
+	<update id="deleteByLogic">
+		UPDATE sfc_material_replace_log SET 
+			del_flag = #{DEL_FLAG_DELETE}
+		WHERE id = #{id}
+	</update>
+	
+	
+	<!-- 根据实体名称和字段名称和字段值获取唯一记录 -->
+	<select id="findUniqueByProperty" resultType="MaterialReplaceLog" statementType="STATEMENT">
+		select * FROM sfc_material_replace_log  where ${propertyName} = '${value}'
+	</select>
+	
+</mapper>

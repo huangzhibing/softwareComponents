@@ -12,6 +12,8 @@ import com.hqu.modules.inventorymanage.billtype.mapper.BillTypeWareHouseMapper;
 import com.hqu.modules.inventorymanage.employee.entity.Employee;
 import com.hqu.modules.inventorymanage.employee.mapper.EmployeeWareHouseMapper;
 import com.hqu.modules.inventorymanage.employee.service.EmployeeService;
+import com.hqu.modules.inventorymanage.invaccount.entity.InvAccount;
+import com.hqu.modules.inventorymanage.invaccount.mapper.InvAccountMapper;
 import com.hqu.modules.inventorymanage.warehouse.entity.WareHouse;
 import com.hqu.modules.inventorymanage.warehouse.mapper.WareHouseMapper;
 import com.hqu.modules.purchasemanage.applymain.entity.ApplyDetail;
@@ -52,7 +54,6 @@ import com.jeeplus.modules.sys.mapper.UserMapper;
 import com.jeeplus.modules.sys.utils.UserUtils;
 import org.apache.shiro.authz.annotation.Logical;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
-import org.codehaus.groovy.runtime.InvokerHelper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -131,6 +132,9 @@ public class InvCheckMainController extends BaseController {
 
 	@Autowired
 	private InvCheckDetailMapper invCheckDetailMapper;
+
+	@Autowired
+	private InvAccountMapper invAccountMapper;
 	
 	@ModelAttribute
 	public InvCheckMain get(@RequestParam(required=false) String id) {
@@ -163,12 +167,21 @@ public class InvCheckMainController extends BaseController {
 	}
 	
 	/**
-	 * 采购到货审核列表页面
+	 * 采购退货审核列表页面
 	 */
 	@RequiresPermissions("purinvcheckmain:invCheckMain:list")
-	@RequestMapping(value = {"listAudit"})
-	public String listAudit() {
-		return "qualitymanage/purinvcheckmain/invCheckMainAuditList";
+	@RequestMapping(value = {"listBackAudit"})
+	public String listBackAudit() {
+		return "qualitymanage/purinvcheckmain/invCheckMainBackAuditList";
+	}
+
+	/**
+	 * 采购退货查询列表页面
+	 */
+	@RequiresPermissions("purinvcheckmain:invCheckMain:list")
+	@RequestMapping(value = {"listBackQuery"})
+	public String listBackQuery() {
+		return "qualitymanage/purinvcheckmain/invCheckMainBackQueryList";
 	}
 	
 	/**
@@ -204,6 +217,15 @@ public class InvCheckMainController extends BaseController {
 	@RequestMapping(value = "listBack")
 	public String listBack() {
 		return "qualitymanage/purinvcheckmain/invCheckMainWarehousingBackList";
+	}
+
+	/**
+	 * 采购退货列表页面
+	 */
+	@RequiresPermissions("purinvcheckmain:invCheckMain:list")
+	@RequestMapping(value = "listBackNew")
+	public String listBackNew() {
+		return "qualitymanage/purinvcheckmain/invCheckMainBackList";
 	}
 	
 	/**
@@ -322,6 +344,13 @@ public class InvCheckMainController extends BaseController {
 	@RequestMapping(value = {"dataQuery"})
 	public Map<String, Object> databack(InvCheckMain invCheckMain, HttpServletRequest request, HttpServletResponse response, Model model) {
 		List<InvCheckMain> list=invCheckMainService.findList(invCheckMain);
+		Iterator<InvCheckMain> it = list.iterator();
+		while(it.hasNext()){
+			InvCheckMain inv = it.next();
+			if("T".equals(inv.getBillType())){
+				it.remove();
+			}
+		}
 		invCheckMainService.ListToChinese(list);
 		Page<InvCheckMain> page=new Page<InvCheckMain>(request, response);
 		//分页
@@ -342,6 +371,43 @@ public class InvCheckMainController extends BaseController {
         }
 		return getBootstrapData(page);
 	}
+
+	/**
+	 * 采购退货(查询)列表数据
+	 */
+	@ResponseBody
+	@RequiresPermissions("purinvcheckmain:invCheckMain:list")
+	@RequestMapping(value = {"dataBackQuery"})
+	public Map<String, Object> dataBackQuery(InvCheckMain invCheckMain, HttpServletRequest request, HttpServletResponse response, Model model) {
+		invCheckMain.setBillType("T");
+		List<InvCheckMain> list=invCheckMainService.findList(invCheckMain);
+		Iterator<InvCheckMain> it = list.iterator();
+		while(it.hasNext()){
+			InvCheckMain inv = it.next();
+			if(!("T".equals(inv.getBillType()))){
+				it.remove();
+			}
+		}
+		invCheckMainService.ListToChinese(list);
+		Page<InvCheckMain> page=new Page<InvCheckMain>(request, response);
+		//分页
+		String intPage= request.getParameter("pageNo");
+		int pageNo=Integer.parseInt(intPage);
+		int pageSize= page.getPageSize();
+		page.setCount(list.size());
+		if(pageNo==1&&pageSize==-1){
+			page.setList(list);
+
+		}else{
+			List<InvCheckMain> reportL=  new ArrayList<InvCheckMain>();
+			for(int i=(pageNo-1)*pageSize;i<list.size()&& i<pageNo*pageSize;i++){
+				reportL.add(list.get(i));
+			}
+			page.setList(reportL);
+
+		}
+		return getBootstrapData(page);
+	}
 	
 	
 	/**
@@ -349,8 +415,9 @@ public class InvCheckMainController extends BaseController {
 	 */
 	@ResponseBody
 	@RequiresPermissions("purinvcheckmain:invCheckMain:list")
-	@RequestMapping(value = {"dataAudit"})
-	public Map<String, Object> dataAudit(InvCheckMain invCheckMain, HttpServletRequest request, HttpServletResponse response, Model model) {
+	@RequestMapping(value = {"dataBackAudit"})
+	public Map<String, Object> dataBackAudit(InvCheckMain invCheckMain, HttpServletRequest request, HttpServletResponse response, Model model) {
+		invCheckMain.setBillType("T");
 		invCheckMain.setBillStateFlag("W");
 		List<InvCheckMain> list=invCheckMainService.findListbyBillStateFlag(invCheckMain);
 		invCheckMainService.ListToChinese(list);
@@ -362,9 +429,8 @@ public class InvCheckMainController extends BaseController {
         page.setCount(list.size());
         if(pageNo==1&&pageSize==-1){
     	   page.setList(list);
-    	   
         }else{
-    	    List<InvCheckMain> reportL=  new ArrayList<InvCheckMain>();      
+    	    List<InvCheckMain> reportL=  new ArrayList<InvCheckMain>();
 	        for(int i=(pageNo-1)*pageSize;i<list.size()&& i<pageNo*pageSize;i++){
 	        	reportL.add(list.get(i));
 		    }
@@ -427,6 +493,36 @@ public class InvCheckMainController extends BaseController {
 	        page.setList(reportL);
 	        
         }
+		return getBootstrapData(page);
+	}
+
+	/**
+	 * 采购退货列表数据
+	 */
+	@ResponseBody
+	@RequiresPermissions("purinvcheckmain:invCheckMain:list")
+	@RequestMapping(value = {"dataBackNew"})
+	public Map<String, Object> dataBackNew(InvCheckMain invCheckMain, HttpServletRequest request, HttpServletResponse response, Model model) {
+		invCheckMain.setBillType("T");
+		invCheckMain.setBillStateFlag("A");
+		List<InvCheckMain> list = invCheckMainMapper.findListbyBillTypeAndState(invCheckMain);
+		invCheckMainService.ListToChinese(list);
+		Page<InvCheckMain> page = new Page<InvCheckMain>(request, response);
+		//分页
+		String intPage= request.getParameter("pageNo");
+		int pageNo=Integer.parseInt(intPage);
+		int pageSize= page.getPageSize();
+		page.setCount(list.size());
+		if(pageNo==1&&pageSize==-1){
+			page.setList(list);
+		}else{
+			List<InvCheckMain> reportL=  new ArrayList<InvCheckMain>();
+			for(int i=(pageNo-1)*pageSize;i<list.size() && i<pageNo*pageSize;i++){
+				reportL.add(list.get(i));
+			}
+			page.setList(reportL);
+
+		}
 		return getBootstrapData(page);
 	}
 	
@@ -499,17 +595,31 @@ public class InvCheckMainController extends BaseController {
 	}
 	
 	/**
-	 * 采购到货审核表单详情页面
+	 * 采购退货审核表单详情页面
 	 */
 	@RequiresPermissions(value="purinvcheckmain:invCheckMain:add")
-	@RequestMapping(value = "formAuditDetail")
-	public String formAuditDetail(InvCheckMain invCheckMain, Model model) {
+	@RequestMapping(value = "formBackAuditDetail")
+	public String formBackAuditDetail(InvCheckMain invCheckMain, Model model) {
 		invCheckMainService.toChinese(invCheckMain);
 		model.addAttribute("invCheckMain", invCheckMain);
 		if(StringUtils.isBlank(invCheckMain.getId())){//如果ID是空为添加
 			model.addAttribute("isAdd", true);
 		}
-		return "qualitymanage/purinvcheckmain/invCheckMainAuditForm";
+		return "qualitymanage/purinvcheckmain/invCheckMainBackAuditForm";
+	}
+
+	/**
+	 * 采购退货查询表单详情页面
+	 */
+	@RequiresPermissions(value="purinvcheckmain:invCheckMain:add")
+	@RequestMapping(value = "formBackQueryDetail")
+	public String formBackQueryDetail(InvCheckMain invCheckMain, Model model) {
+		invCheckMainService.toChinese(invCheckMain);
+		model.addAttribute("invCheckMain", invCheckMain);
+		if(StringUtils.isBlank(invCheckMain.getId())){//如果ID是空为添加
+			model.addAttribute("isAdd", true);
+		}
+		return "qualitymanage/purinvcheckmain/invCheckMainBackQueryForm";
 	}
 	
 	/**
@@ -549,9 +659,9 @@ public class InvCheckMainController extends BaseController {
 		invCheckMain.setBillnum(billn);
 		List<InvCheckMain> list = invCheckMainMapper.findList(invCheckMain);
 		if(list.isEmpty()){
-		model.addAttribute("invCheckMain", invCheckMain);
-		if(StringUtils.isBlank(invCheckMain.getId())){//如果ID是空为添加
-			model.addAttribute("isAdd", true);
+			model.addAttribute("invCheckMain", invCheckMain);
+			if(StringUtils.isBlank(invCheckMain.getId())){//如果ID是空为添加
+				model.addAttribute("isAdd", true);
 		}
 		return "qualitymanage/purinvcheckmain/invCheckMainCreatForm";
 		}
@@ -602,6 +712,49 @@ public class InvCheckMainController extends BaseController {
 		}
 		return "qualitymanage/purinvcheckmain/invCheckMainWarehousingBackForm";
 	}
+
+	/**
+	 * 查看采购退货单页面
+	 */
+	@RequiresPermissions(value={"purinvcheckmain:invCheckMain:view","purinvcheckmain:invCheckMain:edit"})
+	@RequestMapping(value = "formBackNew")
+	public String formBackNew(InvCheckMain invCheckMain, Model model) {
+		//生成流水号
+		String billn = creatBillnum();
+		invCheckMain.setBillnum(billn);
+		List<InvCheckMain> list = invCheckMainMapper.findList(invCheckMain);
+		//单据类型，单据状态等
+		invCheckMain.setBillType("T");
+		invCheckMain.setBillStateFlag("A");
+		invCheckMainService.setDefultIO(invCheckMain);
+		//校验流水号重复
+		if(list.isEmpty()){
+			invCheckMainService.toChinese(invCheckMain);
+			model.addAttribute("invCheckMain", invCheckMain);
+			if(StringUtils.isBlank(invCheckMain.getId())){//如果ID是空为添加
+				model.addAttribute("isAdd", true);
+			}
+			return "qualitymanage/purinvcheckmain/invCheckMainBackForm";
+		}
+		else
+			return "redirect:"+Global.getAdminPath()+"/purinvcheckmain/invCheckMain/formBackNew?repage";
+	}
+
+	/**
+	 * 查看采购退货单详情页面
+	 */
+	@RequiresPermissions(value={"purinvcheckmain:invCheckMain:view","purinvcheckmain:invCheckMain:edit"})
+	@RequestMapping(value = "formBackNewDetail")
+	public String formBackNewDetail(InvCheckMain invCheckMain, Model model) {
+		invCheckMainService.toChinese(invCheckMain);
+		model.addAttribute("invCheckMain", invCheckMain);
+		if(StringUtils.isBlank(invCheckMain.getId())){//如果ID是空为添加
+			model.addAttribute("isAdd", true);
+		}
+		return "qualitymanage/purinvcheckmain/invCheckMainBackForm";
+	}
+
+
 	/**
 	 * 查看采购到货查询详情表单页面
 	 */
@@ -624,16 +777,25 @@ public class InvCheckMainController extends BaseController {
 		if (!beanValidator(model, invCheckMain)){
 			return form(invCheckMain, model);
 		}
+		invCheckMainService.toFlag(invCheckMain);//标志位转换
 		//录入和生成提交之后直接转变为审核通过状态，生成二维码
-		invCheckMain.setBillStateFlag("E");
+		if(!("T".equals(invCheckMain.getBillType()))){
+			invCheckMain.setBillStateFlag("E");
+		}else{
+			invCheckMain.setBillStateFlag("W");
+		}
 		//保存登陆人所在部门编码
 		invCheckMain.setUserDeptCode(UserUtils.getUserOfficeCode());
-		invCheckMainService.toFlag(invCheckMain);//标志位转换
 		invCheckMainService.save(invCheckMain);//保存
-		addMessage(redirectAttributes, "提交采购到货成功");
+
 		if("M".equals(invCheckMain.getBillType())){
+			addMessage(redirectAttributes, "提交采购到货成功");
 			return "redirect:"+Global.getAdminPath()+"/purinvcheckmain/invCheckMain/?repage";
+		}else if("T".equals(invCheckMain.getBillType())) {
+			addMessage(redirectAttributes, "提交采购退货成功");
+			return "redirect:" + Global.getAdminPath() + "/purinvcheckmain/invCheckMain/listBackNew?repage";
 		}else{
+			addMessage(redirectAttributes, "提交采购到货成功");
 			return "redirect:"+Global.getAdminPath()+"/purinvcheckmain/invCheckMain/listCreat?repage";
 		}
 		
@@ -652,8 +814,17 @@ public class InvCheckMainController extends BaseController {
 		invCheckMain.setUserDeptCode(UserUtils.getUserOfficeCode());
 		invCheckMainService.toFlag(invCheckMain);//标志位转换
 		invCheckMainService.save(invCheckMain);//保存
-		addMessage(redirectAttributes, "保存采购到货管理成功");
-		return "redirect:"+Global.getAdminPath()+"/purinvcheckmain/invCheckMain/?repage";
+		if("M".equals(invCheckMain.getBillType())){
+			addMessage(redirectAttributes, "保存采购到货成功");
+			return "redirect:"+Global.getAdminPath()+"/purinvcheckmain/invCheckMain/?repage";
+		}else if("T".equals(invCheckMain.getBillType())){
+			addMessage(redirectAttributes, "保存采购退货成功");
+			return "redirect:"+Global.getAdminPath()+"/purinvcheckmain/invCheckMain/listBackNew?repage";
+		}else{
+			addMessage(redirectAttributes, "保存采购到货成功");
+			return "redirect:"+Global.getAdminPath()+"/purinvcheckmain/invCheckMain/listCreat?repage";
+		}
+
 	}
 	
 	/**
@@ -694,7 +865,7 @@ public class InvCheckMainController extends BaseController {
 	 * 保存采购到货审核
 	 */
 	@RequiresPermissions(value={"purinvcheckmain:invCheckMain:add","purinvcheckmain:invCheckMain:edit"},logical=Logical.OR)
-	@RequestMapping(value = "AuditSubmit")
+	@RequestMapping(value = "BackAuditSubmit")
 	public String saveAudit(InvCheckMain invCheckMain, Model model, RedirectAttributes redirectAttributes) throws Exception{
 		if (!beanValidator(model, invCheckMain)){
 			return form(invCheckMain, model);
@@ -703,8 +874,8 @@ public class InvCheckMainController extends BaseController {
 //		invCheckMain.setUserDeptCode(UserUtils.getUserOfficeCode());
 		invCheckMainService.toFlag(invCheckMain);//标志位转换
 		invCheckMainService.save(invCheckMain);//保存
-		addMessage(redirectAttributes, "提交采购到货审核成功");
-		return "redirect:"+Global.getAdminPath()+"/purinvcheckmain/invCheckMain/listAudit?repage";
+		addMessage(redirectAttributes, "提交采购退货审核成功");
+		return "redirect:"+Global.getAdminPath()+"/purinvcheckmain/invCheckMain/listBackAudit?repage";
 	}
 	
 	/**
@@ -1112,7 +1283,7 @@ public class InvCheckMainController extends BaseController {
 	 */
 	@ResponseBody
 	@RequestMapping(value = "databilltype")
-	public Map<String, Object> databilltype(@RequestParam(required=false) String wareID,PurPlanMain purPlanMain, HttpServletRequest request, HttpServletResponse response, Model model) {
+	public Map<String, Object> databilltype(@RequestParam(required=false) String wareID) {
 		//String wareID = request.getParameter("wareID");
 		Page<BillType> page = new Page<BillType>();
 		List<BillTypeWareHouse> billwarelist = new ArrayList<BillTypeWareHouse>();
@@ -1166,6 +1337,23 @@ public class InvCheckMainController extends BaseController {
 	    page1.setList(detaillistcontainer);
 		return getBootstrapData(page1);
 	}
+
+	/**
+	 * 根据合同ID获得已知合同内同物料到货量
+	 */
+	@ResponseBody
+	@RequestMapping(value = "getCurrentQty")
+	public Double getCurrentQty(@RequestParam(required=false) String conId, @RequestParam(required=false) String itemCode){
+		double qty;
+		if("".equals(conId) || conId == null){
+			return null;
+		}else{
+			double itemQty = invCheckMainMapper.getItemQtybyConIdandItemCode(conId,itemCode);
+			double currentQty = invCheckMainMapper.getCurrentQtybyConIdandItemCode(conId,itemCode);
+			qty =  itemQty - currentQty;
+			return qty;
+		}
+	}
 	
 	@ResponseBody
 	@RequestMapping(value = "dataRequest")
@@ -1188,6 +1376,29 @@ public class InvCheckMainController extends BaseController {
 	        page.setList(reportL);
 	        
         }
+		return getBootstrapData(page);
+	}
+
+	@ResponseBody
+	@RequestMapping(value = "dataInvAccount")
+	public Map<String, Object> dataInvAccount(InvAccount invAccount, HttpServletRequest request, HttpServletResponse response) {
+		List<InvAccount> list = invAccountMapper.findList(invAccount);
+		Page<InvAccount> page = new Page<>(request, response);
+		//分页
+		String intPage= request.getParameter("pageNo");
+		int pageNo=Integer.parseInt(intPage);
+		int pageSize= page.getPageSize();
+		page.setCount(list.size());
+		if(pageNo==1&&pageSize==-1){
+			page.setList(list);
+		}else{
+			List<InvAccount> reportL=  new ArrayList<>();
+			for(int i=(pageNo-1)*pageSize;i<list.size() && i<pageNo*pageSize;i++){
+				reportL.add(list.get(i));
+			}
+			page.setList(reportL);
+
+		}
 		return getBootstrapData(page);
 	}
 

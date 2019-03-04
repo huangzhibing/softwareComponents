@@ -70,7 +70,6 @@
                     $table.bootstrapTable('refresh');
                     jp.success(data.msg);
                     jp.close($topIndex);//关闭dialog
-
                 }else{
                     jp.error(data.msg);
                 }

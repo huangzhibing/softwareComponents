@@ -277,7 +277,7 @@ $(document).ready(function() {
 								<th>检验对象名称</th>
 								<th>问题类型</th>
 								<th>检验结论</th>
-                                <th>检验单编号</th>
+                                <th>机器序列号</th>
 								<th>检验日期</th>
 								<th>检验时间</th>
 								<th>检验人名称</th>

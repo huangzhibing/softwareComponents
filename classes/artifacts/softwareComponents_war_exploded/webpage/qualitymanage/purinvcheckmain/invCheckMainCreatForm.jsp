@@ -100,7 +100,9 @@
 				if(invCheckDetailRowIdx == 0){
 					jp.warning("请输入物料子表信息！");
 				}else{
-				    var t = qtyCtrl($("#contractId").val())
+				    var conId = $("#contractId").val();var itemCode = $("#invCheckDetailList0_itemId").val();
+				    console.log(conId,itemCode);
+				    var t = qtyCtrl(conId, itemCode);
 				    if(t==true){
                         jp.loading();
                         form.submit();
@@ -212,10 +214,10 @@
 			}
 		}
 
-    function qtyCtrl(conId){
+    function qtyCtrl(conId,itemCode){
         var flag = false;
         $.ajax({
-            url:"${ctx}/purinvcheckmain/invCheckMain/getCurrentQty?conId="+conId,
+            url:"${ctx}/purinvcheckmain/invCheckMain/getCurrentQty?conId="+conId+"&itemCode="+itemCode,
             type: "GET",
             cache:false,
             async:false,

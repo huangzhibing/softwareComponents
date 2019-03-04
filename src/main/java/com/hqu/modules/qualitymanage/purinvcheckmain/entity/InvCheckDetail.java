@@ -3,12 +3,12 @@
  */
 package com.hqu.modules.qualitymanage.purinvcheckmain.entity;
 
-import java.util.Date;
-
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.hqu.modules.basedata.item.entity.Item;
 import com.jeeplus.common.utils.excel.annotation.ExcelField;
 import com.jeeplus.core.persistence.DataEntity;
+
+import java.util.Date;
 
 /**
  * 入库通知单子表Entity
@@ -72,6 +72,10 @@ public class InvCheckDetail extends DataEntity<InvCheckDetail> {
 	private Double frontQty;
 	private Double maxQty;//可获得的最高到货量，到货量不大于计划或者合同量时使用
 	private Integer isPrint;//物料打印标志
+
+	private Item itemInvAccount;		// 库存账物料
+	private String itemInvAccountId;		// 库存账物料id
+	private String itemInvAccountCode;		// 库存账物料编码
 	
 	
 	
@@ -537,5 +541,28 @@ public class InvCheckDetail extends DataEntity<InvCheckDetail> {
 	public void setQmsFlag(String qmsFlag) {
 		this.qmsFlag = qmsFlag;
 	}
-	
+
+	public Item getItemInvAccount() {
+		return itemInvAccount;
+	}
+
+	public void setItemInvAccount(Item itemInvAccount) {
+		this.itemInvAccount = itemInvAccount;
+	}
+
+	public String getItemInvAccountCode() {
+		return itemInvAccountCode;
+	}
+
+	public void setItemInvAccountCode(String itemInvAccountCode) {
+		this.itemInvAccountCode = itemInvAccountCode;
+	}
+
+	public String getItemInvAccountId() {
+		return itemInvAccountId;
+	}
+
+	public void setItemInvAccountId(String itemInvAccountId) {
+		this.itemInvAccountId = itemInvAccountId;
+	}
 }

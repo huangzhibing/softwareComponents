@@ -462,6 +462,16 @@
 		</choose>
 	</select>
 
+	<select id="getCurrentQtybyConIdandItemCode" resultType="java.lang.Double" >
+		SELECT SUM(d.check_qty) FROM pur_invcheckdetail d
+		LEFT JOIN pur_invcheckmain a ON a.billnum = d.billnum
+		WHERE a.contract_id = #{conId} AND d.item_code = #{itemCode}
+	</select>
+
+    <select id="getItemQtybyConIdandItemCode" resultType="java.lang.Double" >
+        SELECT SUM(c.item_qty) FROM pur_contractdetail c
+        WHERE c.bill_num = #{conId} AND c.item_code = #{itemCode}
+	</select>
 
 	<select id="findListbyBillTypeAndStateAndItemBarCode" resultType="InvCheckMain" >
 		SELECT DISTINCT
@@ -473,7 +483,7 @@
 			${dataScope}
 			AND (n.handle_result LIKE '%入库%' or exists(
 				select billnum from pur_invcheckdetail x where
-					x.billnum = a.billnum and x.qms_flag = 0
+					x.billnum = a.billnum and x.qms_flag = 0 and a.bill_state_flag = 'E'
 			))
 			<if test="billStateFlag != null and billStateFlag != ''">
 				AND a.bill_state_flag = #{billStateFlag}
